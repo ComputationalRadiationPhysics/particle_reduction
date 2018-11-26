@@ -3,6 +3,26 @@
 import argparse
 import os
 
+class Particles_groups():
+    """ Collect values from datasets in hdf file """
+
+    def __init__(self, particles_name):
+        self.particles_groups = []
+        self.positions = []
+        self.name_particles = particles_name
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Group):
+            print('is instance group ')
+            name_idx = node.name.find(self.name_particles)
+            if name_idx != -1:
+                group_particles_name = node.name[name_idx + len(self.name_particles) + 1:]
+                if group_particles_name.endswith('position'):
+                    self.positions.append(node)
+                if group_particles_name.find('/') == -1 and len(group_particles_name) != 0:
+                    self.particles_groups.append(node)
+        return None
+
 def voronoi_algorithm(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
 
     print(' hdf file: ' + str(hdf_file))
