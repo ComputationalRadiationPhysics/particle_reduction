@@ -1,3 +1,16 @@
+""" Voronoi reduction algorithm """
+
+import argparse
+import os
+
+def voronoi_algorithm(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
+
+    print(' hdf file: ' + str(hdf_file))
+    print(' hdf file reduction ' + str(hdf_file_reduction))
+    print(' tolerance momentum  ' + str(tolerance_momentum))
+    print(' tolerance position ' + str(tolerance_position))
+
+
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
 
     name_hdf_file_reduction = ''
@@ -11,6 +24,7 @@ def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, toleranc
             else:
                 name_hdf_file_reduction = hdf_file_reduction + hdf_file[:-3] + '.h5'
 
+            voronoi_algorithm(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position)
         else:
             print('The .hdf file does not exist')
 
