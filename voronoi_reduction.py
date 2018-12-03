@@ -83,6 +83,11 @@ class Parametrs_reader():
             if node.name.endswith('weighting'):
                 self.weights = node.value
 
+    def get_parametrs(self):
+        for demention in self.data:
+            self.data[demention].set_weights(self.weights)
+
+
 class Particles_groups():
     """ Collect values from datasets in hdf file """
 
