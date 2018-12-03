@@ -2,6 +2,9 @@
 
 import argparse
 import os
+dict_parametrs_names = {'position/x', 'position/y', 'position/z', 'momentum/x', 'momentum/y', 'momentum/z'}
+
+
 class Particles_data():
 
     def __init__(self, name, data):
