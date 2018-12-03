@@ -20,6 +20,12 @@ class Dimentions_data():
         self.weights = weights
         self.sum_weights = numpy.sum(weights)
 
+    def get_statistical_average(self):
+        vector_mult = self.vector * self.weights
+        sum_mult = numpy.sum(vector_mult)
+        normalised_average = sum_mult / self.sum_weights
+        return normalised_average
+
 class Particles_data():
 
     def __init__(self, name, data):
