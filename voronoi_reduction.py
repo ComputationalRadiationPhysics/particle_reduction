@@ -63,6 +63,13 @@ class Particles_data():
         self.data = data
 
 
+class Parametrs_reader():
+
+    def __init__(self):
+        self.data = {}
+        self.weights = []
+
+
 class Particles_groups():
     """ Collect values from datasets in hdf file """
 
