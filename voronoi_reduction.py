@@ -2,6 +2,11 @@
 
 import argparse
 import os
+import h5py
+import re
+import numpy
+import math
+
 dict_parametrs_names = {'position/x', 'position/y', 'position/z', 'momentum/x', 'momentum/y', 'momentum/z'}
 
 
@@ -37,6 +42,12 @@ class Dimentions_data():
         normalised_values = math.sqrt(1 / self.sum_weights * sum_differences)
 
         return normalised_values
+
+    def get_lenght(self):
+        max_value = max(self.vector)
+        min_value = min(self.vector)
+
+        return max_value - min_value
 
 class Particles_data():
 
