@@ -124,6 +124,15 @@ def decode_name(attribute_name):
     return decoding_name
 
 
+
+def calculate_averages(weights, cell_values, sum_weights):
+
+    vector_mult = cell_values * weights
+    sum_mult = numpy.sum(vector_mult)
+    normalised_coordinate = sum_mult / sum_weights
+    return normalised_coordinate
+
+
 def calculate_standard_deviation(sum_weights, average_value, weights, cell_values):
 
     sum_differences = 0.
