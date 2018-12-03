@@ -2,6 +2,12 @@
 
 import argparse
 import os
+class Particles_data():
+
+    def __init__(self, name, data):
+        self.name_particles = name
+        self.data = data
+
 
 class Particles_groups():
     """ Collect values from datasets in hdf file """
