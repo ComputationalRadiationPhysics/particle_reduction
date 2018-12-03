@@ -70,6 +70,19 @@ class Parametrs_reader():
         self.weights = []
 
 
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+            for name in dict_parametrs_names:
+                if node.name.endswith(name):
+
+                    current_data = Dimentions_data(name, node.value)
+                    self.data[name] = current_data
+                    break
+
+            if node.name.endswith('weighting'):
+                self.weights = node.value
+
 class Particles_groups():
     """ Collect values from datasets in hdf file """
 
