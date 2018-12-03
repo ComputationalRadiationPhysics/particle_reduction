@@ -103,6 +103,19 @@ class Particles_groups():
                     self.particles_groups.append(node)
         return None
 
+
+def calculate_standard_deviation(sum_weights, average_value, weights, cell_values):
+
+    sum_differences = 0.
+
+    for i in range(0, len(weights)):
+        sum_differences += weights[i] * math.pow((cell_values[i] - average_value), 2.)
+
+    normalised_values = math.sqrt(1/sum_weights * sum_differences)
+
+    return normalised_values
+
+
 def voronoi_algorithm(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
 
     print(' hdf file: ' + str(hdf_file))
