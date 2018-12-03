@@ -16,6 +16,10 @@ class Dimentions_data():
         self.sum_weights = -1.
 
 
+    def set_weights(self, weights):
+        self.weights = weights
+        self.sum_weights = numpy.sum(weights)
+
 class Particles_data():
 
     def __init__(self, name, data):
