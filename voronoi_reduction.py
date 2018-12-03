@@ -124,6 +124,24 @@ def decode_name(attribute_name):
     return decoding_name
 
 
+def collect_cell_parametrs(hdf_file_name):
+
+    hdf_file = h5py.File(hdf_file_name)
+    particles_name = get_particles_name(hdf_file)
+    hdf_datasets = Particles_groups(particles_name)
+    hdf_file.visititems(hdf_datasets)
+
+    links_array = []
+
+    for key in hdf_datasets.particles_groups:
+        particles_parametrs = Parametrs_reader()
+        key.visititems(particles_parametrs)
+        data = particles_parametrs.get_parametrs()
+        current_particles_data = Particles_data(key.name, data)
+        links_array.append(current_particles_data)
+
+    return links_array
+
 
 def calculate_averages(weights, cell_values, sum_weights):
 
