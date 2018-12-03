@@ -165,6 +165,9 @@ def calculate_standard_deviation(sum_weights, average_value, weights, cell_value
 
 def voronoi_algorithm(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
 
+    links_array = collect_cell_parametrs(hdf_file)
+
+
     print(' hdf file: ' + str(hdf_file))
     print(' hdf file reduction ' + str(hdf_file_reduction))
     print(' tolerance momentum  ' + str(tolerance_momentum))
