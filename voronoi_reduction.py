@@ -5,6 +5,17 @@ import os
 dict_parametrs_names = {'position/x', 'position/y', 'position/z', 'momentum/x', 'momentum/y', 'momentum/z'}
 
 
+class Dimentions_data():
+
+    def __init__(self, name, vector):
+        self.vector = numpy.array(vector)
+        self.name = name
+        self.standard_deviation = -1.
+        self.lenght = -1.
+        self.weights = []
+        self.sum_weights = -1.
+
+
 class Particles_data():
 
     def __init__(self, name, data):
