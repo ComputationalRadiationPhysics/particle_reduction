@@ -26,6 +26,18 @@ class Dimentions_data():
         normalised_average = sum_mult / self.sum_weights
         return normalised_average
 
+    def get_standard_deviation(self):
+        average_value = self.get_statistical_average()
+
+        sum_differences = 0.
+
+        for i in range(0, len(self.weights)):
+            sum_differences += self.weights[i] * math.pow((self.vector[i] - average_value), 2)
+
+        normalised_values = math.sqrt(1 / self.sum_weights * sum_differences)
+
+        return normalised_values
+
 class Particles_data():
 
     def __init__(self, name, data):
