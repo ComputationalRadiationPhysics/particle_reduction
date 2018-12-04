@@ -179,6 +179,17 @@ def calculate_standard_deviation(sum_weights, average_value, weights, cell_value
     return normalised_values
 
 
+def find_max_variation_dimention(particles):
+    max_variation_coefficient = -1.
+    parameter_max_dimention = ''
+    for parameter in dict_parametrs_names:
+        current_variation_coefficient = particles.data[parameter].get_coefficient_variation()
+        if current_variation_coefficient > max_variation_coefficient:
+            max_variation_coefficient = current_variation_coefficient
+            parameter_max_dimention = parameter
+
+    return max_variation_coefficient, parameter_max_dimention
+
 
 def devide_cells(parameter_max_dimention, particles):
 
