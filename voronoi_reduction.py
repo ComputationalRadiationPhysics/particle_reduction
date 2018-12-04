@@ -6,6 +6,7 @@ import h5py
 import re
 import numpy
 import math
+import queue
 
 dict_parametrs_names = {'position/x', 'position/y', 'position/z', 'momentum/x', 'momentum/y', 'momentum/z'}
 
@@ -19,6 +20,7 @@ class Dimentions_data():
         self.lenght = -1.
         self.weights = []
         self.sum_weights = -1.
+        self.coefficient_variation = -1.
 
 
     def set_weights(self, weights):
@@ -54,6 +56,9 @@ class Dimentions_data():
         lenght = self.get_lenght()
 
         return deviation/lenght
+
+    def __cmp__(self, other):
+        return self.coefficient_variation > other.coefficient_variation
 
 
 class Particles_data():
