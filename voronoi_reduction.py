@@ -61,8 +61,10 @@ class Dimentions_data():
         return max_value - min_value
 
     def get_coefficient_variation(self):
+
         deviation = self.get_standard_deviation()
         lenght = self.get_lenght()
+        self.coefficient_variation = deviation/lenght
 
         return deviation/lenght
 
