@@ -198,6 +198,18 @@ def find_max_variation_dimention(particles):
     return max_variation_coefficient, parameter_max_dimention
 
 
+def reduce_particles(particles):
+
+    q = queue.PriorityQueue()
+    tolerance = 0.0001
+    max_variation_coefficient = 100
+    while max_variation_coefficient > tolerance:
+        max_variation_coefficient, parameter_max_dimention = find_max_variation_dimention(particles)
+        first_hyperline, secound_hyperline = devide_cells(parameter_max_dimention, particles)
+        q.put(first_hyperline)
+        q.put(secound_hyperline)
+
+
 def devide_cells(parameter_max_dimention, particles):
 
     first_hyperline = particles
@@ -211,6 +223,8 @@ def voronoi_algorithm(hdf_file, hdf_file_reduction, tolerance_momentum, toleranc
 
     links_array = collect_cell_parametrs(hdf_file)
 
+    for particles in links_array:
+        reduce_particles(particles)
 
     print(' hdf file: ' + str(hdf_file))
     print(' hdf file reduction ' + str(hdf_file_reduction))
