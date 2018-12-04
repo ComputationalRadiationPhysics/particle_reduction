@@ -23,6 +23,11 @@ class Dimentions_data():
         self.sum_weights = -1.
         self.coefficient_variation = -1.
 
+    def get_first_hyperiline(self):
+        self.weights = self.weights[0: len(self.weights)/2]
+
+    def get_second_hyperiline(self):
+        self.weights = self.weights[len(self.weights)/2 + 1: len(self.weights)]
 
     def set_weights(self, weights):
         self.weights = weights
