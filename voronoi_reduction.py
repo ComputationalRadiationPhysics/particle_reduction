@@ -15,6 +15,7 @@ class Dimentions_data():
 
     def __init__(self, name, vector):
         self.vector = numpy.array(vector)
+        self.indexes = []
         self.name = name
         self.standard_deviation = -1.
         self.lenght = -1.
@@ -26,6 +27,9 @@ class Dimentions_data():
     def set_weights(self, weights):
         self.weights = weights
         self.sum_weights = numpy.sum(weights)
+
+    def set_idxes(self, idx):
+        self.weights = idx
 
     def get_statistical_average(self):
         vector_mult = self.vector * self.weights
@@ -73,7 +77,7 @@ class Parametrs_reader():
     def __init__(self):
         self.data = {}
         self.weights = []
-
+        self.idx = []
 
     def __call__(self, name, node):
 
@@ -91,6 +95,8 @@ class Parametrs_reader():
     def get_parametrs(self):
         for demention in self.data:
             self.data[demention].set_weights(self.weights)
+            self.data[demention].set_idxes(self.idx)
+        return self.data
 
 
 class Particles_groups():
