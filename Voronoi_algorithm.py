@@ -11,3 +11,12 @@ class Voronoi_merging_algorithm_parametrs:
         """..."""
         self.tolerance = tolerance
 
+
+class Voronoi_merging_algorithm:
+    def __init__(self, parameters):
+        self.parameters = parameters
+
+    def run(self, points):
+        """Points is a collection of Point"""
+        return _merge(points, self.parameters)
+
