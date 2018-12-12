@@ -61,3 +61,21 @@ def merge_coordinates(demention, merged_points):
     result.append(Point(full_values, weights))
     return result
 
+
+def merge_momentum(demention, merged_points):
+
+    weights = 0.
+    full_values = []
+    for i in range(0, demention):
+        value = 0
+        for point in merged_points['momentum']:
+            value += point.coords[i]
+        full_values.append(value)
+
+    for point in merged_points['momentum']:
+        weights += point.weight
+
+    result = []
+    result.append(Point(full_values, weights))
+    return result
+
