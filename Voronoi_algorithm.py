@@ -38,8 +38,18 @@ class _Voronoi_cell:
         """component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
     def merge(self):
-        pass
-        """Get one point out of all points in the cell, return Point"""
+
+        first_key = list(self.points.keys())[0]
+        demention = len(self.points[first_key][0].coords)
+
+        for key in self.points.keys():
+
+            if key == 'momentum':
+                self.points['momentum'] = merge_momentum(demention, self.points)
+            if key == 'position':
+                self.points['position'] = merge_coordinates(demention, self.points)
+ #       """Get one point out of all points in the cell, return Point"""
+
 
 def merge_coordinates(demention, merged_points):
 
