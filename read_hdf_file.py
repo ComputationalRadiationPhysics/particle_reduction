@@ -47,6 +47,30 @@ class Position_reader():
 
         return None
 
+
+class Momentum_reader():
+    """ Collect values from datasets in hdf file """
+
+    def __init__(self):
+        self.x_momentum = []
+        self.y_momentum = []
+        self.z_momentum = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Dataset):
+            print('name == ' + str(node.name))
+            if node.name.endswith('momentum/x'):
+                self.x_momentum = node.value
+
+            if node.name.endswith('momentum/y'):
+                self.y_momentum = node.value
+
+            if node.name.endswith('momentum/z'):
+                self.z_momentum = node.value
+
+        return None
+
+
 def get_particles_name(hdf_file):
     """ Get name of particles group """
 
