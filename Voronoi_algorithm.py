@@ -51,6 +51,42 @@ class _Voronoi_cell:
 
         return max_idx, max_key, max_avg
 
+
+    def divide(self, max_idx, max_key):
+        new_points = copy.deepcopy(self.points)
+        max_value = float("-inf")
+        min_value = float("inf")
+        
+        copy_points = copy.deepcopy(new_points[max_key])
+        del new_points[max_key]
+        del self.points[max_key]
+
+        for point in copy_points:
+            if max_value < point.coords[max_idx]:
+                max_value = point.coords[max_idx]
+
+            if min_value > point.coords[max_idx]:
+                min_value = point.coords[max_idx]
+
+        middle_value = (max_value - min_value)/2.
+
+        array_first = []
+        array_secound = []
+        for point in copy_points:
+            if point.coords[max_idx] > middle_value:
+                array_first.append(point)
+            else:
+                array_secound.append(point)
+
+        new_points[max_key] = array_first
+        self.points[max_key] = array_secound
+        first_cell = _Voronoi_cell(new_points)
+        secound_cell = _Voronoi_cell(new_points)
+
+        return first_cell, secound_cell
+        #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
+
+
     def merge(self):
 
         first_key = list(self.points.keys())[0]
