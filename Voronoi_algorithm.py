@@ -116,3 +116,18 @@ def weighted_avg(values, weights):
     variance = numpy.average((values-average)**2, weights=weights)
     return math.sqrt(variance)
 
+
+
+def check_needs_subdivision(parameters, max_avg, max_key):
+    # first -- momentum
+    # secound -- coord
+
+    position_tolerance = parameters.tolerance[0]
+    momentum_tolerance = parameters.tolerance[1]
+
+    if max_key == 'position':
+        return max_avg > position_tolerance
+
+    if max_key == 'momentum':
+        return max_avg > momentum_tolerance
+
