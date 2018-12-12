@@ -47,3 +47,14 @@ class Position_reader():
 
         return None
 
+def get_particles_name(hdf_file):
+    """ Get name of particles group """
+
+    particles_name = ''
+    if hdf_file.attrs.get('particlesPath') != None:
+        particles_name = hdf_file.attrs.get('particlesPath')
+        particles_name = decode_name(particles_name)
+    else:
+        particles_name = 'particles'
+    return particles_name
+
