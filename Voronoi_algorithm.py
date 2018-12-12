@@ -89,3 +89,17 @@ def merge_momentum(demention, merged_points):
     result.append(Point(full_values, weights))
     return result
 
+
+def get_max_coef(avg_keys):
+
+    max_value = float("-inf")
+    max_idx = -1
+    max_key = ''
+    for key in avg_keys:
+        for i in range(0, len(avg_keys[key])):
+            if avg_keys[key][i] > max_value:
+                max_value = avg_keys[key][i]
+                max_idx = i
+                max_key = key
+
+    return max_idx, max_key, max_value
