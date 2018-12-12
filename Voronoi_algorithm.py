@@ -103,3 +103,16 @@ def get_max_coef(avg_keys):
                 max_key = key
 
     return max_idx, max_key, max_value
+
+
+def weighted_avg(values, weights):
+    """
+    Return the weighted average and standard deviation.
+
+    values, weights -- Numpy ndarrays with the same shape.
+    """
+    average = numpy.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = numpy.average((values-average)**2, weights=weights)
+    return math.sqrt(variance)
+
