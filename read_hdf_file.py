@@ -24,3 +24,26 @@ class Particles_groups():
                     self.momentum.append(node)
         return None
 
+
+class Position_reader():
+    
+
+    def __init__(self):
+        self.x_coord = []
+        self.y_coord = []
+        self.z_coord = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Dataset):
+            print('name == ' + str(node.name))
+            if node.name.endswith('position/x'):
+                self.x_coord = node.value
+
+            if node.name.endswith('position/y'):
+                self.y_coord = node.value
+
+            if node.name.endswith('position/z'):
+                self.z_coord = node.value
+
+        return None
+
