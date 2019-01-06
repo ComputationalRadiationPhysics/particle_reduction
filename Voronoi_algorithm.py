@@ -174,24 +174,27 @@ def weighted_avg(values, weights):
 
 def _merge(points, parameters):
     initial_cell = _Voronoi_cell(points)
-    max_idx, max_key, max_avg = initial_cell.get_coeff_var()
-    initial_cell.merge()
+
     result = []
     cells = [initial_cell]
 
     while len(cells) > 0:
         cell = cells[0]
+
         max_idx, max_key, max_avg = cell.get_coeff_var()
         needs_subdivision = check_needs_subdivision(parameters, max_avg, max_key)
-       #  compare coeff_var with parameters
+
         if needs_subdivision:
+
             first_part_cell, secound_part_cell = cell.divide(max_idx, max_key)
-            cells.append(first_part_cell)
             cells.append(secound_part_cell)
+            cells.append(first_part_cell)
         else:
-            new_particle = cell.merge()
+            cell.merge()
+            new_particle = copy.deepcopy(cell)
             result.append(new_particle)
-        del cells[0]
+
+        cells.remove(cells[0])
 
     return result
 
