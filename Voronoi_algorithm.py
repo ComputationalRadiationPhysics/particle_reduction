@@ -56,38 +56,40 @@ class _Voronoi_cell:
 
         return max_idx, max_key, max_avg
 
-
     def divide(self, max_idx, max_key):
-        new_points = copy.deepcopy(self.points)
+
         max_value = float("-inf")
         min_value = float("inf")
-        
-        copy_points = copy.deepcopy(new_points[max_key])
-        del new_points[max_key]
-        del self.points[max_key]
 
-        for point in copy_points:
+
+        for point in self.points[max_key]:
             if max_value < point.coords[max_idx]:
                 max_value = point.coords[max_idx]
 
             if min_value > point.coords[max_idx]:
                 min_value = point.coords[max_idx]
 
-        middle_value = (max_value - min_value)/2.
 
-        array_first = []
-        array_secound = []
-        for point in copy_points:
-            if point.coords[max_idx] > middle_value:
-                array_first.append(point)
+        middle_value = (max_value + min_value)/2.
+
+        array_first = {}
+        array_secound = {}
+
+        array_first['position'] = []
+        array_first['momentum'] = []
+        array_secound['position'] = []
+        array_secound['momentum'] = []
+
+        for i in range(0, len(self.points[max_key])):
+            if self.points[max_key][i].coords[max_idx] > middle_value:
+                for keys in self.points:
+                       array_first[keys].append(self.points[keys][i])
             else:
-                array_secound.append(point)
+                for keys in self.points:
+                    array_secound[keys].append(self.points[keys][i])
 
-        new_points[max_key] = array_first
-        self.points[max_key] = array_secound
-        first_cell = _Voronoi_cell(new_points)
-        secound_cell = _Voronoi_cell(new_points)
-
+        first_cell = _Voronoi_cell(array_first)
+        secound_cell = _Voronoi_cell(array_secound)
         return first_cell, secound_cell
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
