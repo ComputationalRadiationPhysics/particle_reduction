@@ -1,4 +1,8 @@
+from shutil import copyfile
+import read_hdf_file
 import argparse
+import os
+import h5py
 
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
 
@@ -14,10 +18,23 @@ def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, toleranc
                 name_hdf_file_reduction = hdf_file_reduction + hdf_file[:-3] + '.h5'
 
             tolerances = [tolerance_momentum, tolerance_position]
-           
+            voronoi_algorithm(hdf_file, hdf_file_reduction, tolerances)
         else:
             print('The .hdf file does not exist')
 
+
+def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
+
+    copyfile(hdf_file_name, hdf_file_reduction_name)
+
+    hdf_file = h5py.File(hdf_file_name, 'a')
+    hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
+    particles_name = read_hdf_file.get_particles_name(hdf_file)
+
+    particles_collect = read_hdf_file.Particles_groups(particles_name)
+    hdf_file.visititems(particles_collect)
+    for group in particles_collect.particles_groups:
+        read_hdf_file.particle_group_iteration(group, hdf_file_reduction, tolerances)
 
 if __name__ == "__main__":
 
