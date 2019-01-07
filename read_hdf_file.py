@@ -38,15 +38,53 @@ class Particles_groups():
                     self.particles_groups.append(node)
         return None
 
+
+class Dataset_writter():
+
+    def __init__(self, hdf_file, result_points, name_dataset):
+
+        self.vector_x = []
+        self.vector_y = []
+        self.vector_z = []
+        self.hdf_file = hdf_file
+        self.name_dataset = name_dataset
+
+        self.demention = len(result_points[0].points[self.name_dataset][0].coords)
+
+        for point in result_points:
+
+            if point.points[self.name_dataset] != None:
+
+                vector_coords = point.points[self.name_dataset][0].coords
+                if self.demention == 2:
+                    self.vector_x.append(vector_coords[0])
+                    self.vector_y.append(vector_coords[1])
+                if self.demention == 3:
+                    self.vector_x.append(vector_coords[0])
+                    self.vector_y.append(vector_coords[1])
+                    self.vector_y.append(vector_coords[2])
+
     def __call__(self, name, node):
+
         if isinstance(node, h5py.Dataset):
 
             dataset_x = self.name_dataset + '/x'
             dataset_y = self.name_dataset + '/y'
             dataset_z = self.name_dataset + '/z'
 
-            if node.name.endswith('position/z'):
-                self.z_coord = node.value
+            if node.name.endswith(dataset_x):
+                node_name = node.name
+                del self.hdf_file[node_name]
+                dset = self.hdf_file.create_dataset(node.name, data=self.vector_x)
+            if node.name.endswith(dataset_y):
+                node_name = node.name
+                del self.hdf_file[node_name]
+                dset = self.hdf_file.create_dataset(node.name, data=self.vector_y)
+
+            if node.name.endswith(dataset_z):
+                node_name = node.name
+                del self.hdf_file[node_name]
+                dset = self.hdf_file.create_dataset(node.name, data=self.vector_z)
 
         return None
 
