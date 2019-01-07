@@ -36,24 +36,25 @@ class _Voronoi_cell:
         first_key = list(self.points.keys())[0]
         demention = len(self.points[first_key][0].coords)
 
+
         avg_keys = {}
 
-        for keys in self.points.keys():
+        for key in self.points.keys():
+
             avg_values = []
+
             for i in range(0, demention):
                 values = []
                 weights = []
-
-                for points in self.points[keys]:
+                for points in self.points[key]:
                     values.append(points.coords[i])
                     weights.append(points.weight)
 
                 avg = weighted_avg(values, weights)
                 avg_values.append(avg)
-            avg_keys[keys] = avg_values
+            avg_keys[key] = avg_values
 
         max_idx, max_key, max_avg = get_max_coef(avg_keys)
-
         return max_idx, max_key, max_avg
 
     def divide(self, max_idx, max_key):

@@ -1,5 +1,7 @@
 import h5py
 import re
+import Voronoi_algorithm
+from shutil import copyfile
 
 class Particles_functor():
     """ Collect values from datasets in hdf file """
@@ -148,4 +150,22 @@ def decode_name(attribute_name):
     decoding_name = attribute_name.decode('ascii', errors='ignore')
     decoding_name = re.sub(r'\W+', '', decoding_name)
     return decoding_name
+
+
+def particle_group_iteration(group, hdf_file_reduction, tolerances):
+
+    hdf_datasets = Particles_functor()
+    group.visititems(hdf_datasets)
+    mass = hdf_datasets.mass
+    position_values = Dataset_reader('position')
+    momentum_values = Dataset_reader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+    result = Voronoi_algorithm.run_algorithm(position_values, momentum_values, mass, tolerances)
+    writen_position = Dataset_writter(hdf_file_reduction, result, 'position')
+    writen_momentum = Dataset_writter(hdf_file_reduction, result, 'momentum')
+    position_group.visititems(writen_position)
+    momentum_group.visititems(writen_momentum)
 
