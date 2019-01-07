@@ -115,6 +115,20 @@ class Dataset_reader():
 
         return None
 
+    def get_demention(self):
+
+        size = 0
+        if len(self.vector_x) > 0:
+            if len(self.vector_y) > 0:
+                if len(self.vector_z) > 0:
+                    size = 3
+                else:
+                    size = 2
+            else:
+                size = 1
+
+        return size
+
 
 def get_particles_name(hdf_file):
     """ Get name of particles group """
