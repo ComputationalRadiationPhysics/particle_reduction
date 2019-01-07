@@ -232,3 +232,17 @@ def create_point_array(coord_collection, mass):
 
     return point_array
 
+
+def run_algorithm(coord_collect, momuntum_collect, mass, tolerances):
+
+    pointArraysCoord = create_point_array(coord_collect, mass)
+    pointMomentum = create_point_array(momuntum_collect, mass)
+
+    points = {}
+    points['position'] = pointArraysCoord
+    points['momentum'] = pointMomentum
+
+    paramerts = Voronoi_merging_algorithm_parametrs(tolerances)
+    algorithm = Voronoi_merging_algorithm(paramerts)
+    result = algorithm.run(points)
+    return result
