@@ -27,22 +27,20 @@ class Particles_groups():
         return None
 
 
-class Position_reader():
-    
+class Particles_groups():
 
-    def __init__(self):
-        self.x_coord = []
-        self.y_coord = []
-        self.z_coord = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Group):
+            name_idx = node.name.find(self.name_particles)
+            if name_idx != -1:
 
     def __call__(self, name, node):
         if isinstance(node, h5py.Dataset):
-            print('name == ' + str(node.name))
-            if node.name.endswith('position/x'):
-                self.x_coord = node.value
 
-            if node.name.endswith('position/y'):
-                self.y_coord = node.value
+            dataset_x = self.name_dataset + '/x'
+            dataset_y = self.name_dataset + '/y'
+            dataset_z = self.name_dataset + '/z'
 
             if node.name.endswith('position/z'):
                 self.z_coord = node.value
@@ -50,25 +48,29 @@ class Position_reader():
         return None
 
 
-class Momentum_reader():
+class Dataset_reader():
     """ Collect values from datasets in hdf file """
 
-    def __init__(self):
-        self.x_momentum = []
-        self.y_momentum = []
-        self.z_momentum = []
+    def __init__(self, name_dataset):
+        self.vector_x = []
+        self.vector_y = []
+        self.vector_z = []
+        self.name_dataset = name_dataset
 
     def __call__(self, name, node):
+
+        dataset_x = self.name_dataset + '/x'
+        dataset_y = self.name_dataset + '/y'
+        dataset_z = self.name_dataset + '/z'
         if isinstance(node, h5py.Dataset):
-            print('name == ' + str(node.name))
-            if node.name.endswith('momentum/x'):
-                self.x_momentum = node.value
+            if node.name.endswith(dataset_x):
+                self.vector_x = node.value
 
-            if node.name.endswith('momentum/y'):
-                self.y_momentum = node.value
+            if node.name.endswith(dataset_y):
+                self.vector_y = node.value
 
-            if node.name.endswith('momentum/z'):
-                self.z_momentum = node.value
+            if node.name.endswith(dataset_z):
+                self.vector_z = node.value
 
         return None
 
