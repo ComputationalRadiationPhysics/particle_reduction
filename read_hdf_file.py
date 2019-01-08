@@ -4,6 +4,7 @@ import Voronoi_algorithm
 from shutil import copyfile
 
 class Particles_functor():
+
     """ Collect values from datasets in hdf file """
 
     def __init__(self):
@@ -11,6 +12,7 @@ class Particles_functor():
         self.positions = []
         self.momentum = []
         self.mass = []
+
 
     def __call__(self, name, node):
         if isinstance(node, h5py.Group):
@@ -26,6 +28,7 @@ class Particles_functor():
 
 
 class Particles_groups():
+
     def __init__(self, particles_name):
 
         self.name_particles = particles_name
@@ -89,6 +92,22 @@ class Dataset_writter():
                 dset = self.hdf_file.create_dataset(node_name, data=self.vector_z)
 
         return None
+
+class Mass_writter():
+
+    def __init__(self, hdf_file, result_points):
+        self.hdf_file = hdf_file
+        self.mass = []
+
+        for point in result_points:
+            if point.points['position'] != None:
+                self.mass.append(point.points['position'][0].weight)
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Group):
+            if node.name.endswith('mass'):
+                temp_group = self.hdf_file[node.name]
+                temp_group.create_dataset('mass', data=self.mass)
 
 
 class Dataset_reader():
@@ -163,9 +182,12 @@ def particle_group_iteration(group, hdf_file_reduction, tolerances):
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
+
     result = Voronoi_algorithm.run_algorithm(position_values, momentum_values, mass, tolerances)
     writen_position = Dataset_writter(hdf_file_reduction, result, 'position')
     writen_momentum = Dataset_writter(hdf_file_reduction, result, 'momentum')
+    writen_mass = Mass_writter(hdf_file_reduction, result)
+    group.visititems(writen_mass)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
 
