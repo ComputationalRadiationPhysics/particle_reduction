@@ -18,6 +18,20 @@ class Mass_reader():
             if node.name.endswith('mass'):
                 self.mass = node.value
 
+
+def convert_mass_to_array(mass, size_of_positions):
+
+    new_array_according_positions = []
+
+    if len(mass) == 1:
+        for i in range(0, size_of_positions):
+            new_array_according_positions.append(mass[0])
+    else:
+        new_array_according_positions = mass
+
+    return new_array_according_positions
+
+
 def count_weight_coordinates_difference(first_group, second_group):
 
     hdf_datasets = read_hdf_file.Particles_functor()
@@ -30,7 +44,7 @@ def count_weight_coordinates_difference(first_group, second_group):
 
     size_of_positions_first = len(position_values_first.vector_x)
     position_values_first.get_demention()
-
+    convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
 
     hdf_datasets = read_hdf_file.Particles_functor()
     second_group.visititems(hdf_datasets)
@@ -40,7 +54,8 @@ def count_weight_coordinates_difference(first_group, second_group):
     mass_reader_second = Mass_reader(second_group)
     second_group.visititems(mass_reader_second)
     size_of_positions_second = len(position_values_second.vector_x)
-  
+    convert_mass_to_array(mass_reader_second.mass, size_of_positions_second)
+
 
 def compare_weight_coordinates(first_hdf_file_name, second_hdf_file_name):
 
