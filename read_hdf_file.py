@@ -76,17 +76,17 @@ class Dataset_writter():
 
             if node.name.endswith(dataset_x):
                 node_name = node.name
-                del self.hdf_file[node_name]
-                dset = self.hdf_file.create_dataset(node.name, data=self.vector_x)
-            if node.name.endswith(dataset_y):
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x)
+            elif node.name.endswith(dataset_y):
                 node_name = node.name
-                del self.hdf_file[node_name]
-                dset = self.hdf_file.create_dataset(node.name, data=self.vector_y)
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y)
 
-            if node.name.endswith(dataset_z):
+            elif node.name.endswith(dataset_z):
                 node_name = node.name
-                del self.hdf_file[node_name]
-                dset = self.hdf_file.create_dataset(node.name, data=self.vector_z)
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z)
 
         return None
 
