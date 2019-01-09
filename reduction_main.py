@@ -29,7 +29,7 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
     hdf_file = h5py.File(hdf_file_name, 'a')
     hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
-    particles_name = read_hdf_file.get_particles_name(hdf_file)
+    particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
 
     particles_collect = read_hdf_file.Particles_groups(particles_name)
     hdf_file.visititems(particles_collect)
