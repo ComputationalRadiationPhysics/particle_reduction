@@ -69,7 +69,8 @@ def count_weight_coordinates_difference(first_group, second_group):
 
     size_of_positions_first = len(position_values_first.vector_x)
     position_values_first.get_demention()
-    convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
+    first_mass = convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
+    sum_first = compute_weight_positions_sum(first_mass, position_values_first)
 
     hdf_datasets = read_hdf_file.Particles_functor()
     second_group.visititems(hdf_datasets)
@@ -79,7 +80,9 @@ def count_weight_coordinates_difference(first_group, second_group):
     mass_reader_second = Mass_reader(second_group)
     second_group.visititems(mass_reader_second)
     size_of_positions_second = len(position_values_second.vector_x)
-    convert_mass_to_array(mass_reader_second.mass, size_of_positions_second)
+    second_mass = convert_mass_to_array(mass_reader_second.mass, size_of_positions_second)
+
+    sum_second = compute_weight_positions_sum(second_mass, position_values_second)
 
 def count_weight_momentum_difference(first_group, second_group):
 
