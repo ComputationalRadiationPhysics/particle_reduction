@@ -32,6 +32,31 @@ def convert_mass_to_array(mass, size_of_positions):
     return new_array_according_positions
 
 
+
+def compute_weight_positions_sum(mass, position_values):
+
+    demention = position_values.get_demention()
+
+    sum_x = 0.
+    sum_y = 0.
+    sum_z = 0.
+
+    if demention == 3:
+        size_of_position = len(position_values.vector_x)
+        for i in range(0, size_of_position):
+            sum_x += position_values.vector_x[i] * mass[i]
+            sum_y += position_values.vector_y[i] * mass[i]
+            sum_z += position_values.vector_z[i] * mass[i]
+
+    elif demention == 2:
+        size_of_position = len(position_values.vector_x)
+        for i in range(0, size_of_position):
+            sum_x += position_values.vector_x[i] * mass[i]
+            sum_y += position_values.vector_y[i] * mass[i]
+
+    return sum_x, sum_y, sum_z
+
+
 def count_weight_coordinates_difference(first_group, second_group):
 
     hdf_datasets = read_hdf_file.Particles_functor()
