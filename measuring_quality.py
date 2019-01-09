@@ -81,6 +81,40 @@ def count_weight_coordinates_difference(first_group, second_group):
     size_of_positions_second = len(position_values_second.vector_x)
     convert_mass_to_array(mass_reader_second.mass, size_of_positions_second)
 
+def count_weight_momentum_difference(first_group, second_group):
+
+    print('weight momentum')
+
+    hdf_datasets = read_hdf_file.Particles_functor()
+    first_group.visititems(hdf_datasets)
+    momentum_group_first = hdf_datasets.momentum[0]
+    momentum_values_first = read_hdf_file.Dataset_reader('momentum')
+    momentum_group_first.visititems(momentum_values_first)
+    mass_reader_first = Mass_reader(first_group)
+    first_group.visititems(mass_reader_first)
+
+    size_of_positions_first = len(momentum_values_first.vector_x)
+    momentum_values_first.get_demention()
+    first_mass = convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
+    sum_first = compute_weight_positions_sum(first_mass, momentum_values_first)
+
+    print('first sum == ' + str(sum_first))
+
+    hdf_datasets = read_hdf_file.Particles_functor()
+    second_group.visititems(hdf_datasets)
+    momentum_group_second = hdf_datasets.momentum[0]
+    momentum_values_second = read_hdf_file.Dataset_reader('momentum')
+    momentum_group_second.visititems(momentum_values_second)
+    mass_reader_second = Mass_reader(second_group)
+    second_group.visititems(mass_reader_second)
+    size_of_momentum_second = len(momentum_values_second.vector_x)
+    second_mass = convert_mass_to_array(mass_reader_second.mass, size_of_momentum_second)
+
+    sum_second = compute_weight_positions_sum(second_mass, momentum_values_second)
+
+    print('second sum == ' + str(sum_second))
+
+
 
 def compare_weight_coordinates(first_hdf_file_name, second_hdf_file_name):
 
@@ -101,6 +135,8 @@ def compare_weight_coordinates(first_hdf_file_name, second_hdf_file_name):
 
     for i in range(0, size_groups):
         count_weight_coordinates_difference(particles_groups_first.particles_groups[i],
+                                            particles_groups_second.particles_groups[i])
+        count_weight_momentum_difference(particles_groups_first.particles_groups[i],
                                             particles_groups_second.particles_groups[i])
 
 
