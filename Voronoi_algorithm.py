@@ -62,14 +62,12 @@ class _Voronoi_cell:
         max_value = float("-inf")
         min_value = float("inf")
 
-
         for point in self.points[max_key]:
             if max_value < point.coords[max_idx]:
                 max_value = point.coords[max_idx]
 
             if min_value > point.coords[max_idx]:
                 min_value = point.coords[max_idx]
-
 
         middle_value = (max_value + min_value)/2.
 
@@ -106,6 +104,8 @@ class _Voronoi_cell:
                 self.points['momentum'] = merge_momentum(demention, self.points)
             if key == 'position':
                 self.points['position'] = merge_coordinates(demention, self.points)
+
+
  #       """Get one point out of all points in the cell, return Point"""
 
 
@@ -116,13 +116,12 @@ def merge_coordinates(demention, merged_points):
     weights = 0.
     full_values = []
     for i in range(0, demention):
-
         value = 0
         for point in merged_points['position']:
             value += point.coords[i]
         full_values.append(value/size)
 
-    for point in merged_points['momentum']:
+    for point in merged_points['position']:
         weights += point.weight
 
     result = []
@@ -168,7 +167,9 @@ def weighted_avg(values, weights):
     Return the weighted average and standard deviation.
 
     values, weights -- Numpy ndarrays with the same shape.
+
     """
+
     average = numpy.average(values, weights=weights)
     # Fast and numerically precise:
     variance = numpy.average((values-average)**2, weights=weights)
@@ -176,6 +177,7 @@ def weighted_avg(values, weights):
 
 
 def _merge(points, parameters):
+
     initial_cell = _Voronoi_cell(points)
 
     result = []
@@ -246,4 +248,5 @@ def run_algorithm(coord_collect, momuntum_collect, mass, tolerances):
     paramerts = Voronoi_merging_algorithm_parametrs(tolerances)
     algorithm = Voronoi_merging_algorithm(paramerts)
     result = algorithm.run(points)
+
     return result
