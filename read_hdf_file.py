@@ -192,19 +192,5 @@ def particle_group_iteration(group, hdf_file_reduction, tolerances):
     momentum_group.visititems(writen_momentum)
 
 
-def run_particle_reduction(hdf_file_name, hdf_file_reduction_name, tolerances):
-
-    copyfile(hdf_file_name, hdf_file_reduction_name)
-
-    hdf_file = h5py.File(hdf_file_name, 'a')
-    hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
-    particles_name = get_particles_name(hdf_file)
-
-    particles_collect = Particles_groups(particles_name)
-    hdf_file.visititems(particles_collect)
-    for group in particles_collect.particles_groups:
-        particle_group_iteration(group, hdf_file_reduction)
-
-
 
 
