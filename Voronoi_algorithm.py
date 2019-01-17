@@ -1,41 +1,53 @@
-
 import numpy
 import math
 import copy
 
 
 class Point:
+
     def __init__(self, coords, weight):
         """A weighted point, coords is array-like, weight is float"""
+
         self.coords = coords
         self.weight = weight
 
 
 class VoronoiMergingAlgorithmParameters:
+    """Tolerance is array-like, first -- coordinate tolerance, second -- momentum tolerance"""
+
     def __init__(self, tolerance):
-        """..."""
         self.tolerance = tolerance
 
 
 class VoronoiMergingAlgorithm:
+    """Main algorithm. Parameters is VoronoiMergingAlgorithmParameters """
+
     def __init__(self, parameters):
         self.parameters = parameters
 
     def run(self, points):
+
         """Points is a collection of Point"""
         return _merge(points, self.parameters)
 
 
 class _VoronoiCell:
-    """ Используется для хранения points in a cell"""
+
+    """Used to store points in Voronoi cell"""
 
     def __init__(self, points):
+
+        """Points is array of Points"""
+
         self.points = points
 
     def get_coeff_var(self):
+
+        """Get max variance coefficient of Voronoi cell"""
+
+
         first_key = list(self.points.keys())[0]
         demention = len(self.points[first_key][0].coords)
-
 
         avg_keys = {}
 
@@ -58,6 +70,14 @@ class _VoronoiCell:
         return max_idx, max_key, max_avg
 
     def divide(self, max_idx, max_key):
+
+        """
+
+        Devide Voronoi cell into two Voronoi cells
+        max_idx --
+        max_key --
+
+        """
 
         max_value = float("-inf")
         min_value = float("inf")
@@ -93,6 +113,7 @@ class _VoronoiCell:
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
     def merge(self):
+        """ Merge Voronoi cell into one point """
 
         first_key = list(self.points.keys())[0]
         demention = len(self.points[first_key][0].coords)
@@ -109,6 +130,7 @@ class _VoronoiCell:
 
 
 def merge_coordinates(demention, merged_points):
+    """ Merge coordinates into one point """
 
     size = len(merged_points['position'])
 
@@ -129,6 +151,7 @@ def merge_coordinates(demention, merged_points):
 
 
 def merge_momentum(demention, merged_points):
+    """ Merge momentum into one point """
 
     weights = 0.
     full_values = []
@@ -147,6 +170,7 @@ def merge_momentum(demention, merged_points):
 
 
 def get_max_coef(avg_keys):
+    """ Find max coefficient of variance """
 
     max_value = float("-inf")
     max_idx = -1
@@ -176,6 +200,12 @@ def weighted_avg(values, weights):
 
 
 def _merge(points, parameters):
+    """
+    Merging algorithm:
+    points -- original points
+    parametes -- input parameters for Voronoi algorithm(tolerances)
+
+    """
 
     initial_cell = _VoronoiCell(points)
 
@@ -204,8 +234,13 @@ def _merge(points, parameters):
 
 
 def check_needs_subdivision(parameters, max_avg, max_key):
-    # first -- momentum
-    # secound -- coord
+    """
+    Check that Voronoi cell need to devide
+    parametrs -- subdivision tolerances
+    max_avg -- value of max variance
+    max_key -- parameter with max variance
+
+    """
 
     position_tolerance = parameters.tolerance[0]
     momentum_tolerance = parameters.tolerance[1]
@@ -218,9 +253,15 @@ def check_needs_subdivision(parameters, max_avg, max_key):
 
 
 def run_algorithm(points, tolerances):
+    """
+    Run main algorithm
+    points -- start points
+    tolerances -- parameters for algorithm
 
-    paramerts = VoronoiMergingAlgorithmParameters(tolerances)
-    algorithm = VoronoiMergingAlgorithm(paramerts)
+    """
+
+    parameters = VoronoiMergingAlgorithmParameters(tolerances)
+    algorithm = VoronoiMergingAlgorithm(parameters)
     result = algorithm.run(points)
 
     return result
