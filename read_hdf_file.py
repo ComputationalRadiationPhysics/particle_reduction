@@ -183,6 +183,17 @@ def create_point_array(coord_collection, weighting):
     return point_array
 
 
+def create_points_library(coord_collect, momuntum_collect, weighting):
+    pointArraysCoord = create_point_array(coord_collect, weighting)
+    pointMomentum = create_point_array(momuntum_collect, weighting)
+
+    points = {}
+    points['position'] = pointArraysCoord
+    points['momentum'] = pointMomentum
+
+    return points
+
+
     hdf_datasets = Particles_functor()
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting

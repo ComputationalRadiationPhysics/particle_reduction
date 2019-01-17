@@ -220,15 +220,6 @@ def check_needs_subdivision(parameters, max_avg, max_key):
 
 def run_algorithm(points, tolerances):
 
-def run_algorithm(coord_collect, momuntum_collect, mass, tolerances):
-
-    pointArraysCoord = create_point_array(coord_collect, mass)
-    pointMomentum = create_point_array(momuntum_collect, mass)
-
-    points = {}
-    points['position'] = pointArraysCoord
-    points['momentum'] = pointMomentum
-
     paramerts = Voronoi_merging_algorithm_parametrs(tolerances)
     algorithm = Voronoi_merging_algorithm(paramerts)
     result = algorithm.run(points)
