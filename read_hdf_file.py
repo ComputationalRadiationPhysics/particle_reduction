@@ -14,11 +14,9 @@ class ParticlesFunctor():
     """
 
     def __init__(self):
-        self.particles_groups = []
         self.positions = []
         self.momentum = []
         self.weighting = []
-
 
     def __call__(self, name, node):
 
@@ -153,7 +151,7 @@ class DatasetReader():
 
         return None
 
-    def get_demention(self):
+    def get_dimension(self):
         """
 
          get dimension of particles datasets
@@ -203,31 +201,33 @@ def create_point_array(coord_collection, weighting):
 
     point_array = []
 
-    demention = coord_collection.get_demention()
+    dimension = coord_collection.get_dimension()
 
-    if demention == 3:
+    if dimension == 3:
         for i in range(0, len(coord_collection.vector_x)):
             point_array.append(Voronoi_algorithm.Point([coord_collection.vector_x[i], coord_collection.vector_y[i],
                                       coord_collection.vector_z[i]], weighting[i]))
 
-    elif demention == 2:
+    elif dimension == 2:
         for i in range(0, len(coord_collection.vector_x)):
             point_array.append(Voronoi_algorithm.Point([coord_collection.vector_x[i], coord_collection.vector_y[i]], weighting[i]))
 
     return point_array
 
 
-def create_points_library(coord_collect, momuntum_collect, weighting):
+def create_points_library(coord_collect, momentum_collect, weighting):
     """
 
     create set of postion points and momentum points
 
     """
-    pointMomentum = create_point_array(momuntum_collect, weighting)
+
+    points_coords = create_point_array(coord_collect, weighting)
+    points_momentum = create_point_array(momentum_collect, weighting)
 
     points = {}
-    points['position'] = pointArraysCoord
-    points['momentum'] = pointMomentum
+    points['position'] = points_coords
+    points['momentum'] = points_momentum
 
     return points
 
@@ -240,10 +240,11 @@ def read_group_values(group):
 
     """
 
+    hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting
-    position_values = Dataset_reader('position')
-    momentum_values = Dataset_reader('momentum')
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
