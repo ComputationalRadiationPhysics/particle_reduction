@@ -1,7 +1,7 @@
 import h5py
 import re
 import Voronoi_algorithm
-from shutil import copyfile
+
 
 class Particles_functor():
 
@@ -194,6 +194,8 @@ def create_points_library(coord_collect, momuntum_collect, weighting):
     return points
 
 
+def read_group_values(group):
+
     hdf_datasets = Particles_functor()
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting
@@ -203,8 +205,20 @@ def create_points_library(coord_collect, momuntum_collect, weighting):
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
+    points = create_points_library(position_values, momentum_values, weighting)
+    return points
 
-    result = Voronoi_algorithm.run_algorithm(position_values, momentum_values, weighting, tolerances)
+
+def write_group_values(hdf_file_reduction, group, result):
+    hdf_datasets = Particles_functor()
+    group.visititems(hdf_datasets)
+    weighting = hdf_datasets.weighting
+    position_values = Dataset_reader('position')
+    momentum_values = Dataset_reader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
     writen_position = Dataset_writter(hdf_file_reduction, result, 'position')
     writen_momentum = Dataset_writter(hdf_file_reduction, result, 'momentum')
 
