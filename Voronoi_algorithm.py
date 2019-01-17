@@ -218,24 +218,16 @@ def check_needs_subdivision(parameters, max_avg, max_key):
         return max_avg > momentum_tolerance
 
 
-def create_point_array(coord_collection, mass):
+def run_algorithm(points, tolerances):
+    """
+    Run main algorithm
+    points -- start points
+    tolerances -- parameters for algorithm
 
-    point_array = []
+    """
 
-    demention = coord_collection.get_demention()
-
-    if demention == 3:
-        for i in range(0, len(coord_collection.vector_x)):
-            point_array.append(Point([coord_collection.vector_x[i], coord_collection.vector_y[i],
-                                      coord_collection.vector_z[i]], mass))
-
-    elif demention == 2:
-        for i in range(0, len(coord_collection.vector_x)):
-            point_array.append(Point([coord_collection.vector_x[i], coord_collection.vector_y[i]], mass))
-
-    return point_array
-
-
+    parameters = VoronoiMergingAlgorithmParameters(tolerances)
+    algorithm = VoronoiMergingAlgorithm(parameters)
 def run_algorithm(coord_collect, momuntum_collect, mass, tolerances):
 
     pointArraysCoord = create_point_array(coord_collect, mass)

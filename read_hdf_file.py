@@ -165,9 +165,30 @@ def decode_name(attribute_name):
     return decoding_name
 
 
-def particle_group_iteration(group, hdf_file_reduction, tolerances):
+def create_point_array(coord_collection, weighting):
+    """
 
-    hdf_datasets = Particles_functor()
+    create array of 2-d, 3-d points from datasets
+    coord_collection -- datasets from hdf file
+
+    """
+
+    point_array = []
+
+    dimension = coord_collection.get_dimension()
+
+    if dimension == 3:
+        for i in range(0, len(coord_collection.vector_x)):
+            point_array.append(Voronoi_algorithm.Point([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                      coord_collection.vector_z[i]], weighting[i]))
+
+    elif dimension == 2:
+        for i in range(0, len(coord_collection.vector_x)):
+            point_array.append(Voronoi_algorithm.Point([coord_collection.vector_x[i], coord_collection.vector_y[i]], weighting[i]))
+
+    return point_array
+
+
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting
     position_values = Dataset_reader('position')
