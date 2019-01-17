@@ -6,6 +6,14 @@ from shutil import copyfile
 class Particles_functor():
 
     """ Collect values from datasets in hdf file """
+    """
+
+    Collect values(weighting, position, momentum) from paticle dataset in hdf file.
+    positions -- group of position coords
+    momentum -- group of momentum coords
+    weightins -- values of weights for particles
+
+    """
 
     def __init__(self):
         self.particles_groups = []
@@ -31,6 +39,12 @@ class Particles_functor():
 
 
 class Particles_groups():
+    """
+
+    Collect particles groups from hdf file
+    particles_name -- name of main partcles group
+
+    """
 
     def __init__(self, particles_name):
 
@@ -48,6 +62,14 @@ class Particles_groups():
 
 
 class Dataset_writter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
 
     def __init__(self, hdf_file, result_points, name_dataset):
 
@@ -102,7 +124,10 @@ class Dataset_writter():
 
 
         return None
+    """
 
+     Read datasets values from hdf file
+     name_dataset -- name of base group
 
 class Dataset_reader():
     """ Collect values from datasets in hdf file """
@@ -131,6 +156,11 @@ class Dataset_reader():
         return None
 
     def get_demention(self):
+        """
+
+         get dimension of particles datasets
+
+        """
 
         size = 0
         if len(self.vector_x) > 0:
