@@ -5,7 +5,9 @@ import Voronoi_algorithm
 import os
 import h5py
 
+
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
+    """ Create name of reducted file, array of momentum """
 
     name_hdf_file_reduction = ''
 
@@ -25,6 +27,7 @@ def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, toleranc
 
 
 def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
+    """ Create copy of  original file, iterate base groups"""
 
     copyfile(hdf_file_name, hdf_file_reduction_name)
 
@@ -32,7 +35,7 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
     hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
     particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
 
-    particles_collect = read_hdf_file.Particles_groups(particles_name)
+    particles_collect = read_hdf_file.ParticlesGroups(particles_name)
     hdf_file.visititems(particles_collect)
     for group in particles_collect.particles_groups:
 
@@ -42,6 +45,7 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
 
 if __name__ == "__main__":
+    """ Parse arguments from command line """
 
     parser = argparse.ArgumentParser(description="voronoi reduction")
 
