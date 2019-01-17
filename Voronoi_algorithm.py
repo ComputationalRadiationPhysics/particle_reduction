@@ -13,14 +13,14 @@ class Point:
         self.weight = weight
 
 
-class Voronoi_merging_algorithm_parametrs:
+class VoronoiMergingAlgorithmParameters:
     """Tolerance is array-like, first -- coordinate tolerance, second -- momentum tolerance"""
 
     def __init__(self, tolerance):
         self.tolerance = tolerance
 
 
-class Voronoi_merging_algorithm:
+class VoronoiMergingAlgorithm:
     """Main algorithm. Parameters is VoronoiMergingAlgorithmParameters """
 
     def __init__(self, parameters):
@@ -32,8 +32,8 @@ class Voronoi_merging_algorithm:
         return _merge(points, self.parameters)
 
 
-class _Voronoi_cell:
-    """ Используется для хранения points in a cell"""
+class _VoronoiCell:
+
     """Used to store points in Voronoi cell"""
 
     def __init__(self, points):
@@ -108,11 +108,10 @@ class _Voronoi_cell:
                 for keys in self.points:
                     array_secound[keys].append(self.points[keys][i])
 
-        first_cell = _Voronoi_cell(array_first)
-        secound_cell = _Voronoi_cell(array_secound)
+        first_cell = _VoronoiCell(array_first)
+        secound_cell = _VoronoiCell(array_secound)
         return first_cell, secound_cell
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
-
 
     def merge(self):
         """ Merge Voronoi cell into one point """
@@ -209,7 +208,7 @@ def _merge(points, parameters):
 
     """
 
-    initial_cell = _Voronoi_cell(points)
+    initial_cell = _VoronoiCell(points)
 
     result = []
     cells = [initial_cell]
