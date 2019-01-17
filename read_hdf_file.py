@@ -205,22 +205,50 @@ def create_points_library(coord_collect, momentum_collect, weighting):
 
     return points
 
+
+def read_group_values(group):
+    """
+
+    convert values from position and momentum datasets into points
+    group -- base group of points from hdf file
+
+    """
+
+    hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting
-    position_values = Dataset_reader('position')
-    momentum_values = Dataset_reader('momentum')
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
+    points = create_points_library(position_values, momentum_values, weighting)
+    return points
 
     result = Voronoi_algorithm.run_algorithm(position_values, momentum_values, weighting, tolerances)
-    writen_position = Dataset_writter(hdf_file_reduction, result, 'position')
-    writen_momentum = Dataset_writter(hdf_file_reduction, result, 'momentum')
 
+
+def write_group_values(hdf_file_reduction, group, result):
+    """
+
+    write values from point library to hdf file
+    hdf_file_reduction -- result file
+    group -- base group of partilces from original file
+    result -- library points
+
+    """
+
+    hdf_datasets = ParticlesFunctor()
+    group.visititems(hdf_datasets)
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+    writen_position = DatasetWriter(hdf_file_reduction, result, 'position')
+    writen_momentum = DatasetWriter(hdf_file_reduction, result, 'momentum')
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
-
-
-
-
+    
