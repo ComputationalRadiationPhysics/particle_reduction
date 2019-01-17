@@ -3,7 +3,7 @@ import re
 import Voronoi_algorithm
 
 
-class Particles_functor():
+class ParticlesFunctor():
     """
 
     Collect values(weighting, position, momentum) from paticle dataset in hdf file.
@@ -36,7 +36,7 @@ class Particles_functor():
         return None
 
 
-class Particles_groups():
+class ParticlesGroups():
     """
 
     Collect particles groups from hdf file
@@ -59,7 +59,7 @@ class Particles_groups():
         return None
 
 
-class Dataset_writter():
+class DatasetWriter():
     """
 
     Write dataset into result hdf file
@@ -77,7 +77,6 @@ class Dataset_writter():
         self.weighting = []
         self.hdf_file = hdf_file
         self.name_dataset = name_dataset
-
         self.demention = len(result_points[0].points[self.name_dataset][0].coords)
 
         for point in result_points:
@@ -120,17 +119,17 @@ class Dataset_writter():
                 del self.hdf_file[node.name]
                 dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
 
-
         return None
 
 
-class Dataset_reader():
+class DatasetReader():
     """
 
      Read datasets values from hdf file
      name_dataset -- name of base group
 
     """
+
     def __init__(self, name_dataset):
         self.vector_x = []
         self.vector_y = []
@@ -263,16 +262,16 @@ def write_group_values(hdf_file_reduction, group, result):
 
     """
 
+    hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
-    weighting = hdf_datasets.weighting
-    position_values = Dataset_reader('position')
-    momentum_values = Dataset_reader('momentum')
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
-    writen_position = Dataset_writter(hdf_file_reduction, result, 'position')
-    writen_momentum = Dataset_writter(hdf_file_reduction, result, 'momentum')
-
+    writen_position = DatasetWriter(hdf_file_reduction, result, 'position')
+    writen_momentum = DatasetWriter(hdf_file_reduction, result, 'momentum')
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
+    
