@@ -1,11 +1,9 @@
 import h5py
 import re
 import Voronoi_algorithm
-from shutil import copyfile
 
-class Particles_functor():
 
-    """ Collect values from datasets in hdf file """
+class ParticlesFunctor():
     """
 
     Collect values(weighting, position, momentum) from paticle dataset in hdf file.
@@ -16,11 +14,9 @@ class Particles_functor():
     """
 
     def __init__(self):
-        self.particles_groups = []
         self.positions = []
         self.momentum = []
         self.weighting = []
-
 
     def __call__(self, name, node):
 
@@ -38,7 +34,7 @@ class Particles_functor():
         return None
 
 
-class Particles_groups():
+class ParticlesGroups():
     """
 
     Collect particles groups from hdf file
@@ -61,7 +57,7 @@ class Particles_groups():
         return None
 
 
-class Dataset_writter():
+class DatasetWriter():
     """
 
     Write dataset into result hdf file
@@ -79,7 +75,6 @@ class Dataset_writter():
         self.weighting = []
         self.hdf_file = hdf_file
         self.name_dataset = name_dataset
-
         self.demention = len(result_points[0].points[self.name_dataset][0].coords)
 
         for point in result_points:
@@ -122,15 +117,16 @@ class Dataset_writter():
                 del self.hdf_file[node.name]
                 dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
 
-
         return None
+
+
+class DatasetReader():
     """
 
      Read datasets values from hdf file
      name_dataset -- name of base group
 
-class Dataset_reader():
-    """ Collect values from datasets in hdf file """
+    """
 
     def __init__(self, name_dataset):
         self.vector_x = []
@@ -155,7 +151,7 @@ class Dataset_reader():
 
         return None
 
-    def get_demention(self):
+    def get_dimension(self):
         """
 
          get dimension of particles datasets
