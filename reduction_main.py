@@ -1,6 +1,7 @@
 from shutil import copyfile
 import read_hdf_file
 import argparse
+import Voronoi_algorithm
 import os
 import h5py
 
@@ -34,7 +35,10 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
     particles_collect = read_hdf_file.Particles_groups(particles_name)
     hdf_file.visititems(particles_collect)
     for group in particles_collect.particles_groups:
-        read_hdf_file.particle_group_iteration(group, hdf_file_reduction, tolerances)
+
+        points = read_hdf_file.read_group_values(group)
+        result = Voronoi_algorithm.run_algorithm(points, tolerances)
+        read_hdf_file.write_group_values(hdf_file_reduction, group, result)
 
 if __name__ == "__main__":
 
