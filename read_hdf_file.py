@@ -226,8 +226,6 @@ def read_group_values(group):
     points = create_points_library(position_values, momentum_values, weighting)
     return points
 
-    result = Voronoi_algorithm.run_algorithm(position_values, momentum_values, weighting, tolerances)
-
 
 def write_group_values(hdf_file_reduction, group, result):
     """
