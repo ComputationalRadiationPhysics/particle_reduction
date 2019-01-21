@@ -333,6 +333,52 @@ def create_point_array(coord_collection, weighting):
     return point_array
 
 
+def create_dataset_from_point_array(points, name_dataset):
+
+    vector_x = []
+    vector_y = []
+    vector_z = []
+    weighting = []
+
+    dimension = len(points[name_dataset][0].coords)
+    coordinates_dataset = points[name_dataset]
+    for i in range(0, len(coordinates_dataset)):
+        if dimension == 3:
+            vector_x.append(coordinates_dataset[i].coords[0])
+            vector_y.append(coordinates_dataset[i].coords[1])
+            vector_z.append(coordinates_dataset[i].coords[2])
+            weighting.append(coordinates_dataset[i].weight)
+
+        if dimension == 2:
+            vector_x.append(coordinates_dataset[i].coords[0])
+            vector_y.append(coordinates_dataset[i].coords[1])
+
+            weighting.append(coordinates_dataset[i].weight)
+
+    return vector_x, vector_y, vector_z, weighting
+
+
+def create_library_of_datasets(points):
+
+
+    datasets = {}
+
+    position_x, position_y, position_z, weighting = create_dataset_from_point_array(points, 'position')
+    momentum_x, momentum_y, momentum_z, weighting = create_dataset_from_point_array(points, 'momentum')
+
+    datasets['position/x'] = position_x
+    datasets['position/y'] = position_y
+    datasets['position/z'] = position_z
+
+    datasets['momentum/x'] = momentum_x
+    datasets['momentum/y'] = momentum_y
+    datasets['momentum/z'] = momentum_z
+
+    datasets['weighting'] = weighting
+
+    return datasets
+
+
 def create_points_library(coord_collect, momentum_collect, weighting):
     """
 
