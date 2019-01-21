@@ -86,6 +86,7 @@ class CoverterVoronoiToPoints():
 
 
 
+class DatasetWriter_Voronoi_cells():
     """
 
     Write dataset into result hdf file
@@ -123,6 +124,7 @@ class CoverterVoronoiToPoints():
         if isinstance(node, h5py.Dataset):
 
             dataset_x = self.name_dataset + '/x'
+
             dataset_y = self.name_dataset + '/y'
             dataset_z = self.name_dataset + '/z'
 
@@ -145,6 +147,73 @@ class CoverterVoronoiToPoints():
                 del self.hdf_file[node.name]
                 dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
 
+        return None
+
+
+class DatasetWriter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, result_points, name_dataset):
+        self.dataset_x = name_dataset + '/x'
+        self.dataset_y = name_dataset + '/y'
+        self.dataset_z = name_dataset + '/z'
+
+        self.vector_x = result_points[self.dataset_x]
+        self.vector_y = result_points[self.dataset_y]
+        self.vector_z = result_points[self.dataset_y]
+        self.hdf_file = hdf_file
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+
+            if node.name.endswith(self.dataset_x):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x)
+            elif node.name.endswith(self.dataset_y):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y)
+
+            elif node.name.endswith(self.dataset_z):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z)
+
+        return None
+
+
+class WeightWriter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, result_points):
+
+        self.weighting = result_points['weighting']
+        self.hdf_file = hdf_file
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+
+            if node.name.endswith('weighting'):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
         return None
 
 
@@ -299,8 +368,10 @@ def write_group_values(hdf_file_reduction, group, result):
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
-    writen_position = DatasetWriter(hdf_file_reduction, result, 'position')
-    writen_momentum = DatasetWriter(hdf_file_reduction, result, 'momentum')
+    writen_position = DatasetWriter_Second_version(hdf_file_reduction, library_datasets, 'position')
+    writen_momentum = DatasetWriter_Second_version(hdf_file_reduction, library_datasets, 'momentum')
+    writen_weighting = WeightWriter(hdf_file_reduction, library_datasets)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
+    group.visititems(writen_weighting)
     
