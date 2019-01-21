@@ -441,4 +441,12 @@ def write_group_values(hdf_file_reduction, group, result):
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
     group.visititems(writen_weighting)
-    
+
+
+def read_patches_values(group):
+
+    patch_group = ReadPatchGroup()
+    group.visititems(patch_group)
+    patch_values = ReadPatchValues()
+    patch_group.patch_group[0].visititems(patch_values)
+    return patch_values.numParticles, patch_values.numParticlesOffset
