@@ -57,7 +57,28 @@ class ParticlesGroups():
         return None
 
 
-class DatasetWriter():
+class ReadPatchGroup():
+    def __init__(self):
+        self.patch_group = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Group):
+            if node.name.endswith('particlePatches'):
+                self.patch_group.append(node)
+
+
+class ReadPatchValues():
+    def __init__(self):
+        self.numParticles = []
+        self.numParticlesOffset = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Dataset):# numParticles
+            if node.name.endswith('numParticles'):
+                self.numParticles = node.value
+
+            if node.name.endswith('numParticlesOffset'):
+                self.numParticlesOffset = node.value
 
 
 class CoverterVoronoiToPoints():
