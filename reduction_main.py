@@ -41,7 +41,10 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
         points = read_hdf_file.read_group_values(group)
         result = Voronoi_algorithm.run_algorithm(points, tolerances)
-        read_hdf_file.write_group_values(hdf_file_reduction, group, result)
+        point_converter = read_hdf_file.CoverterVoronoiToPoints(result)
+        library_datasets = read_hdf_file.create_library_of_datasets(point_converter.points)
+
+        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets)
 
 
 if __name__ == "__main__":

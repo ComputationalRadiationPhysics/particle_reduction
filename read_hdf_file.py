@@ -417,7 +417,7 @@ def read_group_values(group):
     return points
 
 
-def write_group_values(hdf_file_reduction, group, result):
+def write_group_values(hdf_file_reduction, group, library_datasets):
     """
 
     write values from point library to hdf file
@@ -435,8 +435,8 @@ def write_group_values(hdf_file_reduction, group, result):
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
-    writen_position = DatasetWriter_Second_version(hdf_file_reduction, library_datasets, 'position')
-    writen_momentum = DatasetWriter_Second_version(hdf_file_reduction, library_datasets, 'momentum')
+    writen_position = DatasetWriter(hdf_file_reduction, library_datasets, 'position')
+    writen_momentum = DatasetWriter(hdf_file_reduction, library_datasets, 'momentum')
     writen_weighting = WeightWriter(hdf_file_reduction, library_datasets)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
