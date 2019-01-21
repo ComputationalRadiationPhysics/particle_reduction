@@ -58,6 +58,34 @@ class ParticlesGroups():
 
 
 class DatasetWriter():
+
+
+class CoverterVoronoiToPoints():
+    def __init__(self, result_points):
+
+        self.points = {}
+        self.coords =[]
+        self.momentum = []
+        for point in result_points:
+            if point.points['position'] != None:
+                vector_coords = point.points['position'][0].coords
+                weight = point.points['position'][0].weight
+                self.coords.append(Voronoi_algorithm.Point(vector_coords, weight))
+
+            if point.points['momentum'] != None:
+                vector_coords = point.points['momentum'][0].coords
+                weight = point.points['momentum'][0].weight
+                self.momentum.append(Voronoi_algorithm.Point(vector_coords, weight))
+
+
+        self.points['position'] = self.coords
+        self.points['momentum'] = self.momentum
+
+    def get_points(self):
+        return self.points
+
+
+
     """
 
     Write dataset into result hdf file
