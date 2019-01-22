@@ -71,11 +71,17 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="voronoi reduction")
 
+    parser.add_argument("-algorithm", metavar='algorithm', type=str,
+                        help="hdf file without patches")
+
     parser.add_argument("-hdf", metavar='hdf_file', type=str,
                         help="hdf file without patches")
 
     parser.add_argument("-hdf_re", metavar='hdf_file_reduction', type=str,
                         help="reducted hdf file")
+
+    parser.add_argument("-reduction_percent", metavar='reduction_percent', type=float,
+                        help="part of the particles to reduce")
 
     parser.add_argument("-momentum_tol", metavar='tolerance_momentum', type=float,
                         help="tolerance of momentum")
@@ -84,6 +90,10 @@ if __name__ == "__main__":
                         help="tolerance of position")
 
     args = parser.parse_args()
-    voronoi_reduction(args.hdf, args.hdf_re, args.momentum_tol, args.momentum_pos)
+
+    if args.algorithm == 'voronoi':
+        voronoi_reduction(args.hdf, args.hdf_re, args.momentum_tol, args.momentum_pos)
+    elif args.algorithm == 'random':
+        random_thinning_algorithm()
 
 
