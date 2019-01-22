@@ -238,6 +238,38 @@ class WeightWriter():
         return None
 
 
+class PatchValuesWriter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, numParticles, numParticlesOffset):
+
+        self.numParticles = numParticles
+        self.numParticlesOffset = numParticlesOffset
+        self.hdf_file = hdf_file
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+
+            if node.name.endswith('numParticles'):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.numParticles)
+
+            if node.name.endswith('numParticlesOffset'):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.numParticlesOffset)
+        return None
+
+
 class DatasetReader():
     """
 
@@ -417,7 +449,7 @@ def read_group_values(group):
     return points
 
 
-def write_group_values(hdf_file_reduction, group, library_datasets):
+def write_group_values(hdf_file_reduction, group, library_datasets, num_particles_offset=None, num_particles=None):
     """
 
     write values from point library to hdf file
@@ -441,6 +473,12 @@ def write_group_values(hdf_file_reduction, group, library_datasets):
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
     group.visititems(writen_weighting)
+
+    if num_particles_offset !=None:
+        patch_group = ReadPatchGroup()
+        group.visititems(patch_group)
+        patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
+        patch_group.patch_group[0].visititems(patch_writter)
 
 
 def read_patches_values(group):
