@@ -1,4 +1,6 @@
+import bisect
 import copy
+import numpy
 
 
 class RandomThinningAlgorithmParameters:
@@ -16,6 +18,20 @@ class RandomThinningAlgorithm:
     def run(self, points):
         """Points is a collection of Point"""
         return _thinning(points, self.parameters)
+
+
+
+def weight_distribution(idx_point,  positions, momentum, ranges_patches):
+
+    weight = positions[idx_point].weight
+    right_idx = bisect.bisect_left(ranges_patches, idx_point)
+    left_idx = right_idx - 1
+    size_of_patch = ranges_patches[right_idx] - ranges_patches[left_idx]
+    adding_weight = weight/size_of_patch
+
+    for i in range(int(ranges_patches[left_idx]), int(ranges_patches[right_idx])):
+        momentum[i].weight += adding_weight
+        positions[i].weight += adding_weight
 
 
 def _thinning(points, parameters):
