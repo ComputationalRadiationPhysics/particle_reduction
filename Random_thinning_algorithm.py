@@ -1,3 +1,4 @@
+import copy
 
 
 class RandomThinningAlgorithmParameters:
@@ -7,11 +8,12 @@ class RandomThinningAlgorithmParameters:
         self.numParticles = numParticles
         self.numParticlesOffset = numParticlesOffset
 
-class Random_thinning_alorithm:
+
+class RandomThinningAlgorithm:
     def __init__(self, parameters):
         self.parameters = parameters
 
     def run(self, points):
         """Points is a collection of Point"""
-        return _merge(points, self.parameters)
+        return _thinning(points, self.parameters)
 
