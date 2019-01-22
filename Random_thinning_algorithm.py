@@ -22,6 +22,18 @@ class RandomThinningAlgorithm:
         return _thinning(points, self.parameters)
 
 
+def count_euclidean_distance(point_coordinates, point_momentum):
+
+    sum_coords = point_coordinates.coords[0] * point_coordinates.coords[0]
+    sum_coords += point_coordinates.coords[1] * point_coordinates.coords[1]
+    sum_coords += point_coordinates.coords[2] * point_coordinates.coords[2]
+
+    sum_momentum = point_momentum.coords[0] * point_momentum.coords[0]
+    sum_momentum += point_momentum.coords[1] * point_momentum.coords[1]
+    sum_momentum += point_momentum.coords[2] * point_momentum.coords[2]
+
+    return math.sqrt(sum_coords + sum_momentum)
+
 
 def weight_distribution(idx_point,  positions, momentum, ranges_patches):
 
