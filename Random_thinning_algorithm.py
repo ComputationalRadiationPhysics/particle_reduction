@@ -1,9 +1,11 @@
 
 
-class Random_thinning_alorithm_parametrs:
-    def __init__(self, reduction_percent):
+class RandomThinningAlgorithmParameters:
+    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
         """..."""
         self.reduction_percent = reduction_percent
+        self.numParticles = numParticles
+        self.numParticlesOffset = numParticlesOffset
 
 class Random_thinning_alorithm:
     def __init__(self, parameters):
