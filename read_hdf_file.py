@@ -57,7 +57,57 @@ class ParticlesGroups():
         return None
 
 
-class DatasetWriter():
+class ReadPatchGroup():
+    def __init__(self):
+        self.patch_group = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Group):
+            if node.name.endswith('particlePatches'):
+                self.patch_group.append(node)
+
+
+class ReadPatchValues():
+    def __init__(self):
+        self.numParticles = []
+        self.numParticlesOffset = []
+
+    def __call__(self, name, node):
+        if isinstance(node, h5py.Dataset):# numParticles
+            if node.name.endswith('numParticles'):
+                self.numParticles = node.value
+
+            if node.name.endswith('numParticlesOffset'):
+                self.numParticlesOffset = node.value
+
+
+class CoverterVoronoiToPoints():
+    def __init__(self, result_points):
+
+        self.points = {}
+        self.coords =[]
+        self.momentum = []
+        for point in result_points:
+            if point.points['position'] != None:
+                vector_coords = point.points['position'][0].coords
+                weight = point.points['position'][0].weight
+                self.coords.append(Voronoi_algorithm.Point(vector_coords, weight))
+
+            if point.points['momentum'] != None:
+                vector_coords = point.points['momentum'][0].coords
+                weight = point.points['momentum'][0].weight
+                self.momentum.append(Voronoi_algorithm.Point(vector_coords, weight))
+
+
+        self.points['position'] = self.coords
+        self.points['momentum'] = self.momentum
+
+    def get_points(self):
+        return self.points
+
+
+
+class DatasetWriter_Voronoi_cells():
     """
 
     Write dataset into result hdf file
@@ -95,6 +145,7 @@ class DatasetWriter():
         if isinstance(node, h5py.Dataset):
 
             dataset_x = self.name_dataset + '/x'
+
             dataset_y = self.name_dataset + '/y'
             dataset_z = self.name_dataset + '/z'
 
@@ -117,6 +168,105 @@ class DatasetWriter():
                 del self.hdf_file[node.name]
                 dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
 
+        return None
+
+
+class DatasetWriter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, result_points, name_dataset):
+        self.dataset_x = name_dataset + '/x'
+        self.dataset_y = name_dataset + '/y'
+        self.dataset_z = name_dataset + '/z'
+
+        self.vector_x = result_points[self.dataset_x]
+        self.vector_y = result_points[self.dataset_y]
+        self.vector_z = result_points[self.dataset_y]
+        self.hdf_file = hdf_file
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+
+            if node.name.endswith(self.dataset_x):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x)
+            elif node.name.endswith(self.dataset_y):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y)
+
+            elif node.name.endswith(self.dataset_z):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z)
+
+        return None
+
+
+class WeightWriter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, result_points):
+
+        self.weighting = result_points['weighting']
+        self.hdf_file = hdf_file
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+
+            if node.name.endswith('weighting'):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
+        return None
+
+
+class PatchValuesWriter():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, numParticles, numParticlesOffset):
+
+        self.numParticles = numParticles
+        self.numParticlesOffset = numParticlesOffset
+        self.hdf_file = hdf_file
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+
+            if node.name.endswith('numParticles'):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.numParticles)
+
+            if node.name.endswith('numParticlesOffset'):
+                node_name = node.name
+                del self.hdf_file[node.name]
+                dset = self.hdf_file.create_dataset(node_name, data=self.numParticlesOffset)
         return None
 
 
@@ -215,6 +365,52 @@ def create_point_array(coord_collection, weighting):
     return point_array
 
 
+def create_dataset_from_point_array(points, name_dataset):
+
+    vector_x = []
+    vector_y = []
+    vector_z = []
+    weighting = []
+
+    dimension = len(points[name_dataset][0].coords)
+    coordinates_dataset = points[name_dataset]
+    for i in range(0, len(coordinates_dataset)):
+        if dimension == 3:
+            vector_x.append(coordinates_dataset[i].coords[0])
+            vector_y.append(coordinates_dataset[i].coords[1])
+            vector_z.append(coordinates_dataset[i].coords[2])
+            weighting.append(coordinates_dataset[i].weight)
+
+        if dimension == 2:
+            vector_x.append(coordinates_dataset[i].coords[0])
+            vector_y.append(coordinates_dataset[i].coords[1])
+
+            weighting.append(coordinates_dataset[i].weight)
+
+    return vector_x, vector_y, vector_z, weighting
+
+
+def create_library_of_datasets(points):
+
+
+    datasets = {}
+
+    position_x, position_y, position_z, weighting = create_dataset_from_point_array(points, 'position')
+    momentum_x, momentum_y, momentum_z, weighting = create_dataset_from_point_array(points, 'momentum')
+
+    datasets['position/x'] = position_x
+    datasets['position/y'] = position_y
+    datasets['position/z'] = position_z
+
+    datasets['momentum/x'] = momentum_x
+    datasets['momentum/y'] = momentum_y
+    datasets['momentum/z'] = momentum_z
+
+    datasets['weighting'] = weighting
+
+    return datasets
+
+
 def create_points_library(coord_collect, momentum_collect, weighting):
     """
 
@@ -253,7 +449,7 @@ def read_group_values(group):
     return points
 
 
-def write_group_values(hdf_file_reduction, group, result):
+def write_group_values(hdf_file_reduction, group, library_datasets, num_particles_offset=None, num_particles=None):
     """
 
     write values from point library to hdf file
@@ -271,8 +467,24 @@ def write_group_values(hdf_file_reduction, group, result):
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
-    writen_position = DatasetWriter(hdf_file_reduction, result, 'position')
-    writen_momentum = DatasetWriter(hdf_file_reduction, result, 'momentum')
+    writen_position = DatasetWriter(hdf_file_reduction, library_datasets, 'position')
+    writen_momentum = DatasetWriter(hdf_file_reduction, library_datasets, 'momentum')
+    writen_weighting = WeightWriter(hdf_file_reduction, library_datasets)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
-    
+    group.visititems(writen_weighting)
+
+    if num_particles_offset !=None:
+        patch_group = ReadPatchGroup()
+        group.visititems(patch_group)
+        patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
+        patch_group.patch_group[0].visititems(patch_writter)
+
+
+def read_patches_values(group):
+
+    patch_group = ReadPatchGroup()
+    group.visititems(patch_group)
+    patch_values = ReadPatchValues()
+    patch_group.patch_group[0].visititems(patch_values)
+    return patch_values.numParticles, patch_values.numParticlesOffset

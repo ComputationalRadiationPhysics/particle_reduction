@@ -1,15 +1,98 @@
+import random
+import math
+import bisect
+import copy
+import numpy
 
 
-class Random_thinning_alorithm_parametrs:
-    def __init__(self, reduction_percent):
+class RandomThinningAlgorithmParameters:
+    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
         """..."""
         self.reduction_percent = reduction_percent
+        self.numParticles = numParticles
+        self.numParticlesOffset = numParticlesOffset
 
-class Random_thinning_alorithm:
+
+class RandomThinningAlgorithm:
     def __init__(self, parameters):
         self.parameters = parameters
 
     def run(self, points):
         """Points is a collection of Point"""
-        return _merge(points, self.parameters)
+        return _thinning(points, self.parameters)
+
+
+def count_euclidean_distance(point_coordinates, point_momentum):
+
+    sum_coords = point_coordinates.coords[0] * point_coordinates.coords[0]
+    sum_coords += point_coordinates.coords[1] * point_coordinates.coords[1]
+    sum_coords += point_coordinates.coords[2] * point_coordinates.coords[2]
+
+    sum_momentum = point_momentum.coords[0] * point_momentum.coords[0]
+    sum_momentum += point_momentum.coords[1] * point_momentum.coords[1]
+    sum_momentum += point_momentum.coords[2] * point_momentum.coords[2]
+
+    return math.sqrt(sum_coords + sum_momentum)
+
+
+def weight_distribution(idx_point,  positions, momentum, ranges_patches):
+
+    weight = positions[idx_point].weight
+    right_idx = bisect.bisect_left(ranges_patches, idx_point)
+    left_idx = right_idx - 1
+    size_of_patch = ranges_patches[right_idx] - ranges_patches[left_idx]
+    adding_weight = weight/size_of_patch
+
+    for i in range(int(ranges_patches[left_idx]), int(ranges_patches[right_idx])):
+        momentum[i].weight += adding_weight
+        positions[i].weight += adding_weight
+
+
+def patches_recount(reduced_points, ranges_patches, parameters):
+
+    reduced_points.sort()
+    count_reduced_points = [0] * len(ranges_patches)
+
+    for point in reduced_points:
+        patch_idx = bisect.bisect_left(ranges_patches, point) - 1
+        count_reduced_points[patch_idx] += 1
+
+
+    recount_numParticles = []
+
+    for i in range(0, len(parameters.numParticlesOffset)):
+        recount_numParticles.append(int(parameters.numParticles[i] - count_reduced_points[i]))
+
+    recount_numParticlesOffset = numpy.cumsum(recount_numParticles, dtype=int)
+    recount_numParticlesOffset = numpy.insert(recount_numParticlesOffset, 0, 0)
+    recount_numParticlesOffset = numpy.delete(recount_numParticlesOffset, -1)
+
+    return recount_numParticlesOffset, recount_numParticles
+
+
+def _thinning(points, parameters):
+
+    size_of_points_array = int(len(points['position']))
+    number_reduction_particles = int(size_of_points_array * parameters.reduction_percent)
+    result_points = copy.deepcopy(points)
+
+    reduced_points = random.sample(range(size_of_points_array), k=number_reduction_particles)
+
+    positions = result_points['position']
+    momentum = result_points['momentum']
+    ranges_patches = parameters.numParticlesOffset
+    ranges_patches = numpy.append(ranges_patches, size_of_points_array)
+
+    for i in range(0, len(reduced_points)):
+        weight_distribution(reduced_points[i], positions, momentum, ranges_patches)
+
+    num_particles_offset, num_particles = patches_recount(reduced_points, ranges_patches, parameters)
+
+    positions = numpy.delete(positions, reduced_points)
+    momentum = numpy.delete(momentum, reduced_points)
+    result = {}
+    result['position'] = positions
+    result['momentum'] = momentum
+
+    return result, num_particles_offset, num_particles
 
