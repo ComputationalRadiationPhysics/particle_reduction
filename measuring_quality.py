@@ -41,19 +41,16 @@ def compute_weight_positions_sum(mass, position_values):
     return sum_x, sum_y, sum_z
 
 
-def count_weight_coordinates_difference(first_group, second_group):
+def get_dataset_values(group, name_dataset):
 
-    hdf_datasets = read_hdf_file.Particles_functor()
-    first_group.visititems(hdf_datasets)
-    position_group_first = hdf_datasets.positions[0]
-    position_values_first = read_hdf_file.Dataset_reader('position')
-    position_group_first.visititems(position_values_first)
-    mass_reader_first = Mass_reader(first_group)
-    first_group.visititems(mass_reader_first)
+    values = read_hdf_file.DatasetReader(name_dataset)
+    group.visititems(values)
+    weight_reader = WeightReader()
+    group.visititems(weight_reader)
 
-    size_of_positions_first = len(position_values_first.vector_x)
+    return weight_reader.weight, values
 
-    first_mass = convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
+
 def count_weight_difference(weight_first, values_first, weight_second, values_second):
 
     sum_first = compute_weight_sum(weight_first, values_first)
