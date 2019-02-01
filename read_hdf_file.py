@@ -188,7 +188,7 @@ class DatasetWriter():
 
         self.vector_x = result_points[self.dataset_x]
         self.vector_y = result_points[self.dataset_y]
-        self.vector_z = result_points[self.dataset_y]
+        self.vector_z = result_points[self.dataset_z]
         self.hdf_file = hdf_file
 
     def __call__(self, name, node):
