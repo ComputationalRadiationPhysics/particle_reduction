@@ -101,25 +101,33 @@ def compute_momentum_standart_deviation(weights, momentum_values):
 
 def compare_weight_coordinates(first_hdf_file_name, second_hdf_file_name):
 
-
     first_hdf_file = h5py.File(first_hdf_file_name, 'a')
     second_hdf_file = h5py.File(second_hdf_file_name, 'a')
 
     particles_name_first = read_hdf_file.get_particles_name(first_hdf_file)
-    particles_groups_first = read_hdf_file.Particles_groups(particles_name_first)
+    particles_groups_first = read_hdf_file.ParticlesGroups(particles_name_first)
     first_hdf_file.visititems(particles_groups_first)
 
     particles_name_second = read_hdf_file.get_particles_name(second_hdf_file)
-    particles_groups_second = read_hdf_file.Particles_groups(particles_name_second)
+    particles_groups_second = read_hdf_file.ParticlesGroups(particles_name_second)
     second_hdf_file.visititems(particles_groups_second)
 
     size_groups = len(particles_groups_second.particles_groups)
 
-
     for i in range(0, size_groups):
-        count_weight_coordinates_difference(particles_groups_first.particles_groups[i],
-                                            particles_groups_second.particles_groups[i])
-        count_weight_momentum_difference(particles_groups_first.particles_groups[i],
-                                            particles_groups_second.particles_groups[i])
+        weight_first, positions_first = get_dataset_values(particles_groups_first.particles_groups[i], 'position')
+        weight_first, momentum_first = get_dataset_values(particles_groups_first.particles_groups[i], 'momentum')
+
+        weight_second, positions_second = get_dataset_values(particles_groups_second.particles_groups[i], 'position')
+        weight_second, momentum_second = get_dataset_values(particles_groups_second.particles_groups[i], 'momentum')
+
+        count_weight_difference(weight_first, positions_first, weight_second, positions_second)
+        count_weight_difference(weight_first, momentum_first, weight_second, momentum_second)
+
+
+
+def test_function():
+
+    compare_weight_coordinates()
 
 
