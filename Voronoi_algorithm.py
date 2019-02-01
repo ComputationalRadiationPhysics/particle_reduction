@@ -117,56 +117,37 @@ class _VoronoiCell:
         """ Merge Voronoi cell into one point """
 
         first_key = list(self.points.keys())[0]
-        demention = len(self.points[first_key][0].coords)
+        dimention = len(self.points[first_key][0].coords)
 
         for key in self.points.keys():
 
             if key == 'momentum':
-                self.points['momentum'] = merge_momentum(demention, self.points)
+                self.points['momentum'] = merge_points(dimention, self.points, 'momentum')
             if key == 'position':
-                self.points['position'] = merge_coordinates(demention, self.points)
-
+                self.points['position'] = merge_points(dimention, self.points, 'position')
 
  #       """Get one point out of all points in the cell, return Point"""
 
 
-def merge_coordinates(demention, merged_points):
+def merge_points(demention, merged_points, type_of_merged_points):
     """ Merge coordinates into one point """
 
-    size = len(merged_points['position'])
-
-    weights = 0.
+    sum_weights = 0.
     full_values = []
-    for i in range(0, demention):
-        value = 0
-        for point in merged_points['position']:
-            value += point.coords[i]
-        full_values.append(value/size)
 
-    for point in merged_points['position']:
-        weights += point.weight
+    for point in merged_points[type_of_merged_points]:
+        print(point.weight)
+        sum_weights += point.weight
+
+    for i in range(0, demention):
+        value = 0.
+        for point in merged_points[type_of_merged_points]:
+            value += point.coords[i] * point.weight
+        full_values.append(value/sum_weights)
 
     result = []
-    result.append(Point(full_values, weights))
-    return result
 
-
-def merge_momentum(demention, merged_points):
-    """ Merge momentum into one point """
-
-    weights = 0.
-    full_values = []
-    for i in range(0, demention):
-        value = 0
-        for point in merged_points['momentum']:
-            value += point.coords[i]
-        full_values.append(value)
-
-    for point in merged_points['momentum']:
-        weights += point.weight
-
-    result = []
-    result.append(Point(full_values, weights))
+    result.append(Point(full_values, sum_weights))
     return result
 
 
