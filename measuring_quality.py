@@ -66,12 +66,16 @@ def count_weight_difference(weight_first, values_first, weight_second, values_se
         assert math.fabs(relative_error) < 1e-6, "Big relative error, reduction is wrong"
 
     return sum_first, sum_second
-    mass_reader_second = Mass_reader(second_group)
-    second_group.visititems(mass_reader_second)
-    size_of_positions_second = len(position_values_second.vector_x)
-    second_mass = convert_mass_to_array(mass_reader_second.mass, size_of_positions_second)
 
-    sum_second = compute_weight_positions_sum(second_mass, position_values_second)
+
+def compute_standard_deviation(weights, coords):
+
+    sum_weights = numpy.sum(weights)
+    sum_coords = 0.
+    for i in range(0, len(weights)):
+        sum_coords += weights[i] * coords[i]
+
+    average_value = sum_coords / sum_weights
 
 def count_weight_momentum_difference(first_group, second_group):
 
