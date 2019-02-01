@@ -2,21 +2,15 @@ import read_hdf_file
 import h5py
 
 
-class Mass_reader():
+class WeightReader():
 
-    def __init__(self, hdf_file):
-        self.hdf_file = hdf_file
-        self.mass = []
+    def __init__(self):
+        self.weight = []
 
     def __call__(self, name, node):
-        if isinstance(node, h5py.Group):
-            if node.name.endswith('mass'):
-                if node.attrs['value'] != None:
-                    self.mass.append(node.attrs['value'])
-
         if isinstance(node, h5py.Dataset):
-            if node.name.endswith('mass'):
-                self.mass = node.value
+            if node.name.endswith('weighting'):
+                self.weight = node.value
 
 
 def convert_mass_to_array(mass, size_of_positions):
