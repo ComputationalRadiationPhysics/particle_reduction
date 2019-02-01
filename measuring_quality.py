@@ -13,30 +13,26 @@ class WeightReader():
                 self.weight = node.value
 
 
-def convert_mass_to_array(mass, size_of_positions):
+def compute_weight_sum(weight, values):
 
     dimension = values.get_dimension()
-
-def compute_weight_positions_sum(mass, position_values):
-
-    demention = position_values.get_demention()
 
     sum_x = 0.
     sum_y = 0.
     sum_z = 0.
 
-    if demention == 3:
-        size_of_position = len(position_values.vector_x)
+    if dimension == 3:
+        size_of_position = len(values.vector_x)
         for i in range(0, size_of_position):
-            sum_x += position_values.vector_x[i] * mass[i]
-            sum_y += position_values.vector_y[i] * mass[i]
-            sum_z += position_values.vector_z[i] * mass[i]
+            sum_x += values.vector_x[i] * weight[i]
+            sum_y += values.vector_y[i] * weight[i]
+            sum_z += values.vector_z[i] * weight[i]
 
-    elif demention == 2:
-        size_of_position = len(position_values.vector_x)
+    elif dimension == 2:
+        size_of_position = len(values.vector_x)
         for i in range(0, size_of_position):
-            sum_x += position_values.vector_x[i] * mass[i]
-            sum_y += position_values.vector_y[i] * mass[i]
+            sum_x += values.vector_x[i] * weight[i]
+            sum_y += values.vector_y[i] * weight[i]
 
     return sum_x, sum_y, sum_z
 
