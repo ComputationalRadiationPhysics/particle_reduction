@@ -97,20 +97,19 @@ def count_weight_momentum_difference(first_group, second_group):
 
     print('first sum == ' + str(sum_first))
 
-    hdf_datasets = read_hdf_file.Particles_functor()
-    second_group.visititems(hdf_datasets)
-    momentum_group_second = hdf_datasets.momentum[0]
-    momentum_values_second = read_hdf_file.Dataset_reader('momentum')
-    momentum_group_second.visititems(momentum_values_second)
-    mass_reader_second = Mass_reader(second_group)
-    second_group.visititems(mass_reader_second)
-    size_of_momentum_second = len(momentum_values_second.vector_x)
-    second_mass = convert_mass_to_array(mass_reader_second.mass, size_of_momentum_second)
+def compute_momentum_standart_deviation(weights, momentum_values):
 
-    sum_second = compute_weight_positions_sum(second_mass, momentum_values_second)
+    deviation_values = []
+    if momentum_values.get_dimension() == 3:
+        deviation_values.append(compute_standard_deviation(weights, momentum_values.vector_x))
+        deviation_values.append(compute_standard_deviation(weights, momentum_values.vector_y))
+        deviation_values.append(compute_standard_deviation(weights, momentum_values.vector_z))
 
-    print('second sum == ' + str(sum_second))
+    if momentum_values.get_dimension() == 2:
+        deviation_values.append(compute_standard_deviation(weights, momentum_values.vector_x))
+        deviation_values.append(compute_standard_deviation(weights, momentum_values.vector_y))
 
+    return deviation_values
 
 
 def compare_weight_coordinates(first_hdf_file_name, second_hdf_file_name):
