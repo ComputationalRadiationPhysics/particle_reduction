@@ -52,15 +52,20 @@ def count_weight_coordinates_difference(first_group, second_group):
     first_group.visititems(mass_reader_first)
 
     size_of_positions_first = len(position_values_first.vector_x)
-    position_values_first.get_demention()
-    first_mass = convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
-    sum_first = compute_weight_positions_sum(first_mass, position_values_first)
 
-    hdf_datasets = read_hdf_file.Particles_functor()
-    second_group.visititems(hdf_datasets)
-    position_group_second = hdf_datasets.positions[0]
-    position_values_second = read_hdf_file.Dataset_reader('position')
-    position_group_second.visititems(position_values_second)
+    first_mass = convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
+def count_weight_difference(weight_first, values_first, weight_second, values_second):
+
+    sum_first = compute_weight_sum(weight_first, values_first)
+
+    sum_second = compute_weight_sum(weight_second, values_second)
+
+    for i in range(0, values_first.get_dimension()):
+        relative_error = (sum_first[i] - sum_second[i]) / sum_first[i]
+        print(relative_error)
+        assert math.fabs(relative_error) < 1e-6, "Big relative error, reduction is wrong"
+
+    return sum_first, sum_second
     mass_reader_second = Mass_reader(second_group)
     second_group.visititems(mass_reader_second)
     size_of_positions_second = len(position_values_second.vector_x)
