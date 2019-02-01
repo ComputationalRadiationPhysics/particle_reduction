@@ -15,17 +15,7 @@ class WeightReader():
 
 def convert_mass_to_array(mass, size_of_positions):
 
-    new_array_according_positions = []
-
-    if len(mass) == 1:
-        for i in range(0, size_of_positions):
-            new_array_according_positions.append(mass[0])
-    else:
-        new_array_according_positions = mass
-
-    return new_array_according_positions
-
-
+    dimension = values.get_dimension()
 
 def compute_weight_positions_sum(mass, position_values):
 
