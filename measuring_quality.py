@@ -1,5 +1,7 @@
 import read_hdf_file
 import h5py
+import numpy
+import math
 
 
 class WeightReader():
@@ -70,24 +72,17 @@ def compute_standard_deviation(weights, coords):
 
     average_value = sum_coords / sum_weights
 
-def count_weight_momentum_difference(first_group, second_group):
+    sum_sq = 0.
 
-    print('weight momentum')
+    for i in range(0, len(weights)):
+        sum_sq += (weights[i] * coords[i] - average_value) * (weights[i] * coords[i] - average_value)
 
-    hdf_datasets = read_hdf_file.Particles_functor()
-    first_group.visititems(hdf_datasets)
-    momentum_group_first = hdf_datasets.momentum[0]
-    momentum_values_first = read_hdf_file.Dataset_reader('momentum')
-    momentum_group_first.visititems(momentum_values_first)
-    mass_reader_first = Mass_reader(first_group)
-    first_group.visititems(mass_reader_first)
+    norm_sq = sum_sq / sum_weights
 
-    size_of_positions_first = len(momentum_values_first.vector_x)
-    momentum_values_first.get_demention()
-    first_mass = convert_mass_to_array(mass_reader_first.mass, size_of_positions_first)
-    sum_first = compute_weight_positions_sum(first_mass, momentum_values_first)
+    norm_sq = math.sqrt(norm_sq)
 
-    print('first sum == ' + str(sum_first))
+    return norm_sq
+
 
 def compute_momentum_standart_deviation(weights, momentum_values):
 
