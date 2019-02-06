@@ -105,3 +105,14 @@ def _thinning(points, parameters):
 
     return result, num_particles_offset, num_particles
 
+
+def _thinning_ver20(weights, parameters):
+
+    weights = numpy.array(weights)
+
+    ranges_patches = numpy.append(parameters.numParticlesOffset, len(weights))
+    for i in range(0, len(ranges_patches) - 1):
+        iterate_patch(int(ranges_patches[i]), int(ranges_patches[i + 1]), weights, parameters.reduction_percent)
+
+    return weights
+
