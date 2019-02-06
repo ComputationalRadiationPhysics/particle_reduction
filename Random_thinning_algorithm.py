@@ -19,9 +19,27 @@ class RandomThinningAlgorithm:
 
     def run(self, points):
         """Points is a collection of Point"""
-        return _thinning(points, self.parameters)
 
+        result_points = copy.deepcopy(points)
 
+        weights = []
+        sum_points_before = 0.
+        for point in result_points:
+            weights.append(point.weight)
+            sum_points_before += point.weight
+
+        print('weights before == ' + str(sum_points_before))
+
+        weights =_thinning_ver20(weights, self.parameters)
+        sum_points = 0.
+        for point in weights:
+            sum_points += point
+
+        print('weights after == ' + str(sum_points))
+
+        print('error == '+ str((sum_points - sum_points_before)/sum_points))
+
+        return delete_elements_with_null_weight(result_points)
 
 
 def delete_elements_with_null_weight(points):
