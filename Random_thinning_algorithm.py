@@ -116,3 +116,30 @@ def _thinning_ver20(weights, parameters):
 
     return weights
 
+
+def iterate_patch(left_bound, right_bound, weights, reduction_percent):
+    print('left_bound '+ str(left_bound))
+    print('right_bound  '+ str(right_bound))
+
+    size_of_patch = right_bound - left_bound
+    if size_of_patch != 0:
+        number_reduction_particles = int(size_of_patch * reduction_percent)
+        print('number_reduction_particles  '+ str(number_reduction_particles))
+
+        reduced_points = random.sample(range(left_bound, right_bound), k=number_reduction_particles)
+        reduced_points.sort()
+
+        selected_points = weights[reduced_points]
+
+        sum_weights = numpy.sum(selected_points)
+
+        added_weight = sum_weights/(size_of_patch - number_reduction_particles)
+        print('added weight  ' + str(added_weight))
+
+      #  print('added_weight' + str(added_weight))
+        weights[left_bound:right_bound] = weights[left_bound:right_bound] + added_weight
+        print(weights[reduced_points])
+        weights[reduced_points] = [0] * len(selected_points)
+        print('------------------------------')
+        print(weights[reduced_points])
+
