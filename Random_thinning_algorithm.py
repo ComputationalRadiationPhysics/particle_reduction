@@ -94,28 +94,6 @@ def patches_recount(reduced_points, ranges_patches, parameters):
     return recount_numParticlesOffset, recount_numParticles
 
 
-
-def _thinning_ver20():
-    data = [[1., 2., 3.], [4., 5., 6.], [7., 1., 5.], [8., 1., 3], [0., 3., 2]]
-    weight = [10., 10., 20., 15., 15.]
-
-
-
-
-  #  return weights
-
-
-def _thinning_ver20(weights, parameters):
-
-    weights = numpy.array(weights)
-
-    ranges_patches = numpy.append(parameters.numParticlesOffset, len(weights))
-    for i in range(0, len(ranges_patches) - 1):
-        iterate_patch(int(ranges_patches[i]), int(ranges_patches[i + 1]), weights, parameters.reduction_percent)
-
-    return weights
-
-
 def iterate_patch(left_bound, right_bound, weights, reduction_percent):
     print('left_bound '+ str(left_bound))
     print('right_bound  '+ str(right_bound))
@@ -141,7 +119,6 @@ def iterate_patch(left_bound, right_bound, weights, reduction_percent):
         weights[reduced_points] = [0] * len(selected_points)
         print('------------------------------')
         print(weights[reduced_points])
-
 
 
 def get_indices_to_remove(size, ratio):
