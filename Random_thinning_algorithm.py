@@ -14,13 +14,11 @@ class RandomThinningAlgorithmParameters:
 
 
 class RandomThinningAlgorithm:
-    def __init__(self, parameters):
-        self.parameters = parameters
 
-    def run(self, points):
-        """Points is a collection of Point"""
+    def __init__(self, ratio):
+        self.ratio = ratio
 
-        result_points = copy.deepcopy(points)
+    def _run(self, data, weigths):
 
         weights = []
         sum_points_before = 0.
