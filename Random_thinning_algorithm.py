@@ -158,3 +158,12 @@ def iterate_patch(left_bound, right_bound, weights, reduction_percent):
         print('------------------------------')
         print(weights[reduced_points])
 
+
+
+def get_indices_to_remove(size, ratio):
+
+    num_to_remove = int(size * ratio)
+    result = random.sample(range(size), num_to_remove)
+    result.sort()
+
+    return result
