@@ -19,25 +19,24 @@ class RandomThinningAlgorithm:
         self.ratio = ratio
 
     def _run(self, data, weigths):
+        size = len(data)
 
-        weights = []
-        sum_points_before = 0.
-        for point in result_points:
-            weights.append(point.weight)
-            sum_points_before += point.weight
+        data = numpy.array(data)
+        weigths = numpy.array(weigths)
 
-        print('weights before == ' + str(sum_points_before))
+        indices_to_remove = get_indices_to_remove(size, self.ratio)
+        all_data_indexes = numpy.array(range(size))
 
-        weights =_thinning_ver20(weights, self.parameters)
-        sum_points = 0.
-        for point in weights:
-            sum_points += point
+        select = numpy.in1d(range(all_data_indexes.shape[0]), indices_to_remove)
 
-        print('weights after == ' + str(sum_points))
+        indices_to_keep = all_data_indexes[~select]
+        total_removed_weight = numpy.sum(weigths[indices_to_remove])
 
-        print('error == '+ str((sum_points - sum_points_before)/sum_points))
+        weights_to_keep = weigths[indices_to_keep]
+        weight_correction = total_removed_weight / len(weights_to_keep)
+        weights_to_keep = weights_to_keep + weight_correction
 
-        return delete_elements_with_null_weight(result_points)
+        return data[indices_to_keep], weights_to_keep
 
 
 def delete_elements_with_null_weight(points):
