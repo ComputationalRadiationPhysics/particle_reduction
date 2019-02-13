@@ -514,8 +514,49 @@ def write_group_values(hdf_file_reduction, group, library_datasets, num_particle
     momentum_group.visititems(writen_momentum)
     group.visititems(writen_weighting)
 
-    if num_particles_offset !=None:
-        patch_group = ReadPatchGroup()
+
+def create_datasets_from_vector(reduced_data, dimensions):
+
+    library_datasets = {}
+
+    position_x = []
+    position_y = []
+    position_z = []
+
+    momentum_x = []
+    momentum_y = []
+    momentum_z = []
+
+    for point in reduced_data:
+        if dimensions.dimension_position == 3:
+            position_x.append(point[0])
+            position_y.append(point[1])
+            position_z.append(point[2])
+
+        if dimensions.dimension_position == 2:
+            position_x.append(point[0])
+            position_z.append(point[1])
+
+        if dimensions.dimension_momentum == 3:
+            momentum_x.append(point[dimensions.dimension_position])
+            momentum_y.append(point[dimensions.dimension_position + 1])
+            momentum_z.append(point[dimensions.dimension_position + 2])
+
+        if dimensions.dimension_momentum == 2:
+            momentum_x.append(point[0])
+            momentum_y.append(point[dimensions.dimension_position + 1])
+
+        library_datasets['position/x'] = position_x
+        library_datasets['position/y'] = position_y
+        library_datasets['position/z'] = position_z
+
+        library_datasets['momentum/x'] = momentum_x
+        library_datasets['momentum/y'] = momentum_y
+        library_datasets['momentum/z'] = momentum_z
+
+    return library_datasets
+
+
         group.visititems(patch_group)
         patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
         patch_group.patch_group[0].visititems(patch_writter)
