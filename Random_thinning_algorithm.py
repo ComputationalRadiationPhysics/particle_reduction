@@ -72,28 +72,6 @@ def weight_distribution(idx_point,  positions, momentum, ranges_patches):
         positions[i].weight += adding_weight
 
 
-def patches_recount(reduced_points, ranges_patches, parameters):
-
-    reduced_points.sort()
-    count_reduced_points = [0] * len(ranges_patches)
-
-    for point in reduced_points:
-        patch_idx = bisect.bisect_left(ranges_patches, point) - 1
-        count_reduced_points[patch_idx] += 1
-
-
-    recount_numParticles = []
-
-    for i in range(0, len(parameters.numParticlesOffset)):
-        recount_numParticles.append(int(parameters.numParticles[i] - count_reduced_points[i]))
-
-    recount_numParticlesOffset = numpy.cumsum(recount_numParticles, dtype=int)
-    recount_numParticlesOffset = numpy.insert(recount_numParticlesOffset, 0, 0)
-    recount_numParticlesOffset = numpy.delete(recount_numParticlesOffset, -1)
-
-    return recount_numParticlesOffset, recount_numParticles
-
-
 def iterate_patch(left_bound, right_bound, weights, reduction_percent):
     print('left_bound '+ str(left_bound))
     print('right_bound  '+ str(right_bound))
