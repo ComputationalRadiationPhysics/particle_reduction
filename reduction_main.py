@@ -56,14 +56,17 @@ def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_
     hdf_file.visititems(particles_collect)
 
     for group in particles_collect.particles_groups:
-        points = read_hdf_file.read_group_values(group)
+        data, weights, dimensions\
+            = read_hdf_file.read_points_group(group)
         num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
-        parameters = Random_thinning_algorithm.RandomThinningAlgorithmParameters(reduction_percent, num_particles, num_particles_offset)
-        algorithm = Random_thinning_algorithm.RandomThinningAlgorithm(parameters)
-        result, num_particles_offset, num_particles = algorithm.run(points)
-        library_datasets = read_hdf_file.create_library_of_datasets(result)
-        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, num_particles_offset,
-                                         num_particles)
+
+        reduced_data, reduced_weights, result_num_particles =\
+            iterate_patches(data, weights, num_particles_offset, reduction_percent)
+        library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
+
+        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
+
+
 def iterate_patches(data, weights, num_particles_offset, reduction_percent):
 
     ranges_patches = num_particles_offset
