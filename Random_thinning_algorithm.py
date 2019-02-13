@@ -39,13 +39,6 @@ class RandomThinningAlgorithm:
         return data[indices_to_keep], weights_to_keep
 
 
-def delete_elements_with_null_weight(points):
-
-    result_points = [i for i in points if points[i]. weight != 0]
-
-    return result_points
-
-
 def count_euclidean_distance(point_coordinates, point_momentum):
 
     sum_coords = point_coordinates.coords[0] * point_coordinates.coords[0]
