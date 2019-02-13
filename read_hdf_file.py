@@ -489,7 +489,32 @@ def read_group_values(group):
     return points
 
 
-def write_group_values(hdf_file_reduction, group, library_datasets, num_particles_offset=None, num_particles=None):
+def read_points_group(group):
+    """
+
+    convert values from position and momentum datasets into points
+    group -- base group of points from hdf file
+
+    """
+
+    hdf_datasets = ParticlesFunctor()
+    group.visititems(hdf_datasets)
+    weighting = hdf_datasets.weighting
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+    points = create_points_array_ver2(position_values, momentum_values)
+    dimention_position = position_values.get_dimension()
+    dimention_momentum = momentum_values.get_dimension()
+    dimensions = Dimensions(dimention_position, dimention_momentum)
+
+    return points, weighting, dimensions
+
+
+def write_group_values(hdf_file_reduction, group, library_datasets):
     """
 
     write values from point library to hdf file
