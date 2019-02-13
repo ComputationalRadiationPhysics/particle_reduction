@@ -557,6 +557,33 @@ def create_datasets_from_vector(reduced_data, dimensions):
     return library_datasets
 
 
+def write_group_values(hdf_file_reduction, group, reduced_data, weights):
+    """
+
+    write values from point library to hdf file
+    hdf_file_reduction -- result file
+    group -- base group of partilces from original file
+    result -- library points
+
+    """
+
+    hdf_datasets = ParticlesFunctor()
+    group.visititems(hdf_datasets)
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+
+    writen_position = DatasetWriter(hdf_file_reduction, reduced_data,  'position')
+    writen_momentum = DatasetWriter(hdf_file_reduction, reduced_data, 'momentum')
+    writen_weighting = WeightWriter(hdf_file_reduction, weights)
+    position_group.visititems(writen_position)
+    momentum_group.visititems(writen_momentum)
+    group.visititems(writen_weighting)
+
+
         group.visititems(patch_group)
         patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
         patch_group.patch_group[0].visititems(patch_writter)
