@@ -1,7 +1,5 @@
 import random
 import math
-import bisect
-import copy
 import numpy
 
 
@@ -37,19 +35,6 @@ class RandomThinningAlgorithm:
         weights_to_keep = weights_to_keep + weight_correction
 
         return data[indices_to_keep], weights_to_keep
-
-
-def count_euclidean_distance(point_coordinates, point_momentum):
-
-    sum_coords = point_coordinates.coords[0] * point_coordinates.coords[0]
-    sum_coords += point_coordinates.coords[1] * point_coordinates.coords[1]
-    sum_coords += point_coordinates.coords[2] * point_coordinates.coords[2]
-
-    sum_momentum = point_momentum.coords[0] * point_momentum.coords[0]
-    sum_momentum += point_momentum.coords[1] * point_momentum.coords[1]
-    sum_momentum += point_momentum.coords[2] * point_momentum.coords[2]
-
-    return math.sqrt(sum_coords + sum_momentum)
 
 
 def get_indices_to_remove(size, ratio):
