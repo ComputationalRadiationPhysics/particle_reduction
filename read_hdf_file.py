@@ -222,9 +222,9 @@ class WeightWriter():
 
     """
 
-    def __init__(self, hdf_file, result_points):
+    def __init__(self, hdf_file, weight):
 
-        self.weighting = result_points['weighting']
+        self.weighting = weight
         self.hdf_file = hdf_file
 
     def __call__(self, name, node):
@@ -234,7 +234,7 @@ class WeightWriter():
             if node.name.endswith('weighting'):
                 node_name = node.name
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
+                dset = self.hdf_file.create_dataset(node_name, data=self.weighting, dtype=float)
         return None
 
 
