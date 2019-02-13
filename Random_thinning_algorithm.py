@@ -59,19 +59,6 @@ def count_euclidean_distance(point_coordinates, point_momentum):
     return math.sqrt(sum_coords + sum_momentum)
 
 
-def weight_distribution(idx_point,  positions, momentum, ranges_patches):
-
-    weight = positions[idx_point].weight
-    right_idx = bisect.bisect_left(ranges_patches, idx_point)
-    left_idx = right_idx - 1
-    size_of_patch = ranges_patches[right_idx] - ranges_patches[left_idx]
-    adding_weight = weight/size_of_patch
-
-    for i in range(int(ranges_patches[left_idx]), int(ranges_patches[right_idx])):
-        momentum[i].weight += adding_weight
-        positions[i].weight += adding_weight
-
-
 def iterate_patch(left_bound, right_bound, weights, reduction_percent):
     print('left_bound '+ str(left_bound))
     print('right_bound  '+ str(right_bound))
