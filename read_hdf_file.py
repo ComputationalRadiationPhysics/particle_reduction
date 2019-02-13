@@ -365,6 +365,46 @@ def create_point_array(coord_collection, weighting):
     return point_array
 
 
+def create_points_array_ver2(coord_collection, momentum_collection):
+    """
+
+    create array of 2-d, 3-d points from datasets
+    coord_collection -- datasets from hdf file
+
+    """
+
+    vector_coords = []
+
+    dimension_coord = coord_collection.get_dimension()
+
+    dimension_momentum = momentum_collection.get_dimension()
+
+    if dimension_coord == 3 and dimension_momentum == 3:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  coord_collection.vector_z[i], momentum_collection.vector_x[i],
+                                  momentum_collection.vector_y[i], momentum_collection.vector_z[i]])
+
+    elif dimension_coord == 3 and dimension_momentum == 2:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  coord_collection.vector_z[i], momentum_collection.vector_x[i],
+                                  momentum_collection.vector_y[i]])
+
+    elif dimension_coord == 2 and dimension_momentum == 3:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  momentum_collection.vector_x[i], momentum_collection.vector_y[i],
+                                  momentum_collection.vector_z[i]])
+
+    elif dimension_coord == 2 and dimension_momentum == 2:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  momentum_collection.vector_x[i], momentum_collection.vector_y[i]])
+
+    return vector_coords
+
+
 def create_dataset_from_point_array(points, name_dataset):
 
     vector_x = []
