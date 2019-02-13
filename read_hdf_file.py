@@ -584,9 +584,11 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     group.visititems(writen_weighting)
 
 
-        group.visititems(patch_group)
-        patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
-        patch_group.patch_group[0].visititems(patch_writter)
+def write_patch_group(group, hdf_file_reduction, num_particles_offset, num_particles):
+    patch_group = ReadPatchGroup()
+    group.visititems(patch_group)
+    patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
+    patch_group.patch_group[0].visititems(patch_writter)
 
 
 def read_patches_values(group):
