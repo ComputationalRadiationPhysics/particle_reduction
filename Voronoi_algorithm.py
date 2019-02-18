@@ -14,8 +14,9 @@ class Point:
 class VoronoiMergingAlgorithmParameters:
     """Tolerance is array-like, first -- coordinate tolerance, second -- momentum tolerance"""
 
-    def __init__(self, tolerance):
+    def __init__(self, tolerance, position_vector_idx):
         self.tolerance = tolerance
+        self.position_vector_idx = position_vector_idx
 
 
 class VoronoiMergingAlgorithm:
@@ -186,9 +187,10 @@ def check_needs_subdivision(parameters, max_avg, max_idx):
 
     position_tolerance = parameters.tolerance[0]
     momentum_tolerance = parameters.tolerance[1]
+    position_vector_idx = parameters.position_vector_idx
 
-    if max_idx <= 2:
+    if max_idx <= position_vector_idx:
         return max_avg > position_tolerance
 
-    if max_idx > 2:
+    if max_idx > position_vector_idx:
         return max_avg > momentum_tolerance
