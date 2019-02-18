@@ -1,8 +1,6 @@
-
 import numpy
 import math
-import copy
-
+import statistics
 
 class Point:
 
@@ -40,8 +38,8 @@ class _VoronoiCell:
 
         """Points is array of Points"""
 
-        self.vector = data
-        self.weights = weigths
+        self.vector = numpy.array(data)
+        self.weights = numpy.array(weigths)
 
     def get_coeff_var(self):
 
@@ -73,34 +71,25 @@ class _VoronoiCell:
 
         """
 
-        max_value = float("-inf")
-        min_value = float("inf")
-
-        for point in self.vector:
-            if max_value < point[devide_hyperlane]:
-                max_value = point[devide_hyperlane]
-
-            if min_value > point[devide_hyperlane]:
-                min_value = point[devide_hyperlane]
-
-        middle_value = (max_value + min_value)/2.
+        median = statistics.median(self.vector[:, devide_hyperlane])
 
         first = []
         weights_first = []
-        secound = []
-        weights_secound = []
+        second = []
+        weights_second = []
 
         for i in range(0, len(self.vector)):
-            if self.vector[i][devide_hyperlane]> middle_value :
+            if self.vector[i][devide_hyperlane] > median:
                 first.append(self.vector[i])
-                weights_first.append(float(self.weights[i]))
+                weights_first.append(self.weights[i])
             else:
-                secound.append(self.vector[i])
-                weights_secound.append(float(self.weights[i]))
+                second.append(self.vector[i])
+                weights_second.append(self.weights[i])
 
         first_cell = _VoronoiCell(first, weights_first)
-        secound_cell = _VoronoiCell(secound, weights_secound)
-        return first_cell, secound_cell
+        second_cell = _VoronoiCell(second, weights_second)
+
+        return first_cell, second_cell
 
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
