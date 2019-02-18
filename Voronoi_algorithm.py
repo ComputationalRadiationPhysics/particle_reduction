@@ -188,7 +188,7 @@ def _merge(data, weights, parameters):
     return result_vector, result_weights
 
 
-def check_needs_subdivision(parameters, max_avg, max_key):
+def check_needs_subdivision(parameters, max_avg, max_idx):
     """
     Check that Voronoi cell need to devide
     parametrs -- subdivision tolerances
@@ -200,8 +200,8 @@ def check_needs_subdivision(parameters, max_avg, max_key):
     position_tolerance = parameters.tolerance[0]
     momentum_tolerance = parameters.tolerance[1]
 
-    if max_key == 'position':
+    if max_idx <= 2:
         return max_avg > position_tolerance
 
-    if max_key == 'momentum':
+    if max_idx > 2:
         return max_avg > momentum_tolerance
