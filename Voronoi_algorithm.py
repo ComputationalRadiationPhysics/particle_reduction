@@ -155,38 +155,38 @@ def weighted_avg(values, weights):
     return math.sqrt(variance)
 
 
-def _merge(data, weigths, parameters):
+def _merge(data, weights, parameters):
     """
     Merging algorithm:
     points -- original points
     parametes -- input parameters for Voronoi algorithm(tolerances)
 
     """
-    initial_cell = _VoronoiCell(copy_data, copy_weights)
+    initial_cell = _VoronoiCell(data, weights)
 
 
-    result = []
+    result_vector = []
+    result_weights = []
     cells = [initial_cell]
-
     while len(cells) > 0:
         cell = cells[0]
 
-        max_idx, max_key, max_avg = cell.get_coeff_var()
-        needs_subdivision = check_needs_subdivision(parameters, max_avg, max_key)
+        max_idx, max_avg = cell.get_coeff_var()
+        needs_subdivision = check_needs_subdivision(parameters, max_avg, max_idx)
 
         if needs_subdivision:
-
-            first_part_cell, secound_part_cell = cell.divide(max_idx, max_key)
+            first_part_cell, secound_part_cell = cell.divide(max_idx)
             cells.append(secound_part_cell)
             cells.append(first_part_cell)
         else:
+
             cell.merge()
-            new_particle = copy.deepcopy(cell)
-            result.append(new_particle)
+            result_vector.append(cell.vector)
+            result_weights.append(cell.weights)
 
         cells.remove(cells[0])
 
-    return result
+    return result_vector, result_weights
 
 
 def check_needs_subdivision(parameters, max_avg, max_key):
