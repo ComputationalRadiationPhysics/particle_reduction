@@ -106,12 +106,10 @@ def merge_points(dimension, vector, weights_vector):
 
     values_vector = []
     sum_weights = numpy.sum(weights_vector, dtype=float)
+    vector = numpy.array(vector)
 
     for i in range(0, dimension):
-        value = 0.
-        for j in range(0, len(vector)):
-            value = value + vector[j][i] * weights_vector[j]
-        values_vector.append(float(value / sum_weights))
+        values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
 
     return values_vector, sum_weights
 
