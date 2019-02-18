@@ -26,49 +26,42 @@ class VoronoiMergingAlgorithm:
     def __init__(self, parameters):
         self.parameters = parameters
 
-    def run(self, points):
+    def run(self, data, weigths):
 
         """Points is a collection of Point"""
-        return _merge(points, self.parameters)
+        return _merge(data, weigths, self.parameters)
 
 
 class _VoronoiCell:
 
     """Used to store points in Voronoi cell"""
 
-    def __init__(self, points):
+    def __init__(self, data, weigths):
 
         """Points is array of Points"""
 
-        self.points = points
+        self.vector = data
+        self.weights = weigths
 
     def get_coeff_var(self):
 
         """Get max variance coefficient of Voronoi cell"""
 
+        dimension = len(self.vector[0])
+        avg_values = []
 
-        first_key = list(self.points.keys())[0]
-        demention = len(self.points[first_key][0].coords)
+        for i in range(0, dimension):
+            values_dimension = []
+            weights_dimension = []
+            for j in range(0, len(self.vector)):
+                values_dimension.append(self.vector[j][i])
+                weights_dimension.append(self.weights[j])
 
-        avg_keys = {}
+            std = weighted_std(values_dimension, weights_dimension)
+            avg_values.append(std)
 
-        for key in self.points.keys():
-
-            avg_values = []
-
-            for i in range(0, demention):
-                values = []
-                weights = []
-                for points in self.points[key]:
-                    values.append(points.coords[i])
-                    weights.append(points.weight)
-
-                avg = weighted_avg(values, weights)
-                avg_values.append(avg)
-            avg_keys[key] = avg_values
-
-        max_idx, max_key, max_avg = get_max_coef(avg_keys)
-        return max_idx, max_key, max_avg
+        max_idx, max_avg = get_max_coef(avg_values)
+        return max_idx, max_avg
 
     def divide(self, max_idx, max_key):
 
@@ -116,55 +109,38 @@ class _VoronoiCell:
     def merge(self):
         """ Merge Voronoi cell into one point """
 
-        first_key = list(self.points.keys())[0]
-        dimention = len(self.points[first_key][0].coords)
+        dimension = len(self.vector[0])
 
-        for key in self.points.keys():
-
-            if key == 'momentum':
-                self.points['momentum'] = merge_points(dimention, self.points, 'momentum')
-            if key == 'position':
-                self.points['position'] = merge_points(dimention, self.points, 'position')
-
- #       """Get one point out of all points in the cell, return Point"""
+        self.vector, self.weights = merge_points(dimension, self.vector, self.weights)
 
 
-def merge_points(demention, merged_points, type_of_merged_points):
+def merge_points(dimension, vector, weights_vector):
     """ Merge coordinates into one point """
 
-    sum_weights = 0.
-    full_values = []
+    values_vector = []
+    sum_weights = numpy.sum(weights_vector, dtype=float)
 
-    for point in merged_points[type_of_merged_points]:
-        print(point.weight)
-        sum_weights += point.weight
-
-    for i in range(0, demention):
+    for i in range(0, dimension):
         value = 0.
-        for point in merged_points[type_of_merged_points]:
-            value += point.coords[i] * point.weight
-        full_values.append(value/sum_weights)
+        for j in range(0, len(vector)):
+            value = value + vector[j][i] * weights_vector[j]
+        values_vector.append(float(value / sum_weights))
 
-    result = []
-
-    result.append(Point(full_values, sum_weights))
-    return result
+    return values_vector, sum_weights
 
 
-def get_max_coef(avg_keys):
+def get_max_coef(avg_values):
     """ Find max coefficient of variance """
 
     max_value = float("-inf")
     max_idx = -1
-    max_key = ''
-    for key in avg_keys:
-        for i in range(0, len(avg_keys[key])):
-            if avg_keys[key][i] > max_value:
-                max_value = avg_keys[key][i]
-                max_idx = i
-                max_key = key
 
-    return max_idx, max_key, max_value
+    for i in range(0, len(avg_values)):
+        if avg_values[i] > max_value:
+            max_value = avg_values[i]
+            max_idx = i
+
+    return max_idx, max_value
 
 
 def weighted_avg(values, weights):
@@ -181,15 +157,15 @@ def weighted_avg(values, weights):
     return math.sqrt(variance)
 
 
-def _merge(points, parameters):
+def _merge(data, weigths, parameters):
     """
     Merging algorithm:
     points -- original points
     parametes -- input parameters for Voronoi algorithm(tolerances)
 
     """
+    initial_cell = _VoronoiCell(copy_data, copy_weights)
 
-    initial_cell = _VoronoiCell(points)
 
     result = []
     cells = [initial_cell]
