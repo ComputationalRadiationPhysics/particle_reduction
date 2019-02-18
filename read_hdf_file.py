@@ -3,6 +3,12 @@ import re
 import Voronoi_algorithm
 
 
+class Dimensions:
+    def __init__(self, dimension_position, dimension_momentum):
+        self.dimension_position = dimension_position
+        self.dimension_momentum = dimension_momentum
+
+
 class ParticlesFunctor():
     """
 
@@ -222,9 +228,9 @@ class WeightWriter():
 
     """
 
-    def __init__(self, hdf_file, result_points):
+    def __init__(self, hdf_file, weight):
 
-        self.weighting = result_points['weighting']
+        self.weighting = weight
         self.hdf_file = hdf_file
 
     def __call__(self, name, node):
@@ -234,7 +240,7 @@ class WeightWriter():
             if node.name.endswith('weighting'):
                 node_name = node.name
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
+                dset = self.hdf_file.create_dataset(node_name, data=self.weighting, dtype=float)
         return None
 
 
@@ -365,6 +371,46 @@ def create_point_array(coord_collection, weighting):
     return point_array
 
 
+def create_points_array_ver2(coord_collection, momentum_collection):
+    """
+
+    create array of 2-d, 3-d points from datasets
+    coord_collection -- datasets from hdf file
+
+    """
+
+    vector_coords = []
+
+    dimension_coord = coord_collection.get_dimension()
+
+    dimension_momentum = momentum_collection.get_dimension()
+
+    if dimension_coord == 3 and dimension_momentum == 3:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  coord_collection.vector_z[i], momentum_collection.vector_x[i],
+                                  momentum_collection.vector_y[i], momentum_collection.vector_z[i]])
+
+    elif dimension_coord == 3 and dimension_momentum == 2:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  coord_collection.vector_z[i], momentum_collection.vector_x[i],
+                                  momentum_collection.vector_y[i]])
+
+    elif dimension_coord == 2 and dimension_momentum == 3:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  momentum_collection.vector_x[i], momentum_collection.vector_y[i],
+                                  momentum_collection.vector_z[i]])
+
+    elif dimension_coord == 2 and dimension_momentum == 2:
+        for i in range(0, len(coord_collection.vector_x)):
+            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
+                                  momentum_collection.vector_x[i], momentum_collection.vector_y[i]])
+
+    return vector_coords
+
+
 def create_dataset_from_point_array(points, name_dataset):
 
     vector_x = []
@@ -449,7 +495,32 @@ def read_group_values(group):
     return points
 
 
-def write_group_values(hdf_file_reduction, group, library_datasets, num_particles_offset=None, num_particles=None):
+def read_points_group(group):
+    """
+
+    convert values from position and momentum datasets into points
+    group -- base group of points from hdf file
+
+    """
+
+    hdf_datasets = ParticlesFunctor()
+    group.visititems(hdf_datasets)
+    weighting = hdf_datasets.weighting
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+    points = create_points_array_ver2(position_values, momentum_values)
+    dimention_position = position_values.get_dimension()
+    dimention_momentum = momentum_values.get_dimension()
+    dimensions = Dimensions(dimention_position, dimention_momentum)
+
+    return points, weighting, dimensions
+
+
+def write_group_values(hdf_file_reduction, group, library_datasets):
     """
 
     write values from point library to hdf file
@@ -474,11 +545,81 @@ def write_group_values(hdf_file_reduction, group, library_datasets, num_particle
     momentum_group.visititems(writen_momentum)
     group.visititems(writen_weighting)
 
-    if num_particles_offset !=None:
-        patch_group = ReadPatchGroup()
-        group.visititems(patch_group)
-        patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
-        patch_group.patch_group[0].visititems(patch_writter)
+
+def create_datasets_from_vector(reduced_data, dimensions):
+
+    library_datasets = {}
+
+    position_x = []
+    position_y = []
+    position_z = []
+
+    momentum_x = []
+    momentum_y = []
+    momentum_z = []
+
+    for point in reduced_data:
+        if dimensions.dimension_position == 3:
+            position_x.append(point[0])
+            position_y.append(point[1])
+            position_z.append(point[2])
+
+        if dimensions.dimension_position == 2:
+            position_x.append(point[0])
+            position_z.append(point[1])
+
+        if dimensions.dimension_momentum == 3:
+            momentum_x.append(point[dimensions.dimension_position])
+            momentum_y.append(point[dimensions.dimension_position + 1])
+            momentum_z.append(point[dimensions.dimension_position + 2])
+
+        if dimensions.dimension_momentum == 2:
+            momentum_x.append(point[0])
+            momentum_y.append(point[dimensions.dimension_position + 1])
+
+        library_datasets['position/x'] = position_x
+        library_datasets['position/y'] = position_y
+        library_datasets['position/z'] = position_z
+
+        library_datasets['momentum/x'] = momentum_x
+        library_datasets['momentum/y'] = momentum_y
+        library_datasets['momentum/z'] = momentum_z
+
+    return library_datasets
+
+
+def write_group_values(hdf_file_reduction, group, reduced_data, weights):
+    """
+
+    write values from point library to hdf file
+    hdf_file_reduction -- result file
+    group -- base group of partilces from original file
+    result -- library points
+
+    """
+
+    hdf_datasets = ParticlesFunctor()
+    group.visititems(hdf_datasets)
+    position_values = DatasetReader('position')
+    momentum_values = DatasetReader('momentum')
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+
+    writen_position = DatasetWriter(hdf_file_reduction, reduced_data,  'position')
+    writen_momentum = DatasetWriter(hdf_file_reduction, reduced_data, 'momentum')
+    writen_weighting = WeightWriter(hdf_file_reduction, weights)
+    position_group.visititems(writen_position)
+    momentum_group.visititems(writen_momentum)
+    group.visititems(writen_weighting)
+
+
+def write_patch_group(group, hdf_file_reduction, num_particles_offset, num_particles):
+    patch_group = ReadPatchGroup()
+    group.visititems(patch_group)
+    patch_writter = PatchValuesWriter(hdf_file_reduction, num_particles_offset, num_particles)
+    patch_group.patch_group[0].visititems(patch_writter)
 
 
 def read_patches_values(group):
