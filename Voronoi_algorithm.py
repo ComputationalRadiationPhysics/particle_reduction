@@ -141,17 +141,16 @@ def get_max_coef(avg_values):
     return max_idx, max_value
 
 
-def weighted_avg(values, weights):
+def weighted_std(values, weights):
     """
     Return the weighted average and standard deviation.
 
     values, weights -- Numpy ndarrays with the same shape.
 
     """
-
-    average = numpy.average(values, weights=weights)
+    weighted_average = numpy.average(values, weights=weights)
     # Fast and numerically precise:
-    variance = numpy.average((values-average)**2, weights=weights)
+    variance = numpy.average((values-weighted_average)**2, weights=weights)
     return math.sqrt(variance)
 
 
