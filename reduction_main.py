@@ -39,13 +39,17 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
     particles_collect = read_hdf_file.ParticlesGroups(particles_name)
     hdf_file.visititems(particles_collect)
     for group in particles_collect.particles_groups:
+        data, weights, dimensions \
+            = read_hdf_file.read_points_group(group)
+        parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerances)
+        algorithm = Voronoi_algorithm.VoronoiMergingAlgorithm(parameters)
 
-        points = read_hdf_file.read_group_values(group)
-        result = Voronoi_algorithm.run_algorithm(points, tolerances)
-        point_converter = read_hdf_file.CoverterVoronoiToPoints(result)
-        library_datasets = read_hdf_file.create_library_of_datasets(point_converter.points)
+        reduced_data, reduced_weights = algorithm.run(data, weights)
 
-        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets)
+        library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
+        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
+
+
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
 
     copyfile(hdf_file_name, hdf_file_reduction_name)
