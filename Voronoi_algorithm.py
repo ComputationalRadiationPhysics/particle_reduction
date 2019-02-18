@@ -63,7 +63,7 @@ class _VoronoiCell:
         max_idx, max_avg = get_max_coef(avg_values)
         return max_idx, max_avg
 
-    def divide(self, max_idx, max_key):
+    def divide(self, devide_hyperlane):
 
         """
 
@@ -76,34 +76,32 @@ class _VoronoiCell:
         max_value = float("-inf")
         min_value = float("inf")
 
-        for point in self.points[max_key]:
-            if max_value < point.coords[max_idx]:
-                max_value = point.coords[max_idx]
+        for point in self.vector:
+            if max_value < point[devide_hyperlane]:
+                max_value = point[devide_hyperlane]
 
-            if min_value > point.coords[max_idx]:
-                min_value = point.coords[max_idx]
+            if min_value > point[devide_hyperlane]:
+                min_value = point[devide_hyperlane]
 
         middle_value = (max_value + min_value)/2.
 
-        array_first = {}
-        array_secound = {}
+        first = []
+        weights_first = []
+        secound = []
+        weights_secound = []
 
-        array_first['position'] = []
-        array_first['momentum'] = []
-        array_secound['position'] = []
-        array_secound['momentum'] = []
-
-        for i in range(0, len(self.points[max_key])):
-            if self.points[max_key][i].coords[max_idx] > middle_value:
-                for keys in self.points:
-                       array_first[keys].append(self.points[keys][i])
+        for i in range(0, len(self.vector)):
+            if self.vector[i][devide_hyperlane]> middle_value :
+                first.append(self.vector[i])
+                weights_first.append(float(self.weights[i]))
             else:
-                for keys in self.points:
-                    array_secound[keys].append(self.points[keys][i])
+                secound.append(self.vector[i])
+                weights_secound.append(float(self.weights[i]))
 
-        first_cell = _VoronoiCell(array_first)
-        secound_cell = _VoronoiCell(array_secound)
+        first_cell = _VoronoiCell(first, weights_first)
+        secound_cell = _VoronoiCell(secound, weights_secound)
         return first_cell, secound_cell
+
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
     def merge(self):
