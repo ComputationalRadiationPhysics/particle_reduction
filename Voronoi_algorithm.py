@@ -232,18 +232,3 @@ def check_needs_subdivision(parameters, max_avg, max_key):
 
     if max_key == 'momentum':
         return max_avg > momentum_tolerance
-
-
-def run_algorithm(points, tolerances):
-    """
-    Run main algorithm
-    points -- start points
-    tolerances -- parameters for algorithm
-
-    """
-
-    parameters = VoronoiMergingAlgorithmParameters(tolerances)
-    algorithm = VoronoiMergingAlgorithm(parameters)
-    result = algorithm.run(points)
-
-    return result
