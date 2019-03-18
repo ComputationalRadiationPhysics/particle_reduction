@@ -4,7 +4,9 @@ import argparse
 import Voronoi_algorithm
 import os
 import h5py
+import numpy
 import Random_thinning_algorithm
+import copy
 
 
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
@@ -38,10 +40,13 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
     particles_collect = read_hdf_file.ParticlesGroups(particles_name)
     hdf_file.visititems(particles_collect)
+
+
     for group in particles_collect.particles_groups:
         data, weights, dimensions \
             = read_hdf_file.read_points_group(group)
-        parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerances)
+
+        parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerances, dimensions.dimension_position)
         algorithm = Voronoi_algorithm.VoronoiMergingAlgorithm(parameters)
 
         reduced_data, reduced_weights = algorithm.run(data, weights)
@@ -81,7 +86,7 @@ def iterate_patches(data, weights, num_particles_offset, reduction_percent):
     reduced_data = []
     reduced_weights = []
     result_num_particles = []
-    print(ranges_patches)
+
 
     for i in range(0, len(ranges_patches) - 1):
         start = int(ranges_patches[i])
@@ -129,6 +134,6 @@ if __name__ == "__main__":
     if args.algorithm == 'voronoi':
         voronoi_reduction(args.hdf, args.hdf_re, args.momentum_tol, args.momentum_pos)
     elif args.algorithm == 'random':
-        random_thinning_algorithm()
+        random_thinning_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
 
 
