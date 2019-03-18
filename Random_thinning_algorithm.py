@@ -28,7 +28,12 @@ class RandomThinningAlgorithm:
         select = numpy.in1d(range(all_data_indexes.shape[0]), indices_to_remove)
 
         indices_to_keep = all_data_indexes[~select]
+
         total_removed_weight = numpy.sum(weigths[indices_to_remove])
+        print(indices_to_keep)
+        empty_array = []
+        if len(indices_to_keep) == 0:
+            return empty_array, empty_array
 
         weights_to_keep = weigths[indices_to_keep]
         weight_correction = total_removed_weight / len(weights_to_keep)
