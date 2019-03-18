@@ -163,8 +163,21 @@ def _merge(data, weights, parameters):
 
         if needs_subdivision:
             first_part_cell, secound_part_cell = cell.divide(max_idx)
-            cells.append(secound_part_cell)
-            cells.append(first_part_cell)
+            if len(first_part_cell.vector) == 0:
+                if len(secound_part_cell.vector) != 0:
+                    secound_part_cell.merge()
+                    result_vector.append(secound_part_cell.vector)
+                    result_weights.append(secound_part_cell.weights)
+
+            if len(secound_part_cell.vector) == 0:
+                if len(first_part_cell.vector) != 0:
+                    first_part_cell.merge()
+                    result_vector.append(first_part_cell.vector)
+                    result_weights.append(first_part_cell.weights)
+
+            if len(secound_part_cell.vector) != 0 and len(first_part_cell.vector) != 0:
+                cells.append(secound_part_cell)
+                cells.append(first_part_cell)
         else:
 
             cell.merge()
