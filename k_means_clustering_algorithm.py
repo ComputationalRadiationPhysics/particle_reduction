@@ -44,7 +44,15 @@ def recount_data(dimension, num_to_keep, labels, data, weights):
     return result_data, result_weights
 
 
+class K_means_clustering_algorithm_Parameters:
 
+    """ Parametrs of k means clustering algorithm
+        reduction_percent -- percent of reduced particles
+    """
+
+    def __init__(self, reduction_percent):
+
+        self.reduction_percent = reduction_percent
 
 
 class K_means_clustering_algorithm:
