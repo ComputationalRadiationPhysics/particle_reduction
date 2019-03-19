@@ -1,3 +1,4 @@
+from sklearn.cluster import KMeans
 import numpy
 
 
@@ -41,4 +42,32 @@ def recount_data(dimension, num_to_keep, labels, data, weights):
             result_data.append(selected_data)
             result_weights.append(selected_weights)
     return result_data, result_weights
+
+
+
+
+
+class K_means_clustering_algorithm:
+    """ k means reduction algorithm
+        iterative optimization procedure for controlling particle populations in particle-in-
+        cell (PIC) codes via merging and splitting of computational macro-particles
+        based on article https://arxiv.org/abs/1504.03849
+    """
+
+    def __init__(self, parameters):
+        self.parameters = parameters
+
+    def _run(self, data, weigths):
+
+        dimension = len(data[0])
+        size = len(data)
+        data = numpy.array(data)
+        weights = numpy.array(weigths)
+        num_to_remove = int(size * self.parameters.reduction_percent)
+        num_to_keep = size - num_to_remove
+        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=30, tol=0.1).fit(data,
+                                                                                          sample_weight=weights)
+        result_data, result_weights = recount_data(dimension, num_to_keep, kmeans.labels_, data, weights)
+
+        return result_data, result_weights
 
