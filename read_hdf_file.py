@@ -360,27 +360,24 @@ def create_points_array_ver2(coord_collection, momentum_collection):
     dimension_momentum = momentum_collection.get_dimension()
 
     if dimension_coord == 3 and dimension_momentum == 3:
-        for i in range(0, len(coord_collection.vector_x)):
-            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
-                                  coord_collection.vector_z[i], momentum_collection.vector_x[i],
-                                  momentum_collection.vector_y[i], momentum_collection.vector_z[i]])
+        vector_coords = [list(x) for x in
+                         zip(coord_collection.vector_x, coord_collection.vector_y, coord_collection.vector_z,
+                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
 
     elif dimension_coord == 3 and dimension_momentum == 2:
-        for i in range(0, len(coord_collection.vector_x)):
-            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
-                                  coord_collection.vector_z[i], momentum_collection.vector_x[i],
-                                  momentum_collection.vector_y[i]])
+        vector_coords = [list(x) for x in
+                         zip(coord_collection.vector_x, coord_collection.vector_y, coord_collection.vector_z,
+                             momentum_collection.vector_x, momentum_collection.vector_y)]
 
     elif dimension_coord == 2 and dimension_momentum == 3:
-        for i in range(0, len(coord_collection.vector_x)):
-            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
-                                  momentum_collection.vector_x[i], momentum_collection.vector_y[i],
-                                  momentum_collection.vector_z[i]])
+        vector_coords = [list(x) for x in
+                         zip(coord_collection.vector_x, coord_collection.vector_y,
+                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
 
     elif dimension_coord == 2 and dimension_momentum == 2:
-        for i in range(0, len(coord_collection.vector_x)):
-            vector_coords.append([coord_collection.vector_x[i], coord_collection.vector_y[i],
-                                  momentum_collection.vector_x[i], momentum_collection.vector_y[i]])
+        vector_coords = [list(x) for x in
+                         zip(coord_collection.vector_x, coord_collection.vector_y,
+                             momentum_collection.vector_x, momentum_collection.vector_y)]
 
     return vector_coords
 
