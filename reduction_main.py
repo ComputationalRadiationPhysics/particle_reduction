@@ -151,5 +151,7 @@ if __name__ == "__main__":
         voronoi_reduction(args.hdf, args.hdf_re, args.momentum_tol, args.momentum_pos)
     elif args.algorithm == 'random':
         random_thinning_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+    elif args.algorithm == 'kmeans':
+        k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
 
 
