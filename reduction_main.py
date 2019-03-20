@@ -39,6 +39,12 @@ def get_particles_groups(hdf_file_name, hdf_file_reduction_name):
 
     return particles_collect, hdf_file_reduction
 
+
+def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
+    """ Create copy of  original file, iterate base groups"""
+
+    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
+
     for group in particles_collect.particles_groups:
         data, weights, dimensions \
             = read_hdf_file.read_points_group(group)
@@ -54,12 +60,7 @@ def get_particles_groups(hdf_file_name, hdf_file_reduction_name):
 
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
 
-    copyfile(hdf_file_name, hdf_file_reduction_name)
-    hdf_file = h5py.File(hdf_file_name, 'a')
-    hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
-    particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
-    particles_collect = read_hdf_file.ParticlesGroups(particles_name)
-    hdf_file.visititems(particles_collect)
+    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
         data, weights, dimensions\
