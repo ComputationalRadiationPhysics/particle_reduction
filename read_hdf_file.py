@@ -161,14 +161,14 @@ class DatasetWriter():
 
     """
 
-    def __init__(self, hdf_file, result_points, name_dataset):
+    def __init__(self, hdf_file, library_datasets, name_dataset):
         self.dataset_x = name_dataset + '/x'
         self.dataset_y = name_dataset + '/y'
         self.dataset_z = name_dataset + '/z'
 
-        self.vector_x = result_points[self.dataset_x]
-        self.vector_y = result_points[self.dataset_y]
-        self.vector_z = result_points[self.dataset_z]
+        self.vector_x = library_datasets[self.dataset_x]
+        self.vector_y = library_datasets[self.dataset_y]
+        self.vector_z = library_datasets[self.dataset_z]
         self.hdf_file = hdf_file
 
     def __call__(self, name, node):
@@ -228,7 +228,7 @@ class PatchValuesWriter():
 
     """
 
-    def __init__(self, hdf_file, numParticles, numParticlesOffset):
+    def __init__(self, hdf_file,  numParticlesOffset, numParticles):
 
         self.numParticles = numParticles
         self.numParticlesOffset = numParticlesOffset
@@ -537,7 +537,7 @@ def create_datasets_from_vector(reduced_data, dimensions):
 
         if dimensions.dimension_position == 2:
             position_x.append(point[0])
-            position_z.append(point[1])
+            position_y.append(point[1])
 
         if dimensions.dimension_momentum == 3:
             momentum_x.append(point[dimensions.dimension_position])
@@ -545,7 +545,7 @@ def create_datasets_from_vector(reduced_data, dimensions):
             momentum_z.append(point[dimensions.dimension_position + 2])
 
         if dimensions.dimension_momentum == 2:
-            momentum_x.append(point[0])
+            momentum_x.append(point[dimensions.dimension_position])
             momentum_y.append(point[dimensions.dimension_position + 1])
 
         library_datasets['position/x'] = position_x
