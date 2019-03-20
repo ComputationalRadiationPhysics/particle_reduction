@@ -7,6 +7,7 @@ import h5py
 import numpy
 import Random_thinning_algorithm
 import copy
+import k_means_clustering_algorithm
 
 
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
@@ -71,6 +72,23 @@ def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_
             iterate_patches(data, weights, num_particles_offset, reduction_percent)
         library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
 
+        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
+
+
+def k_means_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+    """ Create copy of  original file, iterate base groups"""
+
+    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
+
+    for group in particles_collect.particles_groups:
+        data, weights, dimensions \
+            = read_hdf_file.read_points_group(group)
+
+        parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_Parameters(reduction_percent)
+        algorithm = k_means_clustering_algorithm.K_means_clustering_algorithm(parameters)
+
+        reduced_data, reduced_weights = algorithm._run(data, weights)
+        library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
         read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
