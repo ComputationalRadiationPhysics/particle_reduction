@@ -117,3 +117,18 @@ def get_energy_value(momentum, mass):
     result = result/(mass * c * c)
     return result
 
+
+def get_weighted_momentum(momentums, weights):
+
+    values_x = 0.
+    values_y = 0.
+    values_z = 0.
+
+    for i in range(0, len(momentums)):
+        values_x += momentums[i][0] * weights[i]
+        values_y += momentums[i][1] * weights[i]
+        values_z += momentums[i][2] * weights[i]
+
+    result = [values_x, values_y, values_z]
+    return result
+
