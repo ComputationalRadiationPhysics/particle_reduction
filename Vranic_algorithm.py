@@ -1,4 +1,6 @@
 import numpy as np
+import random
+import math
 
 class Segment:
     def __init__(self, start, end):
@@ -149,4 +151,17 @@ def get_weighted_energy(momentums, weights, mass):
 def get_momentum_vector_lenght(energy_t):
 
     return math.sqrt(energy_t * energy_t  - 1.)
+
+
+def get_cos_phi(start_momentum_vector, value_momentum_end, sum_weight):
+
+    len_start_vector = \
+        math.sqrt(start_momentum_vector[0] * start_momentum_vector[0] +
+                  start_momentum_vector[1] * start_momentum_vector[1]
+                  + start_momentum_vector[2] * start_momentum_vector[2])
+
+    result = len_start_vector/(value_momentum_end * sum_weight)
+
+    return result
+
 
