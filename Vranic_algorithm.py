@@ -208,3 +208,20 @@ def recalculate_momentum(momentums, weights, type_particles):
 
     return 0.
 
+
+def calculate_result_points(data, weights, idxes_array):
+    first_point = []
+    second_point = []
+    sum_weights = sum(weights)
+    result_weight = [sum_weights / 2., sum_weights / 2.]
+
+    idxes_array.sort()
+
+    idexes_coordinates = random.sample(idxes_array.data, 2)
+    first_coordinates = data[idexes_coordinates[0]]
+    second_coordinates = data[idexes_coordinates[1]]
+    first_point.append(first_coordinates[0:3])
+    second_point.append(second_coordinates[0:3])
+
+    return result_weight
+
