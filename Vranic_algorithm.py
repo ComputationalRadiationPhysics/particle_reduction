@@ -50,3 +50,9 @@ def get_segment(momentum_min, idx, step):
 def get_position_idx3d(x_patch, y_patch, z_patch, size_y, size_z):
     return (x_patch * size_y + y_patch) * size_z + z_patch
 
+
+def get_cell_idx(max_coord, min_coord, separator, x_current):
+    """ Get name of particles group """
+    lenght = max_coord - min_coord
+    return max(0, min(int((x_current - min_coord) * separator / lenght), separator - 1))
+
