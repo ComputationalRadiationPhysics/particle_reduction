@@ -39,3 +39,10 @@ def create_sorted_momentum_list(data):
 
     return sort_list
 
+
+def get_segment(momentum_min, idx, step):
+    start = momentum_min + (idx - 1) * step
+    end = momentum_min + (idx) * step
+    segment = Segment(start, end)
+    return segment
+
