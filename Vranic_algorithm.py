@@ -106,3 +106,14 @@ def get_start_ranges(data):
 
     return x_segment, y_segment, z_segment
 
+
+def get_energy_value(momentum, mass):
+
+    c = 299792458.
+    momentum_norm = [momentum[0]/(mass * c), momentum[1]/(mass * c), momentum[2]/(mass * c) ]
+    norm_vector = momentum_norm[0] * momentum_norm[0] + momentum_norm[1] * momentum_norm[1] + momentum_norm[2] * momentum_norm[2]
+    energy = norm_vector * c * c +(mass * c * c) * (mass * c * c)
+    result = math.sqrt(energy)
+    result = result/(mass * c * c)
+    return result
+
