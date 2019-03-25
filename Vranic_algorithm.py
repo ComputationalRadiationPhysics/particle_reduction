@@ -165,3 +165,46 @@ def get_cos_phi(start_momentum_vector, value_momentum_end, sum_weight):
     return result
 
 
+
+def recalculate_momentum(momentums, weights, type_particles):
+
+    c = 299792458.
+    sum_weights = sum(weights)
+
+    if type_particles == 'massless':
+        sum_values_x = 0.
+        sum_values_y = 0.
+        sum_values_z = 0.
+
+        sum_values_x_start = 0.
+        sum_values_y_start = 0.
+        sum_values_z_start = 0.
+
+        for i in range(0, len(momentums)):
+            sum_values_x += momentums[i][0] * c
+            sum_values_x_start += momentums[i][0]
+            sum_values_y += momentums[i][1] * c
+            sum_values_y_start += momentums[i][1]
+            sum_values_z += momentums[i][2] * c
+            sum_values_z_start += momentums[i][2]
+        norm_values = [sum_values_x/sum_weights, sum_values_y/sum_weights, sum_values_z/sum_weights]
+
+        lenght_vector = math.sqrt(norm_values[0] * norm_values[0] + norm_values[1] * norm_values[1] + norm_values[2] * norm_values[2])
+        lenght_vector_t = math.sqrt(
+            sum_values_x_start * sum_values_x_start + sum_values_y_start * sum_values_y_start + sum_values_z_start * sum_values_z_start)
+
+        cos_phi = lenght_vector_t/(sum_weights * lenght_vector)
+
+    if type_particles == 'mass':
+        mass = 9.10938291E-31
+
+        sum_weights = sum(weights)
+        momentum_vector_t = get_weighted_momentum(momentums, weights)
+        energy_t = get_weighted_energy(momentums, weights, mass)
+        energy_t = energy_t/sum_weights
+        norm_vector = get_momentum_vector_lenght(energy_t)
+
+        cos_phi = get_cos_phi(momentum_vector_t, norm_vector, sum_weights)
+
+    return 0.
+
