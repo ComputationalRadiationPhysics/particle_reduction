@@ -241,3 +241,12 @@ def recount_cells(data, weights, momentum_cells):
                 result.append(data[idxes_array])
                 weights_result.append(weights[idxes_array])
 
+
+class Vranic_merging_algorithm_parameters:
+    """Tolerance is array-like, first -- coordinate tolerance, second -- momentum tolerance"""
+
+    def __init__(self, tolerance_momentum, dimension, type_particles):
+        self.tolerance_momentum = tolerance_momentum
+        self.dimension = dimension
+        self.type_particles = type_particles
+
