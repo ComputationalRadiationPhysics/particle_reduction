@@ -1,3 +1,4 @@
+import numpy as np
 
 class Segment:
     def __init__(self, start, end):
@@ -24,4 +25,17 @@ class Momentum_cell:
         self.momentums = np.array(self.momentums)
         indexes = np.array(self.momentums[:,3], dtype=('int'))
         return indexes
+
+
+def create_sorted_momentum_list(data):
+    
+    size = len(data)
+    indexes = [i for i in range(len(data))]
+    result = []
+    for i in range(0, size):
+        result.append([data[i][3], data[i][4], data[i][5], indexes[i]])
+
+    sort_list = sorted(result, key=lambda e: (e[0], e[1], e[2]))
+
+    return sort_list
 
