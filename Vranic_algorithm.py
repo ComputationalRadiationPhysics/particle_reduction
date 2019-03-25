@@ -145,3 +145,8 @@ def get_weighted_energy(momentums, weights, mass):
 
     return result_sum_energy
 
+
+def get_momentum_vector_lenght(energy_t):
+
+    return math.sqrt(energy_t * energy_t  - 1.)
+
