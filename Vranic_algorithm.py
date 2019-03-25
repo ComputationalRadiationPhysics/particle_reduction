@@ -46,3 +46,7 @@ def get_segment(momentum_min, idx, step):
     segment = Segment(start, end)
     return segment
 
+
+def get_position_idx3d(x_patch, y_patch, z_patch, size_y, size_z):
+    return (x_patch * size_y + y_patch) * size_z + z_patch
+
