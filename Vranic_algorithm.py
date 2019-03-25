@@ -225,3 +225,19 @@ def calculate_result_points(data, weights, idxes_array):
 
     return result_weight
 
+
+def recount_cells(data, weights, momentum_cells):
+    result = []
+    weights_result = []
+
+    for i in range(0, len(momentum_cells)):
+        if len(momentum_cells[i].momentums) != 0:
+            idxes_array = momentum_cells[i].get_idixes()
+            if len(idxes_array) > 1:
+                calculate_result_points(data, weights[idxes_array], idxes_array)
+                recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], type_particles)
+
+            else:
+                result.append(data[idxes_array])
+                weights_result.append(weights[idxes_array])
+
