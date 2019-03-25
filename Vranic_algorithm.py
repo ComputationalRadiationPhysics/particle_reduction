@@ -56,3 +56,33 @@ def get_cell_idx(max_coord, min_coord, separator, x_current):
     lenght = max_coord - min_coord
     return max(0, min(int((x_current - min_coord) * separator / lenght), separator - 1))
 
+
+def create_momentum_cells(sorted_momentum_list, tolerance_momentum, segment_x, segment_y, segment_z):
+
+    x_momentum_min = segment_x.start
+    x_momentum_max = segment_x.end
+
+    y_momentum_min = segment_y.start
+    y_momentum_max = segment_y.end
+
+    z_momentum_min = segment_z.start
+    z_momentum_max = segment_z.end
+
+    num_x_steps = int((x_momentum_max - x_momentum_min)/ tolerance_momentum) + 1
+    num_y_steps = int((y_momentum_max - y_momentum_min) / tolerance_momentum) + 1
+    num_z_steps = int((z_momentum_max - z_momentum_min) / tolerance_momentum) + 1
+
+    size_cells = num_x_steps * num_y_steps * num_z_steps
+    cells = [Momentum_cell() for i in range(size_cells)]
+
+    for i in range(0, len(sorted_momentum_list)):
+        x_idx = get_cell_idx(x_momentum_max, x_momentum_min, num_x_steps, sorted_momentum_list[i][0])
+
+        y_idx = get_cell_idx(y_momentum_max, y_momentum_min, num_y_steps, sorted_momentum_list[i][1])
+        z_idx = get_cell_idx(z_momentum_max, z_momentum_min, num_z_steps, sorted_momentum_list[i][2])
+
+        current_idx = get_position_idx3d(x_idx, y_idx, z_idx, num_y_steps, num_z_steps)
+        cells[current_idx].momentums.append(sorted_momentum_list[i])
+
+    return cells
+
