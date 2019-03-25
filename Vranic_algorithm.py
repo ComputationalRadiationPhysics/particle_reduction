@@ -250,3 +250,19 @@ class Vranic_merging_algorithm_parameters:
         self.dimension = dimension
         self.type_particles = type_particles
 
+
+class Vranic_merging_algorithm:
+    """Main algorithm. Parameters is VoronoiMergingAlgorithmParameters """
+
+    def __init__(self, parameters):
+        self.parameters = parameters
+
+    def _run(self, data, weigths):
+        x_segment, y_segment, z_segment = get_start_ranges(data)
+
+        sorted_momentum = create_sorted_momentum_list(data)
+        cells = create_momentum_cells(sorted_momentum, self.parameters.tolerance_momentum, x_segment, y_segment, z_segment)
+        recount_cells(data, weights, cells)
+
+
+
