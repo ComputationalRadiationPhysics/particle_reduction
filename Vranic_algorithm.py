@@ -132,3 +132,16 @@ def get_weighted_momentum(momentums, weights):
     result = [values_x, values_y, values_z]
     return result
 
+
+def get_weighted_energy(momentums, weights, mass):
+
+    sum_energy = []
+
+    for i in range(0, len(momentums)):
+        energy = get_energy_value(momentums[i], mass)
+        sum_energy.append(energy * weights[i])
+
+    result_sum_energy = sum(sum_energy)
+
+    return result_sum_energy
+
