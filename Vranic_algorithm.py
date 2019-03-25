@@ -86,3 +86,23 @@ def create_momentum_cells(sorted_momentum_list, tolerance_momentum, segment_x, s
 
     return cells
 
+
+def get_start_ranges(data):
+
+    x_min = min(data[:,3])
+    x_max = max(data[:,3])
+
+    x_segment = Segment(x_min, x_max)
+
+    y_min = min(data[:,4])
+    y_max = max(data[:,4])
+
+    y_segment = Segment(y_min, y_max)
+
+    z_min = min(data[:,5])
+    z_max = max(data[:,5])
+
+    z_segment = Segment(z_min, z_max)
+
+    return x_segment, y_segment, z_segment
+
