@@ -259,7 +259,7 @@ def calculate_result_points(data, weights, idxes_array):
     first_point.append(first_coordinates[0:3])
     second_point.append(second_coordinates[0:3])
 
-    return result_weight
+    return first_coordinates, second_coordinates, result_weight
 
 
 def merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum):
@@ -278,12 +278,19 @@ def recount_cells(data, weights, momentum_cells):
         if len(momentum_cells[i].momentums) != 0:
             idxes_array = momentum_cells[i].get_idixes()
             if len(idxes_array) > 1:
-                calculate_result_points(data, weights[idxes_array], idxes_array)
-                recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], type_particles)
+                first_coordinates, second_coordinates, result_weight = calculate_result_points(data, weights[idxes_array], idxes_array)
+                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], type_particles)
+                first_point, second_point = merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum)
+                result.append(first_point)
+                result.append(second_point)
+                weights_result.append(result_weight[0])
+                weights_result.append(result_weight[1])
 
             else:
                 result.append(data[idxes_array])
                 weights_result.append(weights[idxes_array])
+
+    return result, weights_result
 
 
 class Vranic_merging_algorithm_parameters:
