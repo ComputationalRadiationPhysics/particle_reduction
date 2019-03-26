@@ -93,7 +93,7 @@ def k_means_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent)
         read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
-def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance):
     """ Create copy of  original file, iterate base groups"""
 
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
@@ -102,7 +102,7 @@ def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, reduction
         data, weights, dimensions \
             = read_hdf_file.read_points_group(group)
 
-        parameters = Vranic_algorithm.Vranic_merging_algorithm_parameters(reduction_percent)
+        parameters = Vranic_algorithm.Vranic_merging_algorithm_parameters(momentum_tolerance)
         algorithm = Vranic_algorithm.Vranic_merging_algorithm(parameters)
 
         reduced_data, reduced_weights = algorithm._run(data, weights)
@@ -171,5 +171,7 @@ if __name__ == "__main__":
         random_thinning_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
     elif args.algorithm == 'kmeans':
         k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+    elif args.algorithm == 'vranic_algorithm':
+        k_means_algorithm(args.hdf, args.hdf_re, args.momentum_tol)
 
 
