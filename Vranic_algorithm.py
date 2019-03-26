@@ -233,15 +233,16 @@ def recalculate_momentum(momentums, weights, type_particles):
     if type_particles == 'mass':
         mass = 9.10938291E-31
 
-        sum_weights = sum(weights)
         momentum_vector_t = get_weighted_momentum(momentums, weights)
-        energy_t = get_weighted_energy(momentums, weights, mass)
-        energy_t = energy_t/sum_weights
-        norm_vector = get_momentum_vector_lenght(energy_t)
 
-        cos_phi = get_cos_phi(momentum_vector_t, norm_vector, sum_weights)
 
-    return 0.
+        phi = get_angle_phi(momentums, mass)
+        alpha = get_angle_alpha(momentums)
+
+        first_point = get_vector_p_a(momentum_vector_t, phi, alpha)
+        second_point = get_vector_p_b(momentum_vector_t, phi, alpha)
+
+        return first_point, second_point
 
 
 def calculate_result_points(data, weights, idxes_array):
