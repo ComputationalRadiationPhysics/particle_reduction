@@ -165,6 +165,17 @@ def get_cos_phi(start_momentum_vector, value_momentum_end, sum_weight):
     return result
 
 
+def get_angle_phi(momentums, mass):
+    sum_weights = sum(weights)
+
+    momentum_vector_t = get_weighted_momentum(momentums, weights)
+
+    energy_t = get_weighted_energy(momentums, weights, mass)
+    energy_t = energy_t / sum_weights
+    norm_vector = get_momentum_vector_lenght(energy_t)
+    cos_phi = get_cos_phi(momentum_vector_t, norm_vector, sum_weights)
+    return math.acos(cos_phi)
+
 
 def recalculate_momentum(momentums, weights, type_particles):
 
