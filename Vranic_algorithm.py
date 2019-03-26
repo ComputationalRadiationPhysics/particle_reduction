@@ -177,6 +177,19 @@ def get_angle_phi(momentums, mass):
     return math.acos(cos_phi)
 
 
+
+def get_vector_p_a(momentums, phi, alpha):
+
+    lenght_vector = math.sqrt(
+        momentums[0] * momentums[0] + momentums[1] * momentums[1] + momentums[2] * momentums[2])
+    x_value = lenght_vector * math.cos(phi)
+    y_value = lenght_vector * math.sin(phi)
+    z_value = lenght_vector * math.cos(alpha)
+    p_a = [x_value, y_value, z_value]
+
+    return p_a
+
+
 def recalculate_momentum(momentums, weights, type_particles):
 
     c = 299792458.
