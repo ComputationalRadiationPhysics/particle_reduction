@@ -313,7 +313,8 @@ class Vranic_merging_algorithm:
 
         sorted_momentum = create_sorted_momentum_list(data)
         cells = create_momentum_cells(sorted_momentum, self.parameters.tolerance_momentum, x_segment, y_segment, z_segment)
-        recount_cells(data, weights, cells)
+        data, weights = recount_cells(data, weigths, cells)
+        return data, weights
 
 
 
