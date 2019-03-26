@@ -261,6 +261,14 @@ def calculate_result_points(data, weights, idxes_array):
     return result_weight
 
 
+def merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum):
+    first_point = [first_coordinates[0], first_coordinates[1], first_coordinates[2],  first_momentum[0], first_momentum[1], first_momentum[2]]
+    second_point = [second_coordinates[0], second_coordinates[1], second_coordinates[2], second_momentum[0],
+                    second_momentum[1], second_momentum[2]]
+
+    return first_point, second_point
+
+
 def recount_cells(data, weights, momentum_cells):
     result = []
     weights_result = []
