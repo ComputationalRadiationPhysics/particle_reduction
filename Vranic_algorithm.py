@@ -201,7 +201,16 @@ def get_angle_phi(momentums, mass, weights):
     return math.acos(cos_phi)
 
 
+def get_angle_phi_massles(momentums, weights):
+    sum_weights = sum(weights)
 
+    momentum_vector_t = get_weighted_momentum(momentums, weights)
+
+    energy_t = get_weighted_energy(momentums, weights)
+    energy_t = energy_t / sum_weights
+    norm_vector = get_momentum_vector_lenght(energy_t)
+    cos_phi = get_cos_phi(momentum_vector_t, norm_vector, sum_weights)
+    return math.acos(cos_phi)
 
 
 def get_angle_alpha(momentums):
