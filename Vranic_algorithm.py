@@ -358,12 +358,14 @@ class Vranic_merging_algorithm:
     def __init__(self, parameters):
         self.parameters = parameters
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, mass):
+        data = np.array(data)
+        weigths = np.array(weigths)
         x_segment, y_segment, z_segment = get_start_ranges(data)
 
         sorted_momentum = create_sorted_momentum_list(data)
         cells = create_momentum_cells(sorted_momentum, self.parameters.tolerance_momentum, x_segment, y_segment, z_segment)
-        data, weights = recount_cells(data, weigths, cells)
+        data, weights = recount_cells(data, weigths, cells, mass)
         return data, weights
 
 
