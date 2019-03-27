@@ -93,7 +93,7 @@ def k_means_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent)
         read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
-def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance):
+def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, type_particles):
     """ Create copy of  original file, iterate base groups"""
 
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
@@ -101,11 +101,11 @@ def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_
     for group in particles_collect.particles_groups:
         data, weights, dimensions \
             = read_hdf_file.read_points_group(group)
+        mass = read_hdf_file.read_mass(group)
 
-        parameters = Vranic_algorithm.Vranic_merging_algorithm_parameters(momentum_tolerance)
+        parameters = Vranic_algorithm.Vranic_merging_algorithm_parameters(momentum_tolerance, dimensions, type_particles)
         algorithm = Vranic_algorithm.Vranic_merging_algorithm(parameters)
-
-        reduced_data, reduced_weights = algorithm._run(data, weights)
+        reduced_data, reduced_weights = algorithm._run(data, weights, mass)
         library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
         read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
@@ -163,6 +163,9 @@ if __name__ == "__main__":
     parser.add_argument("-momentum_pos", metavar='tolerance_position', type=float,
                         help="tolerance of position")
 
+    parser.add_argument("-particles_type", metavar='particles_type', type=str,
+                        help="types of particles")
+
     args = parser.parse_args()
 
     if args.algorithm == 'voronoi':
@@ -172,6 +175,6 @@ if __name__ == "__main__":
     elif args.algorithm == 'kmeans':
         k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
     elif args.algorithm == 'vranic_algorithm':
-        k_means_algorithm(args.hdf, args.hdf_re, args.momentum_tol)
+        Vranic_algorithm_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.particles_type)
 
 
