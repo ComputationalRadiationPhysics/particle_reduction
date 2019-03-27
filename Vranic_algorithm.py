@@ -189,7 +189,7 @@ def get_cos_phi(start_momentum_vector, value_momentum_end, sum_weight):
     return result
 
 
-def get_angle_phi(momentums, mass):
+def get_angle_phi(momentums, mass, weights):
     sum_weights = sum(weights)
 
     momentum_vector_t = get_weighted_momentum(momentums, weights)
