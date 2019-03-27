@@ -314,16 +314,22 @@ def merge_into_points(first_coordinates, second_coordinates, first_momentum, sec
     return first_point, second_point
 
 
-def recount_cells(data, weights, momentum_cells):
+def recount_cells(data, weights, momentum_cells, mass):
     result = []
     weights_result = []
+
+    type_particles = ''
+    if mass == 0:
+        type_particles = 'massless'
+    else:
+        type_particles = 'mass'
 
     for i in range(0, len(momentum_cells)):
         if len(momentum_cells[i].momentums) != 0:
             idxes_array = momentum_cells[i].get_idixes()
             if len(idxes_array) > 1:
                 first_coordinates, second_coordinates, result_weight = calculate_result_points(data, weights[idxes_array], idxes_array)
-                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], type_particles)
+                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], type_particles, mass)
                 first_point, second_point = merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum)
                 result.append(first_point)
                 result.append(second_point)
