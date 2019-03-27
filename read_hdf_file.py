@@ -40,6 +40,25 @@ class ParticlesFunctor():
         return None
 
 
+class MassFunctor():
+    """
+
+    """
+    def __init__(self):
+        self.mass = []
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+            if node.name.endswith('mass'):
+                self.weighting = node.value
+
+        if isinstance(node, h5py.Group):
+            if node.name.endswith('mass'):
+                self.mass = node.attrs['value']
+
+        return None
+
 class ParticlesGroups():
     """
 
@@ -464,6 +483,12 @@ def read_group_values(group):
     momentum_group.visititems(momentum_values)
     points = create_points_library(position_values, momentum_values, weighting)
     return points
+
+
+def read_mass(group):
+    hdf_mass = MassFunctor()
+    group.visititems(hdf_mass)
+    return hdf_mass.mass
 
 
 def read_points_group(group):
