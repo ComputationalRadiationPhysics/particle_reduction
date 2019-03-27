@@ -178,6 +178,17 @@ def get_angle_phi(momentums, mass):
 
 
 
+
+
+def get_angle_alpha(momentums):
+
+    lenght_vector = math.sqrt(
+        momentums[0] * momentums[0] + momentums[1] * momentums[1] + momentums[2] * momentums[2])
+    plane_vector = math.sqrt(
+        momentums[0] * momentums[0] + momentums[1] * momentums[1])
+    return math.acos(plane_vector/lenght_vector)
+
+
 def get_vector_p_a(momentums, phi, alpha):
 
     lenght_vector = math.sqrt(
