@@ -258,13 +258,10 @@ def recalculate_momentum(momentums, weights, type_particles, mass):
         return first_point, second_point
 
     if type_particles == 'mass':
-        mass = 9.10938291E-31
 
         momentum_vector_t = get_weighted_momentum(momentums, weights)
-
-
-        phi = get_angle_phi(momentums, mass)
-        alpha = get_angle_alpha(momentums)
+        phi = get_angle_phi(momentums, mass, weights)
+        alpha = get_angle_alpha(momentum_vector_t)
 
         first_point = get_vector_p_a(momentum_vector_t, phi, alpha)
         second_point = get_vector_p_b(momentum_vector_t, phi, alpha)
