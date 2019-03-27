@@ -159,6 +159,19 @@ def get_weighted_energy(momentums, weights, mass):
     return result_sum_energy
 
 
+def get_weighted_energy_massless(momentums, weights):
+
+    sum_energy = []
+
+    for i in range(0, len(momentums)):
+        energy = get_energy_value_masless(momentums[i])
+        sum_energy.append(energy * weights[i])
+
+    result_sum_energy = sum(sum_energy)
+
+    return result_sum_energy
+
+
 def get_momentum_vector_lenght(energy_t):
 
     return math.sqrt(energy_t * energy_t  - 1.)
