@@ -120,6 +120,17 @@ def get_energy_value(momentum, mass):
     return result
 
 
+def get_energy_value_masless(momentum):
+
+    c = 299792458.
+    momentum_norm = [momentum[0]/c, momentum[1]/c, momentum[2]/c ]
+    norm_vector = momentum_norm[0] * momentum_norm[0] + momentum_norm[1] * momentum_norm[1] + momentum_norm[2] * momentum_norm[2]
+    energy = norm_vector * c * c
+    result = math.sqrt(energy)
+    result = result/( c * c)
+    return result
+
+
 def get_weighted_momentum(momentums, weights):
 
     values_x = 0.
