@@ -9,6 +9,7 @@ import Random_thinning_algorithm
 import copy
 import k_means_clustering_algorithm
 import Vranic_algorithm
+import Number_conservative_thinning_algorithm
 
 
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
@@ -63,6 +64,11 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
 
     algorithm = Random_thinning_algorithm.RandomThinningAlgorithm(reduction_percent)
+    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+
+
+def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, amount_sample_procedure):
+    algorithm = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(amount_sample_procedure)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
@@ -163,6 +169,9 @@ if __name__ == "__main__":
     parser.add_argument("-reduction_percent", metavar='reduction_percent', type=float,
                         help="part of the particles to reduce")
 
+    parser.add_argument("-sample_amount", metavar='sample_amount', type=int,
+                        help="amount of sample ")
+
     parser.add_argument("-momentum_tol", metavar='tolerance_momentum', type=float,
                         help="tolerance of momentum")
 
@@ -178,6 +187,8 @@ if __name__ == "__main__":
         voronoi_reduction(args.hdf, args.hdf_re, args.momentum_tol, args.momentum_pos)
     elif args.algorithm == 'random':
         random_thinning_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+    elif args.algorithm == 'number_conservative':
+        number_conservative_thinning_algorithm(args.hdf, args.hdf_re, args.sample_amount)
     elif args.algorithm == 'kmeans':
         k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
     elif args.algorithm == 'vranic_algorithm':
