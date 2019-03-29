@@ -1,6 +1,20 @@
 
 
 
+class Number_conservative_thinning_algorithm:
+
+    def __init__(self, number_of_k_sample):
+        self.number_of_k_sample = number_of_k_sample
+
+    def _run(self, data, weigths):
+
+        size = len(data)
+        data = numpy.array(data)
+        weigths = numpy.array(weigths)
+        sample = get_random_sample(weigths, self.number_of_k_sample)
+        indices_to_remove, indexes_to_keep = get_indices_to_remove(sample, size)
+        weights_to_keep = recount_weights(weigths, sample, self.number_of_k_sample, indexes_to_keep)
+        return data[indexes_to_keep], weights_to_keep
 
 
 def get_random_sample(weights, number_of_k_sample):
