@@ -1,4 +1,14 @@
+import random
+import numpy
+import collections
 
+
+class Number_conservative_thinning_algorithm_parameters:
+    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
+        """..."""
+        self.reduction_percent = reduction_percent
+        self.numParticles = numParticles
+        self.numParticlesOffset = numParticlesOffset
 
 
 class Number_conservative_thinning_algorithm:
