@@ -3,6 +3,15 @@
 
 
 
+def get_random_sample(weights, number_of_k_sample):
+
+    sum_weights = sum(weights)
+    norm_weights = [x / sum_weights for x in weights]
+    indexes = list(range(0, len(weights)))
+    sample = numpy.random.choice(indexes, size=number_of_k_sample, replace=True, p=norm_weights)
+    return sample
+
+
 def recount_weights(weights, sample, number_of_k_sample, indexes_to_keep):
 
     sample = sample.tolist()
