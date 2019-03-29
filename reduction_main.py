@@ -62,6 +62,12 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
 
+    algorithm = Random_thinning_algorithm.RandomThinningAlgorithm(reduction_percent)
+    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+
+
+def thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm):
+
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
@@ -70,7 +76,7 @@ def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_
         num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
 
         reduced_data, reduced_weights, result_num_particles =\
-            iterate_patches(data, weights, num_particles_offset, reduction_percent)
+            iterate_patches(data, weights, num_particles_offset, algorithm)
         library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
 
         read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
@@ -110,12 +116,12 @@ def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_
         read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
-def iterate_patches(data, weights, num_particles_offset, reduction_percent):
+def iterate_patches(data, weights, num_particles_offset, algorithm):
 
     ranges_patches = num_particles_offset
 
     ranges_patches.astype(int)
-    algorithm = Random_thinning_algorithm.RandomThinningAlgorithm(reduction_percent)
+
 
     reduced_data = []
     reduced_weights = []
