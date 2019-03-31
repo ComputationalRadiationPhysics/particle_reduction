@@ -10,6 +10,8 @@ import copy
 import k_means_clustering_algorithm
 import Vranic_algorithm
 import Number_conservative_thinning_algorithm
+import Leveling_thinning_algorithm
+
 
 
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
@@ -69,6 +71,11 @@ def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_
 
 def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, amount_sample_procedure):
     algorithm = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(amount_sample_procedure)
+    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+
+
+def leveling_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, leveling_coefficient):
+    algorithm = Leveling_thinning_algorithm.Leveling_thinning_algorithm(leveling_coefficient)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
@@ -181,6 +188,9 @@ if __name__ == "__main__":
     parser.add_argument("-particles_type", metavar='particles_type', type=str,
                         help="types of particles")
 
+    parser.add_argument("-leveling_coefficient", metavar='leveling_coefficient', type=float,
+                        help="leveling_coefficient")
+
     args = parser.parse_args()
 
     if args.algorithm == 'voronoi':
@@ -193,5 +203,7 @@ if __name__ == "__main__":
         k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
     elif args.algorithm == 'vranic_algorithm':
         Vranic_algorithm_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.particles_type)
+    elif args.algorithm == 'leveling':
+        leveling_thinning_algorithm(args.hdf, args.hdf_re, args.leveling_coefficient)
 
 
