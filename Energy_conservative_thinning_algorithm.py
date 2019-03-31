@@ -5,6 +5,15 @@ import math
 
 
 
+
+def calculate_energy_from_momentum(momentum, mass):
+
+    c = 299792458.
+    len_momentum_vector = momentum[0] * momentum[0] + momentum[1] * momentum[1] + momentum[2] * momentum[2]
+    e_ = math.sqrt(len_momentum_vector * c + (mass * mass * c * c) * (mass * mass * c * c))
+    return e_
+
+
 def calculate_energy_values(momentums, mass):
 
     energy_values = []
