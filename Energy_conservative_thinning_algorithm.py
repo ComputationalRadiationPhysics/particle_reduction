@@ -4,6 +4,22 @@ import collections
 import math
 
 
+class Energy_conservative_thinning_algorithm:
+
+    def __init__(self, number_of_k_sample):
+        self.number_of_k_sample = number_of_k_sample
+
+    def _run(self, data, weigths, mass):
+
+        size = len(data)
+        data = numpy.array(data)
+        momentum_values = data[:, 3, 4, 5]
+        energy_values = calculate_energy_values(momentum_values, mass)
+        weigths = numpy.array(weigths)
+        sample, sum_weighted_energy = get_random_sample(weigths, energy_values, self.number_of_k_sample)
+        indices_to_remove, indexes_to_keep = get_indices_to_remove(sample, size)
+        weights_to_keep = recount_weights(weigths, sample, self.number_of_k_sample, indexes_to_keep, energy_values, sum_weighted_energy)
+        return data[indexes_to_keep], weights_to_keep
 
 
 def calculate_energy_from_momentum(momentum, mass):
