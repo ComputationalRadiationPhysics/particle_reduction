@@ -46,6 +46,18 @@ def recount_data(dimension, num_to_keep, labels, data, weights):
             result_weights.append(selected_weights[0])
     return result_data, result_weights
 
+
+class K_means_merge_average_algorithm_parameters:
+
+    """ Parametrs of k means clustering algorithm
+        reduction_percent -- percent of reduced particles
+    """
+
+    def __init__(self, reduction_percent):
+
+        self.reduction_percent = reduction_percent
+
+
     def _run(self, data, weigths):
 
         dimension = len(data[0])
