@@ -58,6 +58,13 @@ class K_means_merge_average_algorithm_parameters:
         self.reduction_percent = reduction_percent
 
 
+class K_means_merge_average_algorithm:
+    """ 
+    """
+
+    def __init__(self, parameters):
+        self.parameters = parameters
+
     def _run(self, data, weigths):
 
         dimension = len(data[0])
