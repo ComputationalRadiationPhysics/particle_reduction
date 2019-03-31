@@ -12,6 +12,7 @@ import Vranic_algorithm
 import Number_conservative_thinning_algorithm
 import Leveling_thinning_algorithm
 import Energy_conservative_thinning_algorithm
+import k_means_merge_average_algorithm
 
 
 
@@ -82,6 +83,11 @@ def leveling_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, leveling
 
 def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, amount_sample_procedure):
     algorithm = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(amount_sample_procedure)
+    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+
+
+def k_means_merge_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+    algorithm = k_means_clustering_algorithm.K_means_clustering_algorithm(reduction_percent)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
@@ -209,6 +215,8 @@ if __name__ == "__main__":
         energy_conservative_thinning_algorithm(args.hdf, args.hdf_re, args.sample_amount)
     elif args.algorithm == 'kmeans':
         k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+    elif args.algorithm == 'kmeans_avg':
+        k_means_merge_avg_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
     elif args.algorithm == 'vranic_algorithm':
         Vranic_algorithm_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.particles_type)
     elif args.algorithm == 'leveling':
