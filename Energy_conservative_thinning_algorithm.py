@@ -4,6 +4,14 @@ import collections
 import math
 
 
+class Energy_conservative_thinning_algorithm_parameters:
+    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
+        """..."""
+        self.reduction_percent = reduction_percent
+        self.numParticles = numParticles
+        self.numParticlesOffset = numParticlesOffset
+
+
 class Energy_conservative_thinning_algorithm:
 
     def __init__(self, number_of_k_sample):
