@@ -5,6 +5,16 @@ import math
 
 
 
+def calculate_energy_values(momentums, mass):
+
+    energy_values = []
+    for i in range(0, len(momentums)):
+        e = calculate_energy_from_momentum(momentums[i], mass)
+        energy_values.append(e)
+
+    return energy_values
+
+
 def get_random_sample(weights, energy_values, number_of_k_sample):
 
     weighted_energy = []
