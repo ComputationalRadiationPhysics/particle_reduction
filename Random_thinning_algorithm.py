@@ -1,5 +1,4 @@
 import random
-import math
 import numpy
 
 
@@ -30,7 +29,6 @@ class RandomThinningAlgorithm:
         indices_to_keep = all_data_indexes[~select]
 
         total_removed_weight = numpy.sum(weigths[indices_to_remove])
-        print(indices_to_keep)
         empty_array = []
         if len(indices_to_keep) == 0:
             return empty_array, empty_array
