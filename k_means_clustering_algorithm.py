@@ -62,8 +62,10 @@ class K_means_clustering_algorithm:
         based on article https://arxiv.org/abs/1504.03849
     """
 
-    def __init__(self, parameters):
-        self.parameters = parameters
+    def __init__(self, reduction_percent, max_iterations, tolerance):
+        self.reduction_percent = reduction_percent
+        self.max_iterations = max_iterations
+        self.tolerance = tolerance
 
     def _run(self, data, weigths):
 
@@ -71,9 +73,9 @@ class K_means_clustering_algorithm:
         size = len(data)
         data = numpy.array(data)
         weights = numpy.array(weigths)
-        num_to_remove = int(size * self.parameters.reduction_percent)
+        num_to_remove = int(size * self.reduction_percent)
         num_to_keep = size - num_to_remove
-        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=30, tol=0.1).fit(data,
+        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=30, tol=self.tolerance).fit(data,
                                                                                           sample_weight=weights)
         result_data, result_weights = recount_data(dimension, num_to_keep, kmeans.labels_, data, weights)
 
