@@ -1,6 +1,7 @@
 import h5py
 import re
 import Voronoi_algorithm
+import numpy
 
 
 class Dimensions:
@@ -35,6 +36,9 @@ class ParticlesFunctor():
                 self.positions.append(node)
 
             if node.name.endswith('momentum'):
+                self.momentum.append(node)
+
+            if node.name.endswith('positionOffset'):
                 self.momentum.append(node)
 
         return None
@@ -477,6 +481,7 @@ def read_group_values(group):
     weighting = hdf_datasets.weighting
     position_values = DatasetReader('position')
     momentum_values = DatasetReader('momentum')
+
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
@@ -555,6 +560,7 @@ def create_datasets_from_vector(reduced_data, dimensions):
     momentum_z = []
 
     for point in reduced_data:
+
         if dimensions.dimension_position == 3:
             position_x.append(point[0])
             position_y.append(point[1])
@@ -573,13 +579,13 @@ def create_datasets_from_vector(reduced_data, dimensions):
             momentum_x.append(point[dimensions.dimension_position])
             momentum_y.append(point[dimensions.dimension_position + 1])
 
-        library_datasets['position/x'] = position_x
-        library_datasets['position/y'] = position_y
-        library_datasets['position/z'] = position_z
+    library_datasets['position/x'] = position_x
+    library_datasets['position/y'] = position_y
+    library_datasets['position/z'] = position_z
 
-        library_datasets['momentum/x'] = momentum_x
-        library_datasets['momentum/y'] = momentum_y
-        library_datasets['momentum/z'] = momentum_z
+    library_datasets['momentum/x'] = momentum_x
+    library_datasets['momentum/y'] = momentum_y
+    library_datasets['momentum/z'] = momentum_z
 
     return library_datasets
 
@@ -625,3 +631,4 @@ def read_patches_values(group):
     patch_values = ReadPatchValues()
     patch_group.patch_group[0].visititems(patch_values)
     return patch_values.numParticles, patch_values.numParticlesOffset
+
