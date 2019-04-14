@@ -15,6 +15,20 @@ import Energy_conservative_thinning_algorithm
 import k_means_merge_average_algorithm
 
 
+class Algorithm:
+    # Create based on class name:
+    def factory(self, type, mass=1., reduction_percent=1., leveling_persent=1., dimensions=None, max_iterations=1., tolerance=1.):
+        if type == "Random": return Random_thinning_algorithm.RandomThinningAlgorithm(reduction_percent)
+        if type == "Number_conservative": return Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(reduction_percent)
+        if type == "Energy_conservative":
+            return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(reduction_percent, dimensions, mass)
+        if type == "kmeans":
+            return k_means_clustering_algorithm.K_means_clustering_algorithm(reduction_percent, max_iterations, tolerance)
+        if type == "kmeans-avg":
+            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(reduction_percent, max_iterations, tolerance)
+        assert 0, "Bad type_algoritm: " + type
+    factory = staticmethod(factory)
+
 
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
     """ Create name of reducted file, array of momentum """
