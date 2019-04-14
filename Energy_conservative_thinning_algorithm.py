@@ -14,27 +14,35 @@ class Energy_conservative_thinning_algorithm_parameters:
 
 class Energy_conservative_thinning_algorithm:
 
-    def __init__(self, number_of_k_sample):
-        self.number_of_k_sample = number_of_k_sample
+    def __init__(self, ratio, mass, dimensions):
+        self.ratio = ratio
+        self.mass = mass
+        self.dimensions = dimensions
 
-    def _run(self, data, weigths, mass):
+    def _run(self, data, weigths):
 
         size = len(data)
+        number_of_k_sample = int((1 - self.ratio) * size)
         data = numpy.array(data)
-        momentum_values = data[:, 3:6]
+        end_of_dimensions = len(data[0])
+        momentum_values = data[:, self.dimensions.dimension_momentum:end_of_dimensions]
 
-        energy_values = calculate_energy_values(momentum_values, mass)
+        energy_values = calculate_energy_values(momentum_values, self.mass)
         weigths = numpy.array(weigths)
-        sample, sum_weighted_energy = get_random_sample(weigths, energy_values, self.number_of_k_sample)
+        sample, sum_weighted_energy = get_random_sample(weigths, energy_values, number_of_k_sample)
         indices_to_remove, indexes_to_keep = get_indices_to_remove(sample, size)
-        weights_to_keep = recount_weights(weigths, sample, self.number_of_k_sample, indexes_to_keep, energy_values, sum_weighted_energy)
+        weights_to_keep = recount_weights(weigths, sample, number_of_k_sample, indexes_to_keep, energy_values, sum_weighted_energy)
         return data[indexes_to_keep], weights_to_keep
 
 
 def calculate_energy_from_momentum(momentum, mass):
 
     c = 299792458.
-    len_momentum_vector = momentum[0] * momentum[0] + momentum[1] * momentum[1] + momentum[2] * momentum[2]
+    len_momentum_vector = 0.
+    if len(momentum) == 3:
+        len_momentum_vector = momentum[0] * momentum[0] + momentum[1] * momentum[1] + momentum[2] * momentum[2]
+    elif len(momentum) == 2:
+        len_momentum_vector = momentum[0] * momentum[0] + momentum[1] * momentum[1]
     e_ = math.sqrt(len_momentum_vector * c + (mass * mass * c * c) * (mass * mass * c * c))
     return e_
 
