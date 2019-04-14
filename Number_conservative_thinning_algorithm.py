@@ -13,17 +13,18 @@ class Number_conservative_thinning_algorithm_parameters:
 
 class Number_conservative_thinning_algorithm:
 
-    def __init__(self, number_of_k_sample):
-        self.number_of_k_sample = number_of_k_sample
+    def __init__(self, ratio):
+        self.ratio = ratio
 
     def _run(self, data, weigths):
 
         size = len(data)
+        number_of_k_sample = int((1 - self.ratio) * size)
         data = numpy.array(data)
         weigths = numpy.array(weigths)
-        sample = get_random_sample(weigths, self.number_of_k_sample)
+        sample = get_random_sample(weigths, number_of_k_sample)
         indices_to_remove, indexes_to_keep = get_indices_to_remove(sample, size)
-        weights_to_keep = recount_weights(weigths, sample, self.number_of_k_sample, indexes_to_keep)
+        weights_to_keep = recount_weights(weigths, sample, number_of_k_sample, indexes_to_keep)
         return data[indexes_to_keep], weights_to_keep
 
 
