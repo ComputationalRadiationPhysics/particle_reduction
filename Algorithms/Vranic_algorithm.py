@@ -1,4 +1,7 @@
 import numpy as np
+import h5py
+from shutil import copyfile
+import read_hdf_file
 import random
 import math
 
@@ -347,6 +350,35 @@ class Vranic_merging_algorithm:
         cells = create_momentum_cells(sorted_momentum, self.parameters.tolerance_momentum, x_segment, y_segment, z_segment)
         data, weights = recount_cells(data, weigths, cells, mass)
         return data, weights
+
+
+
+
+
+if __name__ == "__main__":
+   hdf_file_name = '/home/kseniia/Documents/k_means_measure/data00000355.h5'
+   hdf_file_reduction_name = '/home/kseniia/Documents/k_means_measure/data00000355_thinning.h5'
+   copyfile(hdf_file_name, hdf_file_reduction_name)
+   hdf_file = h5py.File(hdf_file_name, 'a')
+   hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
+   particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
+   particles_collect = read_hdf_file.ParticlesGroups(particles_name)
+   hdf_file.visititems(particles_collect)
+   tolerance_parsent = 1.9e-23
+
+   dimension = 3
+   type_particles ='mass'
+
+   parameters = Vranic_merging_algorithm_parameters(tolerance_parsent, dimension, type_particles)
+   group = particles_collect.particles_groups[0]
+   for group in particles_collect.particles_groups:
+       data, weights, dimensions\
+           = read_hdf_file.read_points_group(group)
+       algorithm = Vranic_merging_algorithm(parameters)
+       data = np.array(data)
+       mass = 9.10938291E-31
+       algorithm._run(data, weights, mass)
+
 
 
 
