@@ -30,6 +30,32 @@ class Algorithm:
     factory = staticmethod(factory)
 
 
+def new_base_function(hdf_file_name, hdf_file_reduction_name, type, parametrs):
+    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
+
+    for group in particles_collect.particles_groups:
+        one_type_particle(type, group, hdf_file_reduction)
+
+
+def one_type_particle(type, group, hdf_file_reduction):
+    algorithm = Algorithm.factory(type)
+    thinning_base_procedure_v2(hdf_file_reduction, group, algorithm)
+
+
+def thinning_base_procedure_v2(hdf_file_reduction, group, algorithm):
+
+    data, weights, dimensions \
+        = read_hdf_file.read_points_group(group)
+    num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
+
+    reduced_data, reduced_weights, result_num_particles = \
+        iterate_patches(data, weights, num_particles_offset, algorithm)
+
+    library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
+
+    read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
+
+
 def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
     """ Create name of reducted file, array of momentum """
 
