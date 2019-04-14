@@ -111,8 +111,8 @@ def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
-def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, amount_sample_procedure):
-    algorithm = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(amount_sample_procedure)
+def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, ratio_of_deleted_particles):
+    algorithm = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(ratio_of_deleted_particles)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
@@ -121,8 +121,8 @@ def leveling_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, leveling
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
-def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, amount_sample_procedure):
-    algorithm = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(amount_sample_procedure)
+def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, ratio_of_deleted_particles):
+    algorithm = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(ratio_of_deleted_particles)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
