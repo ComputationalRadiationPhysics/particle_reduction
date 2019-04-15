@@ -2,21 +2,12 @@ import numpy
 import math
 import statistics
 
-class Point:
-
-    def __init__(self, coords, weight):
-        """A weighted point, coords is array-like, weight is float"""
-
-        self.coords = coords
-        self.weight = weight
-
 
 class VoronoiMergingAlgorithmParameters:
     """Tolerance is array-like, first -- coordinate tolerance, second -- momentum tolerance"""
 
-    def __init__(self, tolerance, position_vector_idx):
+    def __init__(self, tolerance):
         self.tolerance = tolerance
-        self.position_vector_idx = position_vector_idx
 
 
 class VoronoiMergingAlgorithm:
@@ -24,6 +15,7 @@ class VoronoiMergingAlgorithm:
 
     def __init__(self, parameters):
         self.parameters = parameters
+        self.dimensions = None
 
     def run(self, data, weigths):
 
