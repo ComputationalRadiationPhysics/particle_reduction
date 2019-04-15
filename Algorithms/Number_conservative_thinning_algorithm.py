@@ -4,22 +4,21 @@ import collections
 
 
 class Number_conservative_thinning_algorithm_parameters:
-    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
+    def __init__(self, reduction_percent):
         """..."""
         self.reduction_percent = reduction_percent
-        self.numParticles = numParticles
-        self.numParticlesOffset = numParticlesOffset
 
 
 class Number_conservative_thinning_algorithm:
 
-    def __init__(self, ratio):
-        self.ratio = ratio
+    def __init__(self, reduction_percent):
+        self.reduction_percent = reduction_percent
+        self.dimensions = None
 
     def _run(self, data, weigths):
 
         size = len(data)
-        number_of_k_sample = int((1 - self.ratio) * size)
+        number_of_k_sample = int((1 - self.reduction_percent) * size)
         data = numpy.array(data)
         weigths = numpy.array(weigths)
         sample = get_random_sample(weigths, number_of_k_sample)
