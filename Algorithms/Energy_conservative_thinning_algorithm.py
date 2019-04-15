@@ -5,19 +5,17 @@ import math
 
 
 class Energy_conservative_thinning_algorithm_parameters:
-    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
+    def __init__(self, reduction_percent):
         """..."""
         self.reduction_percent = reduction_percent
-        self.numParticles = numParticles
-        self.numParticlesOffset = numParticlesOffset
 
 
 class Energy_conservative_thinning_algorithm:
 
-    def __init__(self, ratio, mass, dimensions):
+    def __init__(self, ratio, mass):
         self.ratio = ratio
         self.mass = mass
-        self.dimensions = dimensions
+        self.dimensions = None
 
     def _run(self, data, weigths):
 
