@@ -2,17 +2,16 @@ import numpy
 
 
 class Leveling_thinning_algorithm_parameters:
-    def __init__(self, awg_weight_coef, numParticles, numParticlesOffset):
+    def __init__(self, awg_weight_coef):
         """..."""
         self.awg_weight_coef = awg_weight_coef
-        self.numParticles = numParticles
-        self.numParticlesOffset = numParticlesOffset
 
 
 class Leveling_thinning_algorithm:
 
     def __init__(self, awg_weight_coef):
         self.awg_weight_coef = awg_weight_coef
+        self.dimensions = None
 
     def _run(self, data, weigths):
         size = len(data)
