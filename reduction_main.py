@@ -17,15 +17,22 @@ from Algorithms import k_means_merge_average_algorithm
 
 class Algorithm:
     # Create based on class name:
-    def factory(self, type, mass=1., reduction_percent=1., leveling_persent=1., dimensions=None, max_iterations=1., tolerance=1.):
-        if type == "Random": return Random_thinning_algorithm.RandomThinningAlgorithm(reduction_percent)
-        if type == "Number_conservative": return Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(reduction_percent)
-        if type == "Energy_conservative":
-            return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(reduction_percent, dimensions, mass)
+    def factory( type, parameters, mass):
+        print('teype == '+ str(type))
+        if type == "random": return Random_thinning_algorithm.Random_thinning_algorithm(parameters.reduction_percent)
+        if type == "number_conservative": return Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(parameters.reduction_percent)
+        if type == "energy_conservative":
+            return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(parameters.reduction_percent, mass)
         if type == "kmeans":
-            return k_means_clustering_algorithm.K_means_clustering_algorithm(reduction_percent, max_iterations, tolerance)
+            return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance)
         if type == "kmeans-avg":
-            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(reduction_percent, max_iterations, tolerance)
+            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance)
+        if type == "voronoi":
+            return Voronoi_algorithm.VoronoiMergingAlgorithm(parameters.tolerance)
+        if type == "leveling":
+            return Leveling_thinning_algorithm.Leveling_thinning_algorithm(parameters.leveling_coefficient)
+
+        if type == "vranic":pass
         assert 0, "Bad type_algoritm: " + type
     factory = staticmethod(factory)
 
