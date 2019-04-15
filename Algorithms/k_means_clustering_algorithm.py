@@ -44,15 +44,16 @@ def recount_data(dimension, num_to_keep, labels, data, weights):
     return result_data, result_weights
 
 
-class K_means_clustering_algorithm_Parameters:
+class K_means_clustering_algorithm_parameters:
 
     """ Parametrs of k means clustering algorithm
         reduction_percent -- percent of reduced particles
     """
 
-    def __init__(self, reduction_percent):
-
+    def __init__(self, reduction_percent, max_iterations=30, tolerance=0.1):
         self.reduction_percent = reduction_percent
+        self.max_iterations = max_iterations
+        self.tolerance = tolerance
 
 
 class K_means_clustering_algorithm:
@@ -66,6 +67,9 @@ class K_means_clustering_algorithm:
         self.reduction_percent = reduction_percent
         self.max_iterations = max_iterations
         self.tolerance = tolerance
+        self.dimensions = None
+
+
 
     def _run(self, data, weigths):
 
@@ -75,7 +79,7 @@ class K_means_clustering_algorithm:
         weights = numpy.array(weigths)
         num_to_remove = int(size * self.reduction_percent)
         num_to_keep = size - num_to_remove
-        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=30, tol=self.tolerance).fit(data,
+        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=self.max_iterations, tol=self.tolerance).fit(data,
                                                                                           sample_weight=weights)
         result_data, result_weights = recount_data(dimension, num_to_keep, kmeans.labels_, data, weights)
 
