@@ -117,7 +117,7 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
 
-    algorithm = Random_thinning_algorithm.RandomThinningAlgorithm(reduction_percent)
+    algorithm = Random_thinning_algorithm.Random_thinning_algorithm(reduction_percent)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
@@ -256,20 +256,35 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.algorithm == 'voronoi':
-        voronoi_reduction(args.hdf, args.hdf_re, args.momentum_tol, args.momentum_pos)
+        tolerance = [args.momentum_tol, args.momentum_pos]
+        parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
+        base_reduction_function(args.hdf, args.hdf_re, "voronoi", parameters)
+
     elif args.algorithm == 'random':
-        random_thinning_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+        parameters = Random_thinning_algorithm.Random_thinning_algorithm_parameters(args.reduction_percent)
+        base_reduction_function(args.hdf, args.hdf_re, "random", parameters)
+
     elif args.algorithm == 'number_conservative':
-        number_conservative_thinning_algorithm(args.hdf, args.hdf_re, args.sample_amount)
+        parameters = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm_parameters(args.reduction_percent)
+        base_reduction_function(args.hdf, args.hdf_re, "number_conservative", parameters)
+
     elif args.algorithm == 'energy_conservative':
-        energy_conservative_thinning_algorithm(args.hdf, args.hdf_re, args.sample_amount)
+        parameters = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm_parameters(args.reduction_percent)
+        base_reduction_function(args.hdf, args.hdf_re, "energy_conservative", parameters)
+
     elif args.algorithm == 'kmeans':
-        k_means_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+        parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_parameters(args.reduction_percent)
+        base_reduction_function(args.hdf, args.hdf_re, "kmeans", parameters)
+
     elif args.algorithm == 'kmeans_avg':
-        k_means_merge_avg_algorithm(args.hdf, args.hdf_re, args.reduction_percent)
+        parameters = k_means_merge_average_algorithm.K_means_merge_average_algorithm_parameters(args.reduction_percent)
+        base_reduction_function(args.hdf, args.hdf_re, "kmeans_avg", parameters)
+
     elif args.algorithm == 'vranic_algorithm':
         Vranic_algorithm_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.particles_type)
+
     elif args.algorithm == 'leveling':
-        leveling_thinning_algorithm(args.hdf, args.hdf_re, args.leveling_coefficient)
+        parameters = Leveling_thinning_algorithm.Leveling_thinning_algorithm_parameters(args.leveling_coefficient)
+        base_reduction_function(args.hdf, args.hdf_re, "leveling", parameters)
 
 
