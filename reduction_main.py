@@ -44,9 +44,10 @@ def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parame
         process_reduction_group(type, group, hdf_file_reduction, parameters)
 
 
-def one_type_particle(type, group, hdf_file_reduction):
-    algorithm = Algorithm.factory(type)
-    thinning_base_procedure_v2(hdf_file_reduction, group, algorithm)
+def process_reduction_group(type, group, hdf_file_reduction, parameters):
+    mass = read_hdf_file.read_mass(group)
+    algorithm = Algorithm.factory(type, parameters, mass)
+    process_patches_in_group(hdf_file_reduction, group, algorithm)
 
 
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
