@@ -37,11 +37,11 @@ class Algorithm:
     factory = staticmethod(factory)
 
 
-def new_base_function(hdf_file_name, hdf_file_reduction_name, type, parametrs):
+def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parameters):
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
-        one_type_particle(type, group, hdf_file_reduction)
+        process_reduction_group(type, group, hdf_file_reduction, parameters)
 
 
 def one_type_particle(type, group, hdf_file_reduction):
@@ -49,11 +49,13 @@ def one_type_particle(type, group, hdf_file_reduction):
     thinning_base_procedure_v2(hdf_file_reduction, group, algorithm)
 
 
-def thinning_base_procedure_v2(hdf_file_reduction, group, algorithm):
+def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     data, weights, dimensions \
         = read_hdf_file.read_points_group(group)
     num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
+
+    algorithm.dimensions = dimensions
 
     reduced_data, reduced_weights, result_num_particles = \
         iterate_patches(data, weights, num_particles_offset, algorithm)
