@@ -1,8 +1,5 @@
 import h5py
 import re
-import Voronoi_algorithm
-import numpy
-
 
 class Dimensions:
     def __init__(self, dimension_position, dimension_momentum):
@@ -342,30 +339,6 @@ def decode_name(attribute_name):
     decoding_name = attribute_name.decode('ascii', errors='ignore')
     decoding_name = re.sub(r'\W+', '', decoding_name)
     return decoding_name
-
-
-def create_point_array(coord_collection, weighting):
-    """
-
-    create array of 2-d, 3-d points from datasets
-    coord_collection -- datasets from hdf file
-
-    """
-
-    point_array = []
-
-    dimension = coord_collection.get_dimension()
-
-    if dimension == 3:
-        for i in range(0, len(coord_collection.vector_x)):
-            point_array.append(Voronoi_algorithm.Point([coord_collection.vector_x[i], coord_collection.vector_y[i],
-                                      coord_collection.vector_z[i]], weighting[i]))
-
-    elif dimension == 2:
-        for i in range(0, len(coord_collection.vector_x)):
-            point_array.append(Voronoi_algorithm.Point([coord_collection.vector_x[i], coord_collection.vector_y[i]], weighting[i]))
-
-    return point_array
 
 
 def create_points_array_ver2(coord_collection, momentum_collection):
