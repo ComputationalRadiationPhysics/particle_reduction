@@ -50,9 +50,10 @@ class K_means_merge_average_algorithm_parameters:
         reduction_percent -- percent of reduced particles
     """
 
-    def __init__(self, reduction_percent):
-
+    def __init__(self, reduction_percent, max_iterations=30, tolerance=0.1):
         self.reduction_percent = reduction_percent
+        self.max_iterations = max_iterations
+        self.tolerance = tolerance
 
 
 class K_means_merge_average_algorithm:
@@ -63,6 +64,7 @@ class K_means_merge_average_algorithm:
         self.reduction_percent = reduction_percent
         self.max_iterations = max_iterations
         self.tolerance = tolerance
+        self.dimensions = None
 
     def _run(self, data, weigths):
 
