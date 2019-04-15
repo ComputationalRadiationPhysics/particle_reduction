@@ -340,6 +340,7 @@ class Vranic_merging_algorithm:
 
     def __init__(self, parameters):
         self.parameters = parameters
+        self.dimensions = None
 
     def _run(self, data, weigths, mass):
         data = np.array(data)
