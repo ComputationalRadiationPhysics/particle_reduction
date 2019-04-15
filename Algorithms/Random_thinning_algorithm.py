@@ -2,18 +2,17 @@ import random
 import numpy
 
 
-class RandomThinningAlgorithmParameters:
-    def __init__(self, reduction_percent, numParticles, numParticlesOffset):
+class Random_thinning_algorithm_parameters:
+    def __init__(self, reduction_percent):
         """..."""
         self.reduction_percent = reduction_percent
-        self.numParticles = numParticles
-        self.numParticlesOffset = numParticlesOffset
 
 
-class RandomThinningAlgorithm:
+class Random_thinning_algorithm:
 
-    def __init__(self, ratio):
-        self.ratio = ratio
+    def __init__(self, reduction_percent):
+        self.reduction_percent = reduction_percent
+        self.dimensions = None
 
     def _run(self, data, weigths):
         size = len(data)
@@ -21,7 +20,7 @@ class RandomThinningAlgorithm:
         data = numpy.array(data)
         weigths = numpy.array(weigths)
 
-        indices_to_remove = get_indices_to_remove(size, self.ratio)
+        indices_to_remove = get_indices_to_remove(size, self.reduction_percent)
         all_data_indexes = numpy.array(range(size))
 
         select = numpy.in1d(range(all_data_indexes.shape[0]), indices_to_remove)
