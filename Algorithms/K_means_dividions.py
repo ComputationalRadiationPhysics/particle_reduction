@@ -44,6 +44,16 @@ def move_values(data, final_size, new_indexes):
     return moved_values
 
 
+def handle_particle_data(coordinates, data, splitting_sizes):
+
+    new_patches_indexes, final_size, num_particles\
+        = count_points_idx(coordinates, splitting_sizes)
+
+    moved_values = move_values(data, final_size, new_patches_indexes)
+
+    return final_size, num_particles, moved_values
+
+
 class Cells_data():
 
     def __init__(self, data, splitting_number, ranges):
@@ -130,3 +140,4 @@ def count_patches_sizes(size_array, size_indexes, list_number_particles_in_parts
 
     amount_particles_in_patches = count_cells_sizes(links_to_array, final_size, size_indexes, size_array)
     return amount_particles_in_patches, final_size
+
