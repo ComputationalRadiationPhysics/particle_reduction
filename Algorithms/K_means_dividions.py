@@ -29,6 +29,21 @@ def count_points_idx(data, splitting_sizes):
     return amount_particles_in_patches, final_size, list_number_particles_in_parts
 
 
+def move_values(data, final_size, new_indexes):
+
+    size = len(data)
+    dimension = len(data[0])
+    moved_values = []
+    for i in range(0, size):
+        moved_values.append( np.zeros(dimension))
+
+    for i in range(0, len(final_size) - 1):
+        for j in range(int(final_size[i]), int(final_size[i + 1])):
+            moved_values[j] = data[int(new_indexes[j])]
+
+    return moved_values
+
+
 class Cells_data():
 
     def __init__(self, data, splitting_number, ranges):
