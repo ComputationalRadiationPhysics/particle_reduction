@@ -96,3 +96,37 @@ def get_positon(max_coord, min_coord, separator, x_current):
 
     lenght = max_coord - min_coord
     return max(0, min(int((x_current - min_coord) * separator / lenght), separator - 1))
+
+
+def count_cells_sizes(links_to_array, final_size, size_indexes, size_array):
+
+    counter_indexes = np.zeros(size_indexes)
+    amount_particles_in_patches = np.zeros(max(size_indexes, size_array))
+
+    for i in range(0, len(links_to_array)):
+        xy_idx = links_to_array[i]
+        start_size = final_size[xy_idx]
+        adding_counter = counter_indexes[xy_idx]
+        amount_particles_in_patches[int(start_size + adding_counter)] = i
+        counter_indexes[xy_idx] = adding_counter + 1
+    return amount_particles_in_patches
+
+
+def points_to_patches(patch_data):
+
+    list_number_particles_in_parts = np.zeros(patch_data.get_size_split() + 1, dtype=int)
+    links_to_array = []
+    for i in range(0, patch_data.get_array_lenght()):
+        particle_idx = patch_data. get_position_idx(i)
+        sum_links = list_number_particles_in_parts[particle_idx]
+        list_number_particles_in_parts[particle_idx] = sum_links + 1
+        links_to_array.append(particle_idx)
+    return list_number_particles_in_parts, links_to_array
+
+
+def count_patches_sizes(size_array, size_indexes, list_number_particles_in_parts, links_to_array):
+    final_size = np.cumsum(list_number_particles_in_parts, dtype=int)
+    final_size = np.insert(final_size, 0, 0)
+
+    amount_particles_in_patches = count_cells_sizes(links_to_array, final_size, size_indexes, size_array)
+    return amount_particles_in_patches, final_size
