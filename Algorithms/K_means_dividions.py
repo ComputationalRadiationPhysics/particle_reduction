@@ -8,6 +8,27 @@ def get_ranges(data):
     return ranges
 
 
+def count_points_idx(data, splitting_sizes):
+
+    ranges = get_ranges(data)
+    size_array = len(data)
+
+    patch_data = None
+
+    if size_array != 0:
+        patch_data = Cells_data(data, splitting_sizes, ranges)
+
+    patches_sizes = patch_data.get_size_split()
+
+    list_number_particles_in_parts, links_to_array = \
+        points_to_patches(patch_data)
+
+    amount_particles_in_patches, final_size = count_patches_sizes(size_array, patches_sizes, list_number_particles_in_parts,
+                                                  links_to_array)
+
+    return amount_particles_in_patches, final_size, list_number_particles_in_parts
+
+
 class Cells_data():
 
     def __init__(self, data, splitting_number, ranges):
