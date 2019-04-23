@@ -29,29 +29,31 @@ def count_points_idx(data, splitting_sizes):
     return amount_particles_in_patches, final_size, list_number_particles_in_parts
 
 
-def move_values(data, final_size, new_indexes):
+def move_values(data, final_size, new_indexes, weights):
 
     size = len(data)
     dimension = len(data[0])
     moved_values = []
+    moved_weights = np.zeros(len(weights))
     for i in range(0, size):
         moved_values.append( np.zeros(dimension))
 
     for i in range(0, len(final_size) - 1):
         for j in range(int(final_size[i]), int(final_size[i + 1])):
             moved_values[j] = data[int(new_indexes[j])]
+            moved_weights[j] = weights[int(new_indexes[j])]
 
-    return moved_values
+    return moved_values, moved_weights
 
 
-def handle_particle_data(coordinates, data, splitting_sizes):
+def handle_particle_data(coordinates, data, splitting_sizes, weights):
 
     new_patches_indexes, final_size, num_particles\
         = count_points_idx(coordinates, splitting_sizes)
 
-    moved_values = move_values(data, final_size, new_patches_indexes)
+    moved_values, moved_weights = move_values(data, final_size, new_patches_indexes, weights)
 
-    return final_size, num_particles, moved_values
+    return final_size, num_particles, moved_values, moved_weights
 
 
 class Cells_data():
@@ -61,6 +63,7 @@ class Cells_data():
         self.splitting_number = splitting_number
         self.ranges = ranges
         self.dimension = len(data[0])
+
 
     def get_size_split(self):
         size = 0
