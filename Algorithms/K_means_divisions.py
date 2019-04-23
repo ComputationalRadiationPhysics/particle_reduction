@@ -144,3 +144,42 @@ def count_patches_sizes(size_array, size_indexes, list_number_particles_in_parts
     amount_particles_in_patches = count_cells_sizes(links_to_array, final_size, size_indexes, size_array)
     return amount_particles_in_patches, final_size
 
+
+
+if __name__ == "__main__":
+
+    data = np.array(
+            [[0., 0.5, 3, 4, 5],
+            [1.5, 0.5, 6., 7., 8.],
+            [2.5, 0.5, 5, 3, 1],
+            [3.5, 0.5, 6, 7, 3],
+            [1.5, 1.5, 5., 5., 5],
+            [2.5, 1.5, 22, 4, 8],
+            [0.5, 2.5, 8., 6., 3],
+            [1.5, 2.5, 6, 5, 4],
+            [2.5, 2.5, 3, 5, 7],
+            [3.5, 2.5, 0, 1, 2],
+            [0., 0., 2, 4, 7],
+            [4., 5., 6., 4., 3.]])
+
+    coordinates = data[:, 0:2]
+    splitting_sizes = [4, 5]
+    final_size, num_particles, moved_values = handle_particle_data(coordinates, data, splitting_sizes)
+    print(final_size)
+    for i in range(0, len(final_size) - 1):
+        print('######################')
+
+        for j in range(final_size[i], final_size[i + 1]):
+            print(j)
+            print(moved_values[j])
+
+
+
+
+
+
+
+
+
+
+
