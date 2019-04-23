@@ -1,5 +1,6 @@
 from sklearn.cluster import KMeans
 import numpy
+from Algorithms import K_means_divisions
 
 
 def merge_points(dimension, vector, weights_vector):
@@ -60,22 +61,52 @@ class K_means_merge_average_algorithm:
     """
     """
 
-    def __init__(self, reduction_percent, max_iterations, tolerance):
+    def __init__(self, reduction_percent, max_iterations, tolerance, divisions):
         self.reduction_percent = reduction_percent
         self.max_iterations = max_iterations
         self.tolerance = tolerance
         self.dimensions = None
+        self.divisions = divisions
 
-    def _run(self, data, weigths):
+    def _run(self, data, weights):
+
+        if len(data) == 0:
+            return [], []
+        data = numpy.array(data)
+
+        coordinates = data[:, 0:self.dimensions.dimension_position]
+        num_particles_offset, num_particles, moved_values, moved_weights \
+            = K_means_divisions.handle_particle_data(coordinates, data, self.divisions, weights)
+
+        result_data = []
+        result_weights = []
+
+        for i in range(0, len(num_particles_offset) - 1):
+            current_data, current_weights = self.iterate_cell(
+                moved_values[num_particles_offset[i]:num_particles_offset[i + 1]],
+                moved_weights[num_particles_offset[i]:num_particles_offset[i + 1]])
+
+            for point in current_data:
+                result_data.append(point)
+
+            for weight in current_weights:
+                result_weights.append(weight)
+
+        return result_data, result_weights
+
+    def iterate_cell(self, data, weights):
+        if len(data) == 0:
+            return [], []
 
         dimension = len(data[0])
         size = len(data)
         data = numpy.array(data)
-        weights = numpy.array(weigths)
+        weights = numpy.array(weights)
         num_to_remove = int(size * self.reduction_percent)
         num_to_keep = size - num_to_remove
-        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=self.max_iterations, tol=self.tolerance).fit(data,
-                                                                                          sample_weight=weights)
+        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=self.max_iterations, tol=self.tolerance).fit(
+            data,
+            sample_weight=weights)
         result_data, result_weights = recount_data(dimension, num_to_keep, kmeans.labels_, data, weights)
 
         return result_data, result_weights
