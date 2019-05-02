@@ -18,6 +18,8 @@ class Number_conservative_thinning_algorithm:
     def _run(self, data, weigths):
 
         size = len(data)
+        if size == 0:
+            return [], []
         number_of_k_sample = int((1 - self.reduction_percent) * size)
         data = numpy.array(data)
         weigths = numpy.array(weigths)
