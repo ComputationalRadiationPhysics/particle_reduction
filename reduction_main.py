@@ -50,6 +50,53 @@ def process_reduction_group(type, group, hdf_file_reduction, parameters):
     process_patches_in_group(hdf_file_reduction, group, algorithm)
 
 
+def get_absolute_coordinates(data, position_offset, unit_SI_offset, unit_SI_position, dimensions, unit_SI_momentum):
+
+    absolute_coordinates = []
+    for i in range(0, len(data)):
+        relative_values = []
+        for j in range(0, dimensions.dimension_position):
+
+            relative_point = position_offset[i][j] * unit_SI_offset[j] + data[i][j] * unit_SI_position[j]
+
+            relative_values.append(relative_point)
+
+        for j in range(dimensions.dimension_position, len(data[0])):
+            relative_values.append(data[i][j] * unit_SI_momentum[int(j - dimensions.dimension_position)])
+        absolute_coordinates.append(relative_values)
+
+    return absolute_coordinates
+
+
+def get_relative_coordinates(absolute_coordinates, unit_SI_offset,
+                             unit_SI_position, dimensions, unit_SI_momentum):
+
+    relative_coordinates = []
+    offset = []
+
+    for i in range(0, len(absolute_coordinates)):
+
+        relative_point = []
+        offset_point = []
+        for j in range(0, dimensions.dimension_position):
+            current_position_offset = int(absolute_coordinates[i][j]/unit_SI_offset[j])
+
+            offset_point.append(current_position_offset)
+            current_relative_coordinate = (absolute_coordinates[i][j]-current_position_offset * unit_SI_offset[j])\
+                                          /unit_SI_position[j]
+
+            relative_point.append(current_relative_coordinate)
+
+        for j in range(dimensions.dimension_position, len(absolute_coordinates[0])):
+            current_relative_momentum = absolute_coordinates[i][j]/unit_SI_momentum[int(j - dimensions.dimension_position)]
+            relative_point.append(current_relative_momentum)
+
+        relative_coordinates.append(relative_point)
+        offset.append(offset_point)
+
+    return relative_coordinates, offset
+
+
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     data, weights, dimensions \
