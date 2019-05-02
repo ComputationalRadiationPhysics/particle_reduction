@@ -283,6 +283,9 @@ class DatasetReader():
         self.vector_x = []
         self.vector_y = []
         self.vector_z = []
+        self.unit_SI_x = 1.
+        self.unit_SI_y = 1.
+        self.unit_SI_z = 1.
         self.name_dataset = name_dataset
 
     def __call__(self, name, node):
@@ -293,14 +296,27 @@ class DatasetReader():
         if isinstance(node, h5py.Dataset):
             if node.name.endswith(dataset_x):
                 self.vector_x = node.value
+                self.unit_SI_x = node.attrs["unitSI"]
 
             if node.name.endswith(dataset_y):
                 self.vector_y = node.value
+                self.unit_SI_y = node.attrs["unitSI"]
 
             if node.name.endswith(dataset_z):
                 self.vector_z = node.value
+                self.unit_SI_z = node.attrs["unitSI"]
 
         return None
+
+    def get_unit_si_array(self):
+
+        array_unit_SI = []
+        if self.get_dimension() == 3:
+            array_unit_SI = [self.unit_SI_x, self.unit_SI_y, self.unit_SI_z]
+        elif self.get_dimension() == 2:
+            array_unit_SI = [self.unit_SI_x, self.unit_SI_y]
+
+        return array_unit_SI
 
     def get_dimension(self):
         """
@@ -489,10 +505,14 @@ def read_points_group(group):
     momentum_group.visititems(momentum_values)
     points = create_points_array_ver2(position_values, momentum_values)
     dimention_position = position_values.get_dimension()
+    unit_SI_position = position_values.get_unit_si_array()
+    unit_SI_momentum = momentum_values.get_unit_si_array()
+
     dimention_momentum = momentum_values.get_dimension()
     dimensions = Dimensions(dimention_position, dimention_momentum)
 
-    return points, weighting, dimensions
+    return points, weighting, dimensions, unit_SI_position, unit_SI_momentum
+
 
 def read_position_offset(group):
 
