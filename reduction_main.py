@@ -106,6 +106,7 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
         = read_hdf_file.read_points_group(group)
 
     position_offset, unit_si_offset = read_hdf_file.read_position_offset(group)
+    num_particles_offset, num_particles_offset = read_hdf_file.read_patches_values(group)
     absolute_coordinates = get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions,
                                                     unit_si_momentum)
 
@@ -116,8 +117,10 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     relative_coordinates, offset = get_relative_coordinates(reduced_data, unit_si_offset,
                                                             unit_si_position, dimensions, unit_si_momentum)
 
-    library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
+    result_num_particles_offset = numpy.cumsum(result_num_particles[0:len(result_num_particles) - 1], dtype=int)
+    result_num_particles_offset = numpy.insert(result_num_particles_offset, 0, 0)
 
+    read_hdf_file.write_patch_group(group, hdf_file_reduction, result_num_particles_offset, result_num_particles)
     read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
@@ -250,6 +253,7 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
 
     ranges_patches = num_particles_offset
 
+    ranges_patches = numpy.append(ranges_patches, len(data))
     ranges_patches.astype(int)
 
 
@@ -266,12 +270,13 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
         copy_weights = copy.deepcopy(weights[start:end])
         reduced_data_patch, reduced_weight_patch = algorithm._run(copy_data, copy_weights)
 
+
         for point in reduced_data_patch:
             reduced_data.append(point)
 
         for weight in reduced_weight_patch:
             reduced_weights.append(weight)
-        result_num_particles.append(len(data))
+        result_num_particles.append(len(reduced_data_patch))
 
     return reduced_data, reduced_weights, result_num_particles
 
