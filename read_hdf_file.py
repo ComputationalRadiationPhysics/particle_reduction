@@ -21,6 +21,7 @@ class ParticlesFunctor():
         self.positions = []
         self.momentum = []
         self.weighting = []
+        self.position_offset = []
 
     def __call__(self, name, node):
 
@@ -36,7 +37,7 @@ class ParticlesFunctor():
                 self.momentum.append(node)
 
             if node.name.endswith('positionOffset'):
-                self.momentum.append(node)
+                self.position_offset.append(node)
 
         return None
 
@@ -493,8 +494,31 @@ def read_points_group(group):
 
     return points, weighting, dimensions
 
+def read_position_offset(group):
 
-def write_group_values(hdf_file_reduction, group, library_datasets):
+    offset_values = []
+
+    hdf_datasets = ParticlesFunctor()
+    group.visititems(hdf_datasets)
+    position_offset_values = DatasetReader('positionOffset')
+    position_offset_group = hdf_datasets.position_offset[0]
+    position_offset_group.visititems(position_offset_values)
+
+    if position_offset_values.get_dimension() == 2:
+        offset_values = [list(x) for x in
+                         zip(position_offset_values.vector_x, position_offset_values.vector_y)]
+
+    elif position_offset_values.get_dimension() == 3:
+        offset_values = [list(x) for x in
+                         zip(position_offset_values.vector_x, position_offset_values.vector_y,
+                             position_offset_values.vector_z)]
+
+    offset_unit_si = position_offset_values.get_unit_si_array()
+
+    return offset_values, offset_unit_si
+
+
+def write_group_values(hdf_file_reduction, group, library_datasets, offset):
     """
 
     write values from point library to hdf file
