@@ -102,14 +102,19 @@ def get_relative_coordinates(absolute_coordinates, unit_SI_offset,
 
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
-    data, weights, dimensions \
+    data, weights, dimensions, unit_si_position, unit_si_momentum \
         = read_hdf_file.read_points_group(group)
-    num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
+
+    position_offset, unit_si_offset = read_hdf_file.read_position_offset(group)
+    absolute_coordinates = get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions,
+                                                    unit_si_momentum)
 
     algorithm.dimensions = dimensions
 
     reduced_data, reduced_weights, result_num_particles = \
         iterate_patches(data, weights, num_particles_offset, algorithm)
+    relative_coordinates, offset = get_relative_coordinates(reduced_data, unit_si_offset,
+                                                            unit_si_position, dimensions, unit_si_momentum)
 
     library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
 
