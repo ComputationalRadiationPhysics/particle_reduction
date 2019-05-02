@@ -552,25 +552,34 @@ def write_group_values(hdf_file_reduction, group, library_datasets, offset):
     group.visititems(hdf_datasets)
     position_values = DatasetReader('position')
     momentum_values = DatasetReader('momentum')
+    position_offset_values = DatasetReader('positionOffset')
+    position_offset_group = hdf_datasets.position_offset[0]
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
+    position_offset_group.visititems(position_offset_values)
+
     writen_position = DatasetWriter(hdf_file_reduction, library_datasets, 'position')
     writen_momentum = DatasetWriter(hdf_file_reduction, library_datasets, 'momentum')
+
     writen_weighting = WeightWriter(hdf_file_reduction, library_datasets)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
     group.visititems(writen_weighting)
 
 
-def create_datasets_from_vector(reduced_data, dimensions):
+def create_datasets_from_vector(reduced_data, dimensions, position_offset):
 
     library_datasets = {}
 
     position_x = []
     position_y = []
     position_z = []
+
+    position_offset_x = []
+    position_offset_y = []
+    position_offset_z = []
 
     momentum_x = []
     momentum_y = []
@@ -596,9 +605,23 @@ def create_datasets_from_vector(reduced_data, dimensions):
             momentum_x.append(point[dimensions.dimension_position])
             momentum_y.append(point[dimensions.dimension_position + 1])
 
+    for point in position_offset:
+        if dimensions.dimension_position == 3:
+            position_offset_x.append(point[0])
+            position_offset_y.append(point[1])
+            position_offset_z.append(point[2])
+        if dimensions.dimension_position == 2:
+
+            position_offset_x.append(point[0])
+            position_offset_y.append(point[1])
+
     library_datasets['position/x'] = position_x
     library_datasets['position/y'] = position_y
     library_datasets['position/z'] = position_z
+
+    library_datasets['positionOffset/x'] = position_offset_x
+    library_datasets['positionOffset/y'] = position_offset_y
+    library_datasets['positionOffset/z'] = position_offset_z
 
     library_datasets['momentum/x'] = momentum_x
     library_datasets['momentum/y'] = momentum_y
@@ -621,16 +644,21 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     group.visititems(hdf_datasets)
     position_values = DatasetReader('position')
     momentum_values = DatasetReader('momentum')
+    position_offset_values = DatasetReader('positionOffset')
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
+    position_offset_group = hdf_datasets.position_offset[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
+    position_offset_group.visititems(position_offset_values)
 
     writen_position = DatasetWriter(hdf_file_reduction, reduced_data,  'position')
     writen_momentum = DatasetWriter(hdf_file_reduction, reduced_data, 'momentum')
+    writen_position_offset = DatasetWriter(hdf_file_reduction, reduced_data, 'positionOffset')
     writen_weighting = WeightWriter(hdf_file_reduction, weights)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
+    position_offset_group.visititems(writen_position_offset)
     group.visititems(writen_weighting)
 
 
