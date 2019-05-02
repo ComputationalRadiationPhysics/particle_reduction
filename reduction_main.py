@@ -177,7 +177,6 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
 
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
-
     algorithm = Random_thinning_algorithm.Random_thinning_algorithm(reduction_percent)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
@@ -197,8 +196,13 @@ def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_nam
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
-def k_means_merge_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+def k_means_cluster_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
     algorithm = k_means_clustering_algorithm.K_means_clustering_algorithm(reduction_percent)
+    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+
+
+def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+    algorithm = k_means_merge_average_algorithm.K_means_merge_average_algorithm(reduction_percent)
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
