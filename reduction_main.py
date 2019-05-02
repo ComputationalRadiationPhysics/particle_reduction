@@ -14,19 +14,22 @@ from Algorithms import Leveling_thinning_algorithm
 from Algorithms import Energy_conservative_thinning_algorithm
 from Algorithms import k_means_merge_average_algorithm
 
-
 class Algorithm:
     # Create based on class name:
     def factory( type, parameters, mass):
-        print('teype == '+ str(type))
+
         if type == "random": return Random_thinning_algorithm.Random_thinning_algorithm(parameters.reduction_percent)
         if type == "number_conservative": return Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(parameters.reduction_percent)
         if type == "energy_conservative":
             return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(parameters.reduction_percent, mass)
         if type == "kmeans":
-            return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance)
+            divisions = [10, 10]
+            return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
+                                                                             divisions)
         if type == "kmeans-avg":
-            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance)
+            divisions = [10, 10]
+            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
+                                                                                   divisions)
         if type == "voronoi":
             return Voronoi_algorithm.VoronoiMergingAlgorithm(parameters.tolerance)
         if type == "leveling":
@@ -298,6 +301,9 @@ if __name__ == "__main__":
                         help="types of particles")
 
     parser.add_argument("-leveling_coefficient", metavar='leveling_coefficient', type=float,
+                        help="leveling_coefficient")
+
+    parser.add_argument("-k_means_subdivision", metavar='leveling_coefficient', type=list,
                         help="leveling_coefficient")
 
     args = parser.parse_args()
