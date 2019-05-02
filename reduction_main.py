@@ -1,18 +1,17 @@
 from shutil import copyfile
-import read_hdf_file
-import argparse
-from Algorithms import Voronoi_algorithm
-import os
-import h5py
 import numpy
-from Algorithms import Random_thinning_algorithm
+import read_hdf_file
+import os
 import copy
-from Algorithms import k_means_clustering_algorithm
-from Algorithms import Vranic_algorithm
-from Algorithms import Number_conservative_thinning_algorithm
-from Algorithms import Leveling_thinning_algorithm
-from Algorithms import Energy_conservative_thinning_algorithm
-from Algorithms import k_means_merge_average_algorithm
+import h5py
+import argparse
+import Algorithms.Random_thinning_algorithm as Random_thinning_algorithm
+import Algorithms.Number_conservative_thinning_algorithm as Number_conservative_thinning_algorithm
+import Algorithms.Energy_conservative_thinning_algorithm as Energy_conservative_thinning_algorithm
+import Algorithms.k_means_clustering_algorithm as k_means_clustering_algorithm
+import Algorithms.k_means_merge_average_algorithm as k_means_merge_average_algorithm
+import Algorithms.Voronoi_algorithm as Voronoi_algorithm
+import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
 
 class Algorithm:
     # Create based on class name:
