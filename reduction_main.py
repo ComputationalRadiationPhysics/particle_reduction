@@ -113,7 +113,8 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     algorithm.dimensions = dimensions
 
     reduced_data, reduced_weights, result_num_particles = \
-        iterate_patches(data, weights, num_particles_offset, algorithm)
+        iterate_patches(absolute_coordinates, weights, num_particles_offset, algorithm)
+
     relative_coordinates, offset = get_relative_coordinates(reduced_data, unit_si_offset,
                                                             unit_si_position, dimensions, unit_si_momentum)
 
@@ -121,6 +122,9 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     result_num_particles_offset = numpy.insert(result_num_particles_offset, 0, 0)
 
     read_hdf_file.write_patch_group(group, hdf_file_reduction, result_num_particles_offset, result_num_particles)
+
+    library_datasets = read_hdf_file.create_datasets_from_vector(relative_coordinates, dimensions, offset)
+
     read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
