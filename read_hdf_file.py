@@ -499,6 +499,8 @@ def read_points_group(group):
     weighting = hdf_datasets.weighting
     position_values = DatasetReader('position')
     momentum_values = DatasetReader('momentum')
+    if len(hdf_datasets.positions) == 0 or len(hdf_datasets.momentum) == 0:
+        return [], [], [], [], []
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)

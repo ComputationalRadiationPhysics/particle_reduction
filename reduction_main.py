@@ -40,9 +40,11 @@ class Algorithm:
 
 
 def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parameters):
+
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
+        print('name group '+ str(group.name))
         process_reduction_group(type, group, hdf_file_reduction, parameters)
 
 
@@ -103,6 +105,9 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     data, weights, dimensions, unit_si_position, unit_si_momentum \
         = read_hdf_file.read_points_group(group)
+
+    if len(data) == 0:
+        return
 
     position_offset, unit_si_offset = read_hdf_file.read_position_offset(group)
     num_particles_offset, num_particles_offset = read_hdf_file.read_patches_values(group)
@@ -214,9 +219,10 @@ def thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm):
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
+        print('group name   ' + str(group.name))
         data, weights, dimensions, unit_SI_position, unit_SI_momentum\
             = read_hdf_file.read_points_group(group)
-
+        print('num_particles'+ str(num_particles))
         num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
 
 
@@ -262,6 +268,7 @@ def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_
 
 
 def iterate_patches(data, weights, num_particles_offset, algorithm):
+    print('iterate_patches ')
 
     ranges_patches = num_particles_offset
 
@@ -277,6 +284,8 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
     for i in range(0, len(ranges_patches) - 1):
         start = int(ranges_patches[i])
         end = int(ranges_patches[i + 1])
+        print('start '+ str(start))
+        print('end ' + str(end))
         copy_data = copy.deepcopy(data[start:end])
 
         copy_weights = copy.deepcopy(weights[start:end])
