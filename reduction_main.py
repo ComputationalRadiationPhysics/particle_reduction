@@ -177,13 +177,15 @@ def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, tolerances):
 
 
 def random_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
-    algorithm = Random_thinning_algorithm.Random_thinning_algorithm(reduction_percent)
-    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+
+    parameters = Random_thinning_algorithm.Random_thinning_algorithm_parameters(reduction_percent)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "random", parameters)
 
 
-def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, ratio_of_deleted_particles):
-    algorithm = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(ratio_of_deleted_particles)
-    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+    parameters = Number_conservative_thinning_algorithm.\
+        Number_conservative_thinning_algorithm_parameters(reduction_percent)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "number_conservative", parameters)
 
 
 def leveling_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, leveling_coefficient):
@@ -191,19 +193,20 @@ def leveling_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, leveling
     thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
-def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, ratio_of_deleted_particles):
-    algorithm = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(ratio_of_deleted_particles)
-    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+    parameters = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm_parameters(
+        reduction_percent)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "energy_conservative", parameters)
 
 
 def k_means_cluster_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
-    algorithm = k_means_clustering_algorithm.K_means_clustering_algorithm(reduction_percent)
-    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+    parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_parameters(reduction_percent)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "kmeans", parameters)
 
 
 def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
-    algorithm = k_means_merge_average_algorithm.K_means_merge_average_algorithm(reduction_percent)
-    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
+    parameters = k_means_merge_average_algorithm.K_means_merge_average_algorithm_parameters(reduction_percent)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "kmeans_avg", parameters)
 
 
 def thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm):
@@ -211,9 +214,11 @@ def thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm):
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
-        data, weights, dimensions\
+        data, weights, dimensions, unit_SI_position, unit_SI_momentum\
             = read_hdf_file.read_points_group(group)
+
         num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
+
 
         reduced_data, reduced_weights, result_num_particles =\
             iterate_patches(data, weights, num_particles_offset, algorithm)
