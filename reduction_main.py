@@ -177,23 +177,6 @@ def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_perc
 
 
 def iterate_patches(data, weights, num_particles_offset, algorithm, bound_electrons):
-def k_means_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
-    """ Create copy of  original file, iterate base groups"""
-
-    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
-
-    for group in particles_collect.particles_groups:
-        data, weights, dimensions \
-            = read_hdf_file.read_points_group(group)
-
-        parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_Parameters(reduction_percent)
-        algorithm = k_means_clustering_algorithm.K_means_clustering_algorithm(parameters)
-
-        reduced_data, reduced_weights = algorithm._run(data, weights)
-        library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
-        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
-
-
 def Vranic_algorithm_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, type_particles):
     """ Create copy of  original file, iterate base groups"""
 
