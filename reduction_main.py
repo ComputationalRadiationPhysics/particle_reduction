@@ -176,25 +176,7 @@ def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_perc
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "kmeans_avg", parameters)
 
 
-def thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm):
-
-    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
-
-    for group in particles_collect.particles_groups:
-        print('group name   ' + str(group.name))
-        data, weights, dimensions, unit_SI_position, unit_SI_momentum\
-            = read_hdf_file.read_points_group(group)
-        print('num_particles'+ str(num_particles))
-        num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
-
-
-        reduced_data, reduced_weights, result_num_particles =\
-            iterate_patches(data, weights, num_particles_offset, algorithm)
-        library_datasets = read_hdf_file.create_datasets_from_vector(reduced_data, dimensions)
-
-        read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
-
-
+def iterate_patches(data, weights, num_particles_offset, algorithm, bound_electrons):
 def k_means_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
     """ Create copy of  original file, iterate base groups"""
 
