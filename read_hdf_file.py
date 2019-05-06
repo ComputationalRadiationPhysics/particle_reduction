@@ -108,69 +108,6 @@ class ReadPatchValues():
                 self.numParticlesOffset = node.value
 
 
-class DatasetWriter_Voronoi_cells():
-    """
-
-    Write dataset into result hdf file
-    name_dataset -- name recorded dataset
-    hdf_file -- result hdf file
-    result_points -- points to write to hdf file
-
-    """
-
-    def __init__(self, hdf_file, result_points, name_dataset):
-
-        self.vector_x = []
-        self.vector_y = []
-        self.vector_z = []
-        self.weighting = []
-        self.hdf_file = hdf_file
-        self.name_dataset = name_dataset
-        self.demention = len(result_points[0].points[self.name_dataset][0].coords)
-
-        for point in result_points:
-
-            if point.points[self.name_dataset] != None:
-
-                vector_coords = point.points[self.name_dataset][0].coords
-                if self.demention == 2:
-                    self.vector_x.append(vector_coords[0])
-                    self.vector_y.append(vector_coords[1])
-                if self.demention == 3:
-                    self.vector_x.append(vector_coords[0])
-                    self.vector_y.append(vector_coords[1])
-                    self.vector_y.append(vector_coords[2])
-
-    def __call__(self, name, node):
-
-        if isinstance(node, h5py.Dataset):
-
-            dataset_x = self.name_dataset + '/x'
-
-            dataset_y = self.name_dataset + '/y'
-            dataset_z = self.name_dataset + '/z'
-
-            if node.name.endswith(dataset_x):
-                node_name = node.name
-                del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x)
-            elif node.name.endswith(dataset_y):
-                node_name = node.name
-                del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y)
-
-            elif node.name.endswith(dataset_z):
-                node_name = node.name
-                del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z)
-
-            elif node.name.endswith('weighting'):
-                node_name = node.name
-                del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.weighting)
-
-        return None
-
 
 class DatasetWriter():
     """
