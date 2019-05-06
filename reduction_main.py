@@ -132,26 +132,6 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
-def voronoi_reduction(hdf_file, hdf_file_reduction, tolerance_momentum, tolerance_position):
-    """ Create name of reducted file, array of momentum """
-
-    name_hdf_file_reduction = ''
-
-    if hdf_file != '':
-        if os.path.exists(hdf_file):
-            name = hdf_file[:-4]
-            idx_of_name = name.rfind('/')
-            if idx_of_name != -1:
-                name_hdf_file_reduction = hdf_file_reduction + hdf_file[idx_of_name + 1: -6] + 'reduction.h5'
-            else:
-                name_hdf_file_reduction = hdf_file_reduction + hdf_file[:-3] + '.h5'
-
-            tolerances = [tolerance_momentum, tolerance_position]
-            voronoi_algorithm(hdf_file, hdf_file_reduction, tolerances)
-        else:
-            print('The .hdf file does not exist')
-
-
 def get_particles_groups(hdf_file_name, hdf_file_reduction_name):
     copyfile(hdf_file_name, hdf_file_reduction_name)
     hdf_file = h5py.File(hdf_file_name, 'a')
