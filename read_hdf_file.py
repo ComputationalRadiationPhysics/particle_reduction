@@ -164,19 +164,27 @@ class dataset_writer():
 
     """
 
-    def __init__(self, hdf_file, weight):
+    def __init__(self, hdf_file, values, name_dataset):
 
-        self.weighting = weight
+        self.values = values
         self.hdf_file = hdf_file
+        self.name_dataset = name_dataset
 
     def __call__(self, name, node):
 
+        attributes = {}
+
         if isinstance(node, h5py.Dataset):
 
-            if node.name.endswith('weighting'):
+            if node.name.endswith(self.name_dataset):
+
+                for attr in node.attrs.keys():
+                    attributes[attr] = node.attrs[attr]
                 node_name = node.name
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.weighting, dtype=float)
+                dset = self.hdf_file.create_dataset(node_name, data=self.values, dtype=float)
+                for attr in attributes:
+                    dset.attrs[attr] = attributes[attr]
         return None
 
 
