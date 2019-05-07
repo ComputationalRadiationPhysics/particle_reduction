@@ -54,23 +54,31 @@ def process_reduction_group(type, group, hdf_file_reduction, parameters):
     process_patches_in_group(hdf_file_reduction, group, algorithm)
 
 
-def get_absolute_coordinates(data, position_offset, unit_SI_offset, unit_SI_position, dimensions, unit_SI_momentum):
+def get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions, unit_si_momentum):
 
-    absolute_coordinates = []
-    for i in range(0, len(data)):
-        relative_values = []
-        for j in range(0, dimensions.dimension_position):
+    absolute_result = []
 
-            relative_point = position_offset[i][j] * unit_SI_offset[j] + data[i][j] * unit_SI_position[j]
+    unit_si_position = numpy.array(unit_si_position)
+    unit_si_offset = numpy.array(unit_si_offset)
+    unit_si_momentum = numpy.array(unit_si_momentum)
 
-            relative_values.append(relative_point)
+    i = 0
+    for point in data:
+        offset = position_offset[i]
+        coordinates = numpy.array(point[0:dimensions.dimension_position])
 
-        for j in range(dimensions.dimension_position, len(data[0])):
-            relative_values.append(data[i][j] * unit_SI_momentum[int(j - dimensions.dimension_position)])
-        absolute_coordinates.append(relative_values)
+        absolute_coordinates = coordinates * unit_si_position + offset * unit_si_offset
+        momentum = point[dimensions.dimension_position:dimensions.dimension_momentum + dimensions.dimension_position]
+        absolute_momentum = momentum * unit_si_momentum
+        other_values = point[dimensions.dimension_momentum + dimensions.dimension_position: len(point)]
 
-    return absolute_coordinates
+        absolute_point = numpy.append(absolute_coordinates, absolute_momentum)
+        absolute_point = numpy.append(absolute_point, other_values)
 
+        absolute_result.append(absolute_point.tolist())
+        i+=1
+
+    return absolute_result
 
 def get_relative_coordinates(absolute_coordinates, unit_SI_offset,
                              unit_SI_position, dimensions, unit_SI_momentum):
