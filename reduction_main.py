@@ -193,7 +193,7 @@ def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_perc
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "kmeans_avg", parameters)
 
 
-def iterate_patches(data, weights, num_particles_offset, algorithm, bound_electrons):
+def iterate_patches(data, weights, num_particles_offset, algorithm):
     print('iterate_patches ')
 
     ranges_patches = num_particles_offset
