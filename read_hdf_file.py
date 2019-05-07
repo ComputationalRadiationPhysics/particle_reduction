@@ -594,9 +594,10 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     write_position_offset = points_writer(hdf_file_reduction, reduced_data, 'positionOffset')
     write_weighting = dataset_writer(hdf_file_reduction, weights, 'weighting')
     write_bound_electrons = dataset_writer(hdf_file_reduction, reduced_data['boundElectrons'], 'boundElectrons')
-    momentum_group.visititems(writen_momentum)
-    position_offset_group.visititems(writen_position_offset)
-    group.visititems(writen_weighting)
+
+    position_group.visititems(write_position)
+    momentum_group.visititems(write_momentum)
+    position_offset_group.visititems(write_position_offset)
     group.visititems(write_weighting)
     group.visititems(write_bound_electrons)
 
