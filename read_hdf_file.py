@@ -528,47 +528,27 @@ def create_datasets_from_vector(reduced_data, dimensions, position_offset):
 
     library_datasets = {}
 
-    position_x = []
-    position_y = []
+    size_values = len(reduced_data[0]) - 1
+
+    position_x = reduced_data[:, 0]
+    position_y = reduced_data[:, 1]
     position_z = []
+    if dimensions.dimension_position == 3:
+        position_z = reduced_data[:, 2]
 
-    position_offset_x = []
-    position_offset_y = []
-    position_offset_z = []
-
-    momentum_x = []
-    momentum_y = []
+    momentum_x = reduced_data[:, dimensions.dimension_position]
+    momentum_y = reduced_data[:, dimensions.dimension_position + 1]
     momentum_z = []
+    if dimensions.dimension_momentum == 3:
+        momentum_z = reduced_data[:, dimensions.dimension_position + 2]
 
-    for point in reduced_data:
+    bound_electrons = reduced_data[:, size_values]
 
-        if dimensions.dimension_position == 3:
-            position_x.append(point[0])
-            position_y.append(point[1])
-            position_z.append(point[2])
-
-        if dimensions.dimension_position == 2:
-            position_x.append(point[0])
-            position_y.append(point[1])
-
-        if dimensions.dimension_momentum == 3:
-            momentum_x.append(point[dimensions.dimension_position])
-            momentum_y.append(point[dimensions.dimension_position + 1])
-            momentum_z.append(point[dimensions.dimension_position + 2])
-
-        if dimensions.dimension_momentum == 2:
-            momentum_x.append(point[dimensions.dimension_position])
-            momentum_y.append(point[dimensions.dimension_position + 1])
-
-    for point in position_offset:
-        if dimensions.dimension_position == 3:
-            position_offset_x.append(point[0])
-            position_offset_y.append(point[1])
-            position_offset_z.append(point[2])
-        if dimensions.dimension_position == 2:
-
-            position_offset_x.append(point[0])
-            position_offset_y.append(point[1])
+    position_offset_x = position_offset[:, 0]
+    position_offset_y = position_offset[:, 1]
+    position_offset_z = []
+    if dimensions.dimension_position == 3:
+        position_offset_z = position_offset[:, 2]
 
     library_datasets['position/x'] = position_x
     library_datasets['position/y'] = position_y
