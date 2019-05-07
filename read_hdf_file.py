@@ -113,8 +113,7 @@ class ReadPatchValues():
                 self.numParticlesOffset = node.value
 
 
-
-class DatasetWriter():
+class points_writer():
     """
 
     Write dataset into result hdf file
@@ -155,7 +154,7 @@ class DatasetWriter():
         return None
 
 
-class WeightWriter():
+class dataset_writer():
     """
 
     Write dataset into result hdf file
@@ -179,6 +178,7 @@ class WeightWriter():
                 del self.hdf_file[node.name]
                 dset = self.hdf_file.create_dataset(node_name, data=self.weighting, dtype=float)
         return None
+
 
 
 class PatchValuesWriter():
@@ -300,7 +300,7 @@ def decode_name(attribute_name):
     return decoding_name
 
 
-def create_points_array_ver2(coord_collection, momentum_collection):
+def create_points_array(coord_collection, momentum_collection, bound_electrons):
     """
 
     create array of 2-d, 3-d points from datasets
@@ -507,10 +507,10 @@ def write_group_values(hdf_file_reduction, group, library_datasets, offset):
     momentum_group.visititems(momentum_values)
     position_offset_group.visititems(position_offset_values)
 
-    writen_position = DatasetWriter(hdf_file_reduction, library_datasets, 'position')
-    writen_momentum = DatasetWriter(hdf_file_reduction, library_datasets, 'momentum')
+    writen_position = points_writer(hdf_file_reduction, library_datasets, 'position')
+    writen_momentum = points_writer(hdf_file_reduction, library_datasets, 'momentum')
 
-    writen_weighting = WeightWriter(hdf_file_reduction, library_datasets)
+    writen_weighting = dataset_writer(hdf_file_reduction, library_datasets)
     position_group.visititems(writen_position)
     momentum_group.visititems(writen_momentum)
     group.visititems(writen_weighting)
@@ -601,10 +601,10 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     momentum_group.visititems(momentum_values)
     position_offset_group.visititems(position_offset_values)
 
-    writen_position = DatasetWriter(hdf_file_reduction, reduced_data,  'position')
-    writen_momentum = DatasetWriter(hdf_file_reduction, reduced_data, 'momentum')
-    writen_position_offset = DatasetWriter(hdf_file_reduction, reduced_data, 'positionOffset')
-    writen_weighting = WeightWriter(hdf_file_reduction, weights)
+    write_position = points_writer(hdf_file_reduction, reduced_data, 'position')
+    write_momentum = points_writer(hdf_file_reduction, reduced_data, 'momentum')
+    write_position_offset = points_writer(hdf_file_reduction, reduced_data, 'positionOffset')
+    write_weighting = dataset_writer(hdf_file_reduction, weights, 'weighting')
     write_bound_electrons = dataset_writer(hdf_file_reduction, reduced_data['boundElectrons'], 'boundElectrons')
     momentum_group.visititems(writen_momentum)
     position_offset_group.visititems(writen_position_offset)
