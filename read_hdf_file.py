@@ -21,6 +21,7 @@ class ParticlesFunctor():
         self.positions = []
         self.momentum = []
         self.weighting = []
+        self.bound_electrons = []
         self.position_offset = []
 
     def __call__(self, name, node):
@@ -29,8 +30,12 @@ class ParticlesFunctor():
             if node.name.endswith('weighting'):
                 self.weighting = node.value
 
+            if node.name.endswith('boundElectrons'):
+                self.bound_electrons = node.value
+
         if isinstance(node, h5py.Group):
             if node.name.endswith('position'):
+
                 self.positions.append(node)
 
             if node.name.endswith('momentum'):
@@ -312,22 +317,24 @@ def create_points_array_ver2(coord_collection, momentum_collection):
     if dimension_coord == 3 and dimension_momentum == 3:
         vector_coords = [list(x) for x in
                          zip(coord_collection.vector_x, coord_collection.vector_y, coord_collection.vector_z,
-                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
+                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z,
+                             bound_electrons)]
 
     elif dimension_coord == 3 and dimension_momentum == 2:
         vector_coords = [list(x) for x in
                          zip(coord_collection.vector_x, coord_collection.vector_y, coord_collection.vector_z,
-                             momentum_collection.vector_x, momentum_collection.vector_y)]
+                             momentum_collection.vector_x, momentum_collection.vector_y, bound_electrons)]
 
     elif dimension_coord == 2 and dimension_momentum == 3:
         vector_coords = [list(x) for x in
                          zip(coord_collection.vector_x, coord_collection.vector_y,
-                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
+                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z,
+                             bound_electrons)]
 
     elif dimension_coord == 2 and dimension_momentum == 2:
         vector_coords = [list(x) for x in
                          zip(coord_collection.vector_x, coord_collection.vector_y,
-                             momentum_collection.vector_x, momentum_collection.vector_y)]
+                             momentum_collection.vector_x, momentum_collection.vector_y, bound_electrons)]
 
     return vector_coords
 
@@ -434,6 +441,7 @@ def read_points_group(group):
     hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting
+    bound_electrons = hdf_datasets.bound_electrons
     position_values = DatasetReader('position')
     momentum_values = DatasetReader('momentum')
     if len(hdf_datasets.positions) == 0 or len(hdf_datasets.momentum) == 0:
@@ -442,7 +450,7 @@ def read_points_group(group):
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
-    points = create_points_array_ver2(position_values, momentum_values)
+    points = create_points_array(position_values, momentum_values, bound_electrons)
     dimention_position = position_values.get_dimension()
     unit_SI_position = position_values.get_unit_si_array()
     unit_SI_momentum = momentum_values.get_unit_si_array()
@@ -566,6 +574,8 @@ def create_datasets_from_vector(reduced_data, dimensions, position_offset):
     library_datasets['momentum/y'] = momentum_y
     library_datasets['momentum/z'] = momentum_z
 
+    library_datasets['boundElectrons'] = bound_electrons
+
     return library_datasets
 
 
@@ -595,10 +605,12 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     writen_momentum = DatasetWriter(hdf_file_reduction, reduced_data, 'momentum')
     writen_position_offset = DatasetWriter(hdf_file_reduction, reduced_data, 'positionOffset')
     writen_weighting = WeightWriter(hdf_file_reduction, weights)
-    position_group.visititems(writen_position)
+    write_bound_electrons = dataset_writer(hdf_file_reduction, reduced_data['boundElectrons'], 'boundElectrons')
     momentum_group.visititems(writen_momentum)
     position_offset_group.visititems(writen_position_offset)
     group.visititems(writen_weighting)
+    group.visititems(write_weighting)
+    group.visititems(write_bound_electrons)
 
 
 def write_patch_group(group, hdf_file_reduction, num_particles_offset, num_particles):
