@@ -80,33 +80,42 @@ def get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_posi
 
     return absolute_result
 
-def get_relative_coordinates(absolute_coordinates, unit_SI_offset,
-                             unit_SI_position, dimensions, unit_SI_momentum):
 
-    relative_coordinates = []
+def get_relative_coordinates(absolute_coordinates, unit_si_offset,
+                             unit_si_position, dimensions, unit_si_momentum):
+
+    relative_result = []
     offset = []
 
-    for i in range(0, len(absolute_coordinates)):
+    unit_si_position = numpy.array(unit_si_position)
+    unit_si_offset = numpy.array(unit_si_offset)
+    unit_si_momentum = numpy.array(unit_si_momentum)
 
-        relative_point = []
-        offset_point = []
-        for j in range(0, dimensions.dimension_position):
-            current_position_offset = int(absolute_coordinates[i][j]/unit_SI_offset[j])
+    for point in absolute_coordinates:
+        coordinates = numpy.array(point[0:dimensions.dimension_position])
+        position_offset = numpy.divide(coordinates, unit_si_position)
+        position_offset = position_offset.astype(int)
 
-            offset_point.append(current_position_offset)
-            current_relative_coordinate = (absolute_coordinates[i][j]-current_position_offset * unit_SI_offset[j])\
-                                          /unit_SI_position[j]
+        offset.append(position_offset.tolist())
 
-            relative_point.append(current_relative_coordinate)
+        relative_coordinates = numpy.divide((coordinates - position_offset * unit_si_offset), unit_si_position)
 
-        for j in range(dimensions.dimension_position, len(absolute_coordinates[0])):
-            current_relative_momentum = absolute_coordinates[i][j]/unit_SI_momentum[int(j - dimensions.dimension_position)]
-            relative_point.append(current_relative_momentum)
+        momentum = point[dimensions.dimension_position:dimensions.dimension_momentum + dimensions.dimension_position]
 
-        relative_coordinates.append(relative_point)
-        offset.append(offset_point)
+        relative_momentum = numpy.divide(momentum, unit_si_momentum)
 
-    return relative_coordinates, offset
+        other_values = point[dimensions.dimension_momentum + dimensions.dimension_position:
+                             len(point)]
+
+        relative_point = numpy.append(relative_coordinates, relative_momentum)
+        relative_point = numpy.append(relative_point, other_values)
+
+        relative_result.append(relative_point.tolist())
+
+    relative_result = numpy.array(relative_result)
+    offset = numpy.array(offset)
+
+    return relative_result, offset
 
 
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
