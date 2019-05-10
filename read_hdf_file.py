@@ -138,18 +138,35 @@ class points_writer():
         if isinstance(node, h5py.Dataset):
 
             if node.name.endswith(self.dataset_x):
+                attributes = {}
+
+                for attr in node.attrs.keys():
+                    attributes[attr] = node.attrs[attr]
                 node_name = node.name
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x)
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x, dtype=float)
+                for attr in attributes:
+                    dset.attrs[attr] = attributes[attr]
+
             elif node.name.endswith(self.dataset_y):
+                attributes = {}
+                for attr in node.attrs.keys():
+                    attributes[attr] = node.attrs[attr]
                 node_name = node.name
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y)
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y, dtype=float)
+                for attr in attributes:
+                    dset.attrs[attr] = attributes[attr]
 
             elif node.name.endswith(self.dataset_z):
+                attributes = {}
+                for attr in node.attrs.keys():
+                    attributes[attr] = node.attrs[attr]
                 node_name = node.name
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z)
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z, dtype=float)
+                for attr in attributes:
+                    dset.attrs[attr] = attributes[attr]
 
         return None
 
@@ -172,12 +189,12 @@ class dataset_writer():
 
     def __call__(self, name, node):
 
-        attributes = {}
+
 
         if isinstance(node, h5py.Dataset):
 
             if node.name.endswith(self.name_dataset):
-
+                attributes = {}
                 for attr in node.attrs.keys():
                     attributes[attr] = node.attrs[attr]
                 node_name = node.name
