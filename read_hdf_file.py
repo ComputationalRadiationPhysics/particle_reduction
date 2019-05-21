@@ -143,8 +143,11 @@ class points_writer():
                 for attr in node.attrs.keys():
                     attributes[attr] = node.attrs[attr]
                 node_name = node.name
+
+                current_dtype = self.hdf_file[node.name].dtype
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x, dtype=float)
+
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_x, dtype=current_dtype)
                 for attr in attributes:
                     dset.attrs[attr] = attributes[attr]
 
@@ -153,8 +156,9 @@ class points_writer():
                 for attr in node.attrs.keys():
                     attributes[attr] = node.attrs[attr]
                 node_name = node.name
+                current_dtype = self.hdf_file[node.name].dtype
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y, dtype=float)
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_y, dtype=current_dtype)
                 for attr in attributes:
                     dset.attrs[attr] = attributes[attr]
 
@@ -163,8 +167,9 @@ class points_writer():
                 for attr in node.attrs.keys():
                     attributes[attr] = node.attrs[attr]
                 node_name = node.name
+                current_dtype = self.hdf_file[node.name].dtype
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z, dtype=float)
+                dset = self.hdf_file.create_dataset(node_name, data=self.vector_z, dtype=current_dtype)
                 for attr in attributes:
                     dset.attrs[attr] = attributes[attr]
 
@@ -198,8 +203,9 @@ class dataset_writer():
                 for attr in node.attrs.keys():
                     attributes[attr] = node.attrs[attr]
                 node_name = node.name
+                current_dtype = self.hdf_file[node.name].dtype
                 del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.values, dtype=float)
+                dset = self.hdf_file.create_dataset(node_name, data=self.values, dtype=current_dtype)
                 for attr in attributes:
                     dset.attrs[attr] = attributes[attr]
         return None
