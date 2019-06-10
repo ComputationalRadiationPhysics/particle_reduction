@@ -1,5 +1,6 @@
 import h5py
 import re
+import numpy
 
 class Dimensions:
     def __init__(self, dimension_position, dimension_momentum):
@@ -514,13 +515,21 @@ def read_points_group(group):
     bound_electrons = hdf_datasets.bound_electrons
     position_values = DatasetReader('position')
     momentum_values = DatasetReader('momentum')
+
     if len(hdf_datasets.positions) == 0 or len(hdf_datasets.momentum) == 0:
         return [], [], [], [], []
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_group.visititems(position_values)
     momentum_group.visititems(momentum_values)
-    points = create_points_array(position_values, momentum_values, bound_electrons)
+
+    points = []
+
+    if len(bound_electrons) == 0:
+        points = create_points_array(position_values, momentum_values)
+    else:
+        points = create_points_array_bound_electrons(position_values, momentum_values, bound_electrons)
+
     dimention_position = position_values.get_dimension()
     unit_SI_position = position_values.get_unit_si_array()
     unit_SI_momentum = momentum_values.get_unit_si_array()
