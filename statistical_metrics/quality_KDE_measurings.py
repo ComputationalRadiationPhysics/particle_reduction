@@ -82,3 +82,13 @@ def compute_kernel_3d(array_x, array_y, array_z, weights_values):
 
     return array_kernell
 
+
+def compute_position_kernel(absolute_coordinates, dimensions_first, weights):
+
+
+    if dimensions_first == 3:
+        return compute_kernel_3d(absolute_coordinates[:, 0], absolute_coordinates[:, 1], absolute_coordinates[:, 2], weights)
+
+    else:
+        return compute_kernel_2d(absolute_coordinates[:, 0], absolute_coordinates[:, 1], weights)
+
