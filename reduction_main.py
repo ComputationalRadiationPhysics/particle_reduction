@@ -54,70 +54,6 @@ def process_reduction_group(type, group, hdf_file_reduction, parameters):
     process_patches_in_group(hdf_file_reduction, group, algorithm)
 
 
-def get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions, unit_si_momentum):
-
-    absolute_result = []
-
-    unit_si_position = numpy.array(unit_si_position)
-    unit_si_offset = numpy.array(unit_si_offset)
-    unit_si_momentum = numpy.array(unit_si_momentum)
-
-    i = 0
-    for point in data:
-        offset = position_offset[i]
-        coordinates = numpy.array(point[0:dimensions.dimension_position])
-
-        absolute_coordinates = coordinates * unit_si_position + offset * unit_si_offset
-        momentum = point[dimensions.dimension_position:dimensions.dimension_momentum + dimensions.dimension_position]
-        absolute_momentum = momentum * unit_si_momentum
-        other_values = point[dimensions.dimension_momentum + dimensions.dimension_position: len(point)]
-
-        absolute_point = numpy.append(absolute_coordinates, absolute_momentum)
-        absolute_point = numpy.append(absolute_point, other_values)
-
-        absolute_result.append(absolute_point.tolist())
-        i+=1
-
-    return absolute_result
-
-
-def get_relative_coordinates(absolute_coordinates, unit_si_offset,
-                             unit_si_position, dimensions, unit_si_momentum):
-
-    relative_result = []
-    offset = []
-
-    unit_si_position = numpy.array(unit_si_position)
-    unit_si_offset = numpy.array(unit_si_offset)
-    unit_si_momentum = numpy.array(unit_si_momentum)
-
-    for point in absolute_coordinates:
-        coordinates = numpy.array(point[0:dimensions.dimension_position])
-        position_offset = numpy.divide(coordinates, unit_si_position)
-        position_offset = position_offset.astype(int)
-
-        offset.append(position_offset.tolist())
-
-        relative_coordinates = numpy.divide((coordinates - position_offset * unit_si_offset), unit_si_position)
-
-        momentum = point[dimensions.dimension_position:dimensions.dimension_momentum + dimensions.dimension_position]
-
-        relative_momentum = numpy.divide(momentum, unit_si_momentum)
-
-        other_values = point[dimensions.dimension_momentum + dimensions.dimension_position:
-                             len(point)]
-
-        relative_point = numpy.append(relative_coordinates, relative_momentum)
-        relative_point = numpy.append(relative_point, other_values)
-
-        relative_result.append(relative_point.tolist())
-
-    relative_result = numpy.array(relative_result)
-    offset = numpy.array(offset)
-
-    return relative_result, offset
-
-
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     data, weights, dimensions, unit_si_position, unit_si_momentum \
@@ -128,7 +64,7 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     position_offset, unit_si_offset = read_hdf_file.read_position_offset(group)
     num_particles_offset, num_particles_offset = read_hdf_file.read_patches_values(group)
-    absolute_coordinates = get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions,
+    absolute_coordinates = read_hdf_file.get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions,
                                                     unit_si_momentum)
 
     algorithm.dimensions = dimensions
@@ -136,7 +72,7 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     reduced_data, reduced_weights, result_num_particles = \
         iterate_patches(absolute_coordinates, weights, num_particles_offset, algorithm)
 
-    relative_coordinates, offset = get_relative_coordinates(reduced_data, unit_si_offset,
+    relative_coordinates, offset = read_hdf_file.get_relative_coordinates(reduced_data, unit_si_offset,
                                                             unit_si_position, dimensions, unit_si_momentum)
 
     result_num_particles_offset = numpy.cumsum(result_num_particles[0:len(result_num_particles) - 1], dtype=int)
@@ -212,7 +148,7 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
         end = int(ranges_patches[i + 1])
         print('start '+ str(start))
         print('end ' + str(end))
-        copy_data = copy.deepcopy(data[start:end])
+        copy_data = copy.deepcopy(data[start:end] )
 
         copy_weights = copy.deepcopy(weights[start:end])
         reduced_data_patch, reduced_weight_patch = algorithm._run(copy_data, copy_weights)

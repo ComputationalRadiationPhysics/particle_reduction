@@ -688,3 +688,65 @@ def read_patches_values(group):
     patch_group.patch_group[0].visititems(patch_values)
     return patch_values.numParticles, patch_values.numParticlesOffset
 
+def get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions, unit_si_momentum):
+
+    absolute_result = []
+
+    unit_si_position = numpy.array(unit_si_position)
+    unit_si_offset = numpy.array(unit_si_offset)
+    unit_si_momentum = numpy.array(unit_si_momentum)
+
+    i = 0
+    for point in data:
+        offset = position_offset[i]
+        coordinates = numpy.array(point[0:dimensions.dimension_position])
+
+        absolute_coordinates = coordinates * unit_si_position + offset * unit_si_offset
+        momentum = point[dimensions.dimension_position:dimensions.dimension_momentum + dimensions.dimension_position]
+        absolute_momentum = momentum * unit_si_momentum
+        other_values = point[dimensions.dimension_momentum + dimensions.dimension_position: len(point)]
+
+        absolute_point = numpy.append(absolute_coordinates, absolute_momentum)
+        absolute_point = numpy.append(absolute_point, other_values)
+
+        absolute_result.append(absolute_point.tolist())
+        i+=1
+
+    return absolute_result
+
+
+def get_relative_coordinates(absolute_coordinates, unit_si_offset,
+                             unit_si_position, dimensions, unit_si_momentum):
+
+    relative_result = []
+    offset = []
+
+    unit_si_position = numpy.array(unit_si_position)
+    unit_si_offset = numpy.array(unit_si_offset)
+    unit_si_momentum = numpy.array(unit_si_momentum)
+
+    for point in absolute_coordinates:
+        coordinates = numpy.array(point[0:dimensions.dimension_position])
+        position_offset = numpy.divide(coordinates, unit_si_position)
+        position_offset = position_offset.astype(int)
+
+        offset.append(position_offset.tolist())
+
+        relative_coordinates = numpy.divide((coordinates - position_offset * unit_si_offset), unit_si_position)
+
+        momentum = point[dimensions.dimension_position:dimensions.dimension_momentum + dimensions.dimension_position]
+
+        relative_momentum = numpy.divide(momentum, unit_si_momentum)
+
+        other_values = point[dimensions.dimension_momentum + dimensions.dimension_position:
+                             len(point)]
+
+        relative_point = numpy.append(relative_coordinates, relative_momentum)
+        relative_point = numpy.append(relative_point, other_values)
+
+        relative_result.append(relative_point.tolist())
+
+    relative_result = numpy.array(relative_result)
+    offset = numpy.array(offset)
+
+    return relative_result, offset
