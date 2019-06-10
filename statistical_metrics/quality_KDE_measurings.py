@@ -1,4 +1,7 @@
 import sys
+sys.path.append("../")
+import read_hdf_file
+import csv
 import numpy
 import math
 
@@ -92,3 +95,16 @@ def compute_position_kernel(absolute_coordinates, dimensions_first, weights):
     else:
         return compute_kernel_2d(absolute_coordinates[:, 0], absolute_coordinates[:, 1], weights)
 
+
+def write_values_into_csv_file(metric_values, csv_file_name):
+
+    row = []
+
+    for value in metric_values:
+        row.append(str(value))
+
+    with open(csv_file_name, 'a') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerow(row)
+
+    csvFile.close()
