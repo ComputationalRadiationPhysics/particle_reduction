@@ -209,3 +209,21 @@ def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name):
                                str(cityblock), str(cosine)]
 
         write_values_into_csv_file(vector_values, csv_file_name)
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="file_comparation")
+
+    parser.add_argument("-first_hdf", metavar='first_hdf', type=str,
+                        help="first hdf file to compare")
+
+    parser.add_argument("-second_hdf", metavar='second_hdf', type=str,
+                        help="second hdf file to compare")
+
+    parser.add_argument("-csv_file", metavar='csv_file', type=str,
+                        help="csv file")
+
+    args = parser.parse_args()
+
+    base_corparation(args.first_hdf, args.second_hdf, args.csv_file)
+
