@@ -54,7 +54,7 @@ def multiple_runs_k_means_avg(hdf_file_name, hdf_path_result, reduction_percent_
 
     for i in range(0, number_of_runs):
         ratio_of_deleted_particles = reduction_percent_start + i * reduction_percent_step
-        name_hdf_file_reduction = hdf_path_result + '/k_means_clustering_' + str(ratio_of_deleted_particles)[0:3] + '.h5'
+        name_hdf_file_reduction = hdf_path_result + '/k_means_avg_' + str(ratio_of_deleted_particles)[0:3] + '.h5'
         print('name_hdf_file_reduction  ' + str(name_hdf_file_reduction))
         reduction_main.k_means_avg_algorithm(hdf_file_name, name_hdf_file_reduction, ratio_of_deleted_particles)
 

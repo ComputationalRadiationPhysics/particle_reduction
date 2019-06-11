@@ -25,7 +25,7 @@ class Algorithm:
             divisions = [10, 10]
             return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                              divisions)
-        if type == "kmeans-avg":
+        if type == "kmeans_avg":
             divisions = [10, 10]
             return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                                    divisions)

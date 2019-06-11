@@ -1,6 +1,6 @@
 from sklearn.cluster import KMeans
 import numpy
-import Algorithms.K_means_divisions
+from Algorithms import K_means_divisions
 
 
 def merge_points(dimension, vector, weights_vector):
