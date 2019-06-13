@@ -1,6 +1,8 @@
 from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 import numpy
 from Algorithms import K_means_divisions
+
 
 
 def merge_points(dimension, vector, weights_vector):
@@ -72,11 +74,21 @@ class K_means_clustering_algorithm:
         self.tolerance = tolerance
         self.dimensions = None
         self.divisions = divisions
+        self.min_max_values = []
 
     def _run(self, data, weights):
         if len(data) == 0:
             return [], []
         data = numpy.array(data)
+
+        coordinates_without_bound_electrons = self.dimensions.dimension_position + self.dimensions.dimension_momentum
+
+
+        for i in range(0, coordinates_without_bound_electrons):
+            max_value = max(data[:, i])
+            min_value = min(data[:, i])
+            pair = [min_value, max_value]
+            self.min_max_values.append(pair)
 
         coordinates = data[:, 0:self.dimensions.dimension_position]
         num_particles_offset, num_particles, moved_values, moved_weights\
@@ -86,6 +98,7 @@ class K_means_clustering_algorithm:
         result_weights = []
 
         for i in range(0, len(num_particles_offset) - 1):
+            print('i iteration '+ str(i))
             current_data, current_weights = self.iterate_cell(moved_values[num_particles_offset[i]:num_particles_offset[i + 1]],
                               moved_weights[num_particles_offset[i]:num_particles_offset[i + 1]])
 
@@ -107,11 +120,42 @@ class K_means_clustering_algorithm:
         weights = numpy.array(weights)
         num_to_remove = int(size * self.reduction_percent)
         num_to_keep = size - num_to_remove
-        kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=self.max_iterations, tol=self.tolerance).fit(
-            data,
-            sample_weight=weights)
+
+        data_copy = self.normalize_array(data)
+
+      #  kmeans = KMeans(n_clusters=num_to_keep, random_state=0, max_iter=self.max_iterations, tol=self.tolerance).fit(
+       #     data,
+        #    sample_weight=weights)
+
+        kmeans = MiniBatchKMeans(n_clusters=num_to_keep, max_iter=self.max_iterations,
+                                 batch_size=num_to_keep * 3, tol=self.tolerance)\
+            .fit(data_copy)
+
+
         result_data, result_weights = recount_data(dimension, num_to_keep, kmeans.labels_, data, weights)
 
         return result_data, result_weights
+
+    def normalize_array(self, data):
+
+        coordinates_without_bound_electrons = self.dimensions.dimension_position + self.dimensions.dimension_momentum
+
+        normalized_values = []
+        for i in range(0, len(data)):
+
+            normalize_vector = []
+            for j in range(0, coordinates_without_bound_electrons):
+                diff = (self.min_max_values[j][1] - self.min_max_values[j][0])
+                if diff == 0:
+                    normalize_vector.append(0)
+                    continue
+
+                value = (data[i][j] - self.min_max_values[j][0])/diff
+                normalize_vector.append(value)
+            normalized_values.append(normalize_vector)
+
+        normalized_values = numpy.array(normalized_values)
+
+        return normalized_values
 
 

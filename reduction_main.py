@@ -22,11 +22,11 @@ class Algorithm:
         if type == "energy_conservative":
             return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(parameters.reduction_percent, mass)
         if type == "kmeans":
-            divisions = [10, 10]
+            divisions = [16, 40]
             return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                              divisions)
         if type == "kmeans_avg":
-            divisions = [10, 10]
+            divisions = [16, 40]
             return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                                    divisions)
         if type == "voronoi":
