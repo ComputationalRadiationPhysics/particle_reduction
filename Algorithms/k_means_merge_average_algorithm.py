@@ -140,8 +140,9 @@ class K_means_merge_average_algorithm:
         weights_copy = numpy.copy(numpy.array(weights))
         num_to_remove = int(size * self.reduction_percent)
         num_to_keep = size - num_to_remove
-        start = time.time()
         data_copy = self.normalize_array(data)
+
+        start = time.time()
 
 
         kmeans = MiniBatchKMeans(n_clusters=num_to_keep, max_iter=self.max_iterations,
