@@ -5,6 +5,7 @@ import os
 import copy
 import h5py
 import argparse
+import time
 import Algorithms.Random_thinning_algorithm as Random_thinning_algorithm
 import Algorithms.Number_conservative_thinning_algorithm as Number_conservative_thinning_algorithm
 import Algorithms.Energy_conservative_thinning_algorithm as Energy_conservative_thinning_algorithm
@@ -26,7 +27,7 @@ class Algorithm:
             return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                              divisions)
         if type == "kmeans_avg":
-            divisions = [16, 40]
+            divisions = [32, 60]
             return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                                    divisions)
         if type == "voronoi":
@@ -51,6 +52,20 @@ def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parame
 def process_reduction_group(type, group, hdf_file_reduction, parameters):
     mass = read_hdf_file.read_mass(group)
     algorithm = Algorithm.factory(type, parameters, mass)
+    name_idx = group.name.rfind("/")
+    current_group_name = group.name[name_idx + 1: len(group.name)]
+    print('current_group_name ' + str(current_group_name))
+
+    if type == "kmeans" or type == "kmeans_avg":
+
+        if current_group_name == 'e':
+            algorithm.divisions = [32, 60]
+        else:
+            algorithm.divisions = [16, 40]
+
+    print('algorithm.divisions  ')
+    print(algorithm.divisions)
+
     process_patches_in_group(hdf_file_reduction, group, algorithm)
 
 
@@ -64,8 +79,9 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     position_offset, unit_si_offset = read_hdf_file.read_position_offset(group)
     num_particles_offset, num_particles_offset = read_hdf_file.read_patches_values(group)
+
     absolute_coordinates = read_hdf_file.get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions,
-                                                    unit_si_momentum)
+                                                                  unit_si_momentum)
 
     algorithm.dimensions = dimensions
 
@@ -148,6 +164,9 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
         end = int(ranges_patches[i + 1])
         print('start '+ str(start))
         print('end ' + str(end))
+
+        print('i iteration == ' + str(i))
+        start_time = time.time()
         copy_data = copy.deepcopy(data[start:end] )
 
         copy_weights = copy.deepcopy(weights[start:end])
@@ -159,6 +178,9 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
 
         for weight in reduced_weight_patch:
             reduced_weights.append(weight)
+
+        end_time = time.time()
+        print('TIME ' + str(end_time - start_time))
         result_num_particles.append(len(reduced_data_patch))
 
     return reduced_data, reduced_weights, result_num_particles
