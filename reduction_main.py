@@ -54,7 +54,6 @@ def process_reduction_group(type, group, hdf_file_reduction, parameters):
     algorithm = Algorithm.factory(type, parameters, mass)
     name_idx = group.name.rfind("/")
     current_group_name = group.name[name_idx + 1: len(group.name)]
-    print('current_group_name ' + str(current_group_name))
 
     if type == "kmeans" or type == "kmeans_avg":
 
@@ -62,9 +61,6 @@ def process_reduction_group(type, group, hdf_file_reduction, parameters):
             algorithm.divisions = [32, 60]
         else:
             algorithm.divisions = [16, 40]
-
-    print('algorithm.divisions  ')
-    print(algorithm.divisions)
 
     process_patches_in_group(hdf_file_reduction, group, algorithm)
 
