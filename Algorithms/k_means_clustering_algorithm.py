@@ -43,7 +43,7 @@ def recount_data(dimension, num_to_keep, labels, data, weights):
             merged_data, merged_weight = merge_points(dimension, selected_data, selected_weights)
             result_data.append(merged_data)
             result_weights.append(merged_weight)
-        else:
+        elif len(indexes) > 0:
             result_data.append(selected_data[0])
             result_weights.append(selected_weights[0])
     return result_data, result_weights
