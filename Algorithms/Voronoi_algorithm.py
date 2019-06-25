@@ -17,10 +17,10 @@ class VoronoiMergingAlgorithm:
         self.parameters = parameters
         self.dimensions = None
 
-    def run(self, data, weigths):
+    def _run(self, data, weigths):
 
         """Points is a collection of Point"""
-        return _merge(data, weigths, self.parameters)
+        return _merge(data, weigths, self.parameters, self.dimensions)
 
 
 class _VoronoiCell:
@@ -134,7 +134,7 @@ def weighted_std(values, weights):
     return math.sqrt(variance)
 
 
-def _merge(data, weights, parameters):
+def _merge(data, weights, parameters, dimensions):
     """
     Merging algorithm:
     points -- original points
@@ -151,7 +151,7 @@ def _merge(data, weights, parameters):
         cell = cells[0]
 
         max_idx, max_avg = cell.get_coeff_var()
-        needs_subdivision = check_needs_subdivision(parameters, max_avg, max_idx)
+        needs_subdivision = check_needs_subdivision(parameters, max_avg, max_idx, dimensions)
 
         if needs_subdivision:
             first_part_cell, secound_part_cell = cell.divide(max_idx)
@@ -181,7 +181,7 @@ def _merge(data, weights, parameters):
     return result_vector, result_weights
 
 
-def check_needs_subdivision(parameters, max_avg, max_idx):
+def check_needs_subdivision(parameters, max_avg, max_idx, dimensions):
     """
     Check that Voronoi cell need to devide
     parametrs -- subdivision tolerances
@@ -190,9 +190,9 @@ def check_needs_subdivision(parameters, max_avg, max_idx):
 
     """
 
-    position_tolerance = parameters.tolerance[0]
-    momentum_tolerance = parameters.tolerance[1]
-    position_vector_idx = parameters.position_vector_idx
+    position_tolerance = parameters[0]
+    momentum_tolerance = parameters[1]
+    position_vector_idx = dimensions.dimension_position
 
     if max_idx <= position_vector_idx:
         return max_avg > position_tolerance
