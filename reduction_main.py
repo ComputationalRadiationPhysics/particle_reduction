@@ -94,6 +94,9 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
 
     library_datasets = read_hdf_file.create_datasets_from_vector(relative_coordinates, dimensions, offset)
 
+    print(group.name)
+    print(len(relative_coordinates[:, 0]))
+
     read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
 
 
