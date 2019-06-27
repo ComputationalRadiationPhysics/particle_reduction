@@ -140,9 +140,15 @@ def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_perc
     parameters = k_means_merge_average_algorithm.K_means_merge_average_algorithm_parameters(reduction_percent)
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "kmeans_avg", parameters)
 
+    
+def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, position_tolerance):
+
+    tolerance = [momentum_tolerance, position_tolerance]
+    parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "voronoi", parameters)
+
 
 def iterate_patches(data, weights, num_particles_offset, algorithm):
-    print('iterate_patches ')
 
     ranges_patches = num_particles_offset
 
@@ -158,10 +164,7 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
     for i in range(0, len(ranges_patches) - 1):
         start = int(ranges_patches[i])
         end = int(ranges_patches[i + 1])
-        print('start '+ str(start))
-        print('end ' + str(end))
 
-        print('i iteration == ' + str(i))
         start_time = time.time()
         copy_data = copy.deepcopy(data[start:end] )
 
