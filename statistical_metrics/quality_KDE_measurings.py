@@ -163,15 +163,45 @@ def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name):
         name_of_iteration = substr + '_' + name_of_file
         print(name_of_iteration)
 
-        absolute_coordinates_first, dimensions_first, weights_first = read_hdf_file.get_relative_coordinates(group_first)
-        absolute_coordinates_secound, dimensions_secound, weights_secound = read_hdf_file.get_relative_coordinates(group_second)
 
-        if len(absolute_coordinates_first) == 0:
-            continue
+
+        data_first, weights_first, dimensions_first, unit_si_position_first, unit_si_momentum_first \
+            = read_hdf_file.read_points_group(group_first)
+
+        if len(data_first) == 0:
+            return
+
+        position_offset_first, unit_si_offset_first = read_hdf_file.read_position_offset(group_first)
+
+        absolute_coordinates_first = read_hdf_file.get_absolute_coordinates(data_first, position_offset_first, unit_si_offset_first,
+                                                                      unit_si_position_first, dimensions_first,
+                                                                      unit_si_momentum_first)
+
+
+
+        data_second, weights_second, dimensions_second, unit_si_position_second, unit_si_momentum_second \
+            = read_hdf_file.read_points_group(group_second)
+
+        if len(data_second) == 0:
+            return
+
+        position_offset_second, unit_si_offset_second = read_hdf_file.read_position_offset(group_second)
+
+        absolute_coordinates_second = read_hdf_file.get_absolute_coordinates(data_second, position_offset_second,
+                                                                            unit_si_offset_second,
+                                                                            unit_si_position_second, dimensions_second,
+                                                                            unit_si_momentum_second)
+
+
+        compare_weights(weights_first, weights_second)
+
+        absolute_coordinates_first = numpy.array(absolute_coordinates_first)
+        absolute_coordinates_second = numpy.array(absolute_coordinates_second)
+
 
         values_kde_first = compute_position_kernel(absolute_coordinates_first, dimensions_first, weights_first)
 
-        values_kde_second = compute_position_kernel(absolute_coordinates_secound, dimensions_secound, weights_secound)
+        values_kde_second = compute_position_kernel(absolute_coordinates_second, dimensions_second, weights_second)
 
         print('-----------------------------------')
         difference_values = []
