@@ -114,6 +114,20 @@ def write_values_into_csv_file(metric_values, csv_file_name):
 
     csvFile.close()
 
+
+def compare_weights(weight_first, weight_second):
+
+    print('weights')
+    sum_first = numpy.sum(weight_first, dtype=float)
+    print('sum first  ' + str(sum_first))
+    sum_second = numpy.sum(weight_second, dtype=float)
+    print('sum second  ' + str(sum_second))
+
+    relative_error = (sum_second - sum_first)/sum_first
+    print('relative error  ' + str(relative_error))
+    print('--------------------------')
+
+
 def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name):
 
 
