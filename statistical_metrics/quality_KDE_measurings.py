@@ -128,7 +128,7 @@ def compare_weights(weight_first, weight_second):
     print('--------------------------')
 
 
-def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name):
+def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name, file_indetifacator):
 
 
     #first_hdf_file_name = "/home/kseniia/Documents/measuring_qality/checkpoint_0.h5"
@@ -158,12 +158,12 @@ def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name):
         group_second = particles_groups_second.particles_groups[i]
         print(name_of_group)
 
+
         idx = name_of_group.rfind('/')
         substr = name_of_group[idx + 1:len(name_of_group)]
-        name_of_iteration = substr + '_' + name_of_file
-        print(name_of_iteration)
 
 
+        result_name = substr  + file_indetifacator
 
         data_first, weights_first, dimensions_first, unit_si_position_first, unit_si_momentum_first \
             = read_hdf_file.read_points_group(group_first)
@@ -249,10 +249,13 @@ def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name):
 
 
 
-        vector_values = [name_of_iteration, str(dist), str(minkowski), str(correlation), str(braycurtis),
+        vector_values = [result_name, str(sqrt_value), str(max_difference), str(dist), str(minkowski), str(correlation), str(braycurtis),
                                str(cityblock), str(cosine)]
 
+
         write_values_into_csv_file(vector_values, csv_file_name)
+
+
 
 if __name__ == "__main__":
 
@@ -267,7 +270,10 @@ if __name__ == "__main__":
     parser.add_argument("-csv_file", metavar='csv_file', type=str,
                         help="csv file")
 
+    parser.add_argument("-file_indx", metavar='file_indx', type=str,
+                        help="information about name iteration")
+
     args = parser.parse_args()
 
-    base_corparation(args.first_hdf, args.second_hdf, args.csv_file)
+    base_corparation(args.first_hdf, args.second_hdf, args.csv_file, args.file_indx)
 
