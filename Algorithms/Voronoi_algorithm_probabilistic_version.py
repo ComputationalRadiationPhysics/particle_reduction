@@ -20,3 +20,15 @@ class Voronoi_probabilistic_algorithm:
 
         return _merge(data, weigths, self.parameters, self.dimensions)
 
+
+class _Voronoi_cell:
+
+    """Used to store points in Voronoi cell"""
+
+    def __init__(self, data, weigths, expected_number_of_particles, size_of_divide_particles):
+
+
+        self.vector = numpy.array(data)
+        self.weights = numpy.array(weigths)
+        self.size_of_divide_particles = size_of_divide_particles
+        self.expected_number_of_particles = expected_number_of_particles
