@@ -1,3 +1,5 @@
+import math
+import statistics
 
 
 class Voronoi_probabilistic_algorithm_parameters:
@@ -115,4 +117,18 @@ def merge_points(dimension, vector, weights_vector):
         values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
 
     return values_vector, sum_weights
+
+
+def get_max_coef(avg_values):
+    """ Find max coefficient of variance """
+
+    max_value = float("-inf")
+    max_idx = -1
+
+    for i in range(0, len(avg_values)):
+        if avg_values[i] > max_value:
+            max_value = avg_values[i]
+            max_idx = i
+
+    return max_idx, max_value
 
