@@ -95,3 +95,11 @@ class _Voronoi_cell:
         return first_cell, second_cell
 
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
+
+    def merge(self):
+        """ Merge Voronoi cell into one point """
+
+        dimension = len(self.vector[0])
+
+        self.vector, self.weights = merge_points(dimension, self.vector, self.weights)
+
