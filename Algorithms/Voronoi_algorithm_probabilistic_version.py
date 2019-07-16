@@ -132,3 +132,20 @@ def get_max_coef(avg_values):
 
     return max_idx, max_value
 
+
+
+
+
+
+def check_statistical_subdivision(cell, size_of_divide_particles):
+
+    if len(cell.vector) > size_of_divide_particles:
+        return True
+
+    b_value = (cell.expected_number_of_particles + len(cell.vector))/2.
+
+    p_value = (cell.expected_number_of_particles - 1) / (b_value - 1)
+
+    random_value = random.uniform(0, 1)
+
+    return random_value < p_value
