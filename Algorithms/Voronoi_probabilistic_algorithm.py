@@ -22,6 +22,7 @@ class Voronoi_probabilistic_algorithm:
 
     def _run(self, data, weigths):
 
+        """Points is a collection of Point"""
         return _merge(data, weigths, self.parameters, self.dimensions)
 
 
@@ -62,6 +63,7 @@ class _Voronoi_cell:
         """
 
         Devide Voronoi cell into two Voronoi cells
+        max_idx --
         max_key --
 
         """
@@ -196,6 +198,7 @@ def _merge(data, weights, parameters, dimensions):
 
     return result_vector, result_weights
 
+
 def check_statistical_subdivision(cell, size_of_divide_particles):
 
     if len(cell.vector) > size_of_divide_particles:
@@ -208,3 +211,13 @@ def check_statistical_subdivision(cell, size_of_divide_particles):
     random_value = random.uniform(0, 1)
 
     return random_value < p_value
+
+
+
+
+
+
+
+
+
+
