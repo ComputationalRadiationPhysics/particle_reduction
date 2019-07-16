@@ -52,3 +52,46 @@ class _Voronoi_cell:
 
         max_idx, max_avg = get_max_coef(avg_values)
         return max_idx, max_avg
+
+    def divide(self, devide_hyperlane, ratio_left_partilces):
+
+        """
+
+        Devide Voronoi cell into two Voronoi cells
+        max_key --
+
+        """
+
+        median = statistics.median(self.vector[:, devide_hyperlane])
+
+        first = []
+        weights_first = []
+        second = []
+        weights_second = []
+
+        for i in range(0, len(self.vector)):
+            if self.vector[i][devide_hyperlane] > median:
+                first.append(self.vector[i])
+                weights_first.append(self.weights[i])
+            else:
+                second.append(self.vector[i])
+                weights_second.append(self.weights[i])
+
+        if len(self.vector) > self.size_of_divide_particles:
+            first_number_expected_particles = ratio_left_partilces * len(first)
+            second_number_expected_particles = ratio_left_partilces * len(second)
+
+        else:
+            b = (self.expected_number_of_particles + len(self.vector))/ 2.0
+            first_number_expected_particles = len(first)/len(self.vector) * b
+            second_number_expected_particles = len(second) / len(self.vector) * b
+
+
+        first_cell = _Voronoi_cell(first, weights_first, first_number_expected_particles,
+                                  self.size_of_divide_particles)
+        second_cell = _Voronoi_cell(second, weights_second, second_number_expected_particles,
+                                   self.size_of_divide_particles)
+
+        return first_cell, second_cell
+
+        #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
