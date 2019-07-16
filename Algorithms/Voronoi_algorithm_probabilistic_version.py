@@ -1,5 +1,7 @@
+import numpy
 import math
 import statistics
+import random
 
 
 class Voronoi_probabilistic_algorithm_parameters:
@@ -133,9 +135,53 @@ def get_max_coef(avg_values):
     return max_idx, max_value
 
 
+def _merge(data, weights, parameters, dimensions):
+    """
+    Merging algorithm:
+    points -- original points
+    parametes -- input parameters for Voronoi algorithm(tolerances)
+
+    """
+    initial_cell = _Voronoi_cell(data, weights, parameters.reduction_percent * len(data),
+                                parameters.ratio_left_particles)
 
 
+    result_vector = []
+    result_weights = []
+    cells = [initial_cell]
+    while len(cells) > 0:
+        cell = cells[0]
 
+        max_idx, max_avg = cell.get_coeff_var()
+        needs_subdivision = check_statistical_subdivision(cell, parameters.ratio_left_particles)
+       # needs_subdivision = check_needs_subdivision(parameters, max_avg, max_idx, dimensions)
+
+        if needs_subdivision:
+            first_part_cell, secound_part_cell = cell.divide(max_idx, parameters.ratio_left_particles)
+            if len(first_part_cell.vector) == 0:
+                if len(secound_part_cell.vector) != 0:
+                    secound_part_cell.merge()
+                    result_vector.append(secound_part_cell.vector)
+                    result_weights.append(secound_part_cell.weights)
+
+            if len(secound_part_cell.vector) == 0:
+                if len(first_part_cell.vector) != 0:
+                    first_part_cell.merge()
+                    result_vector.append(first_part_cell.vector)
+                    result_weights.append(first_part_cell.weights)
+
+            if len(secound_part_cell.vector) != 0 and len(first_part_cell.vector) != 0:
+                cells.append(secound_part_cell)
+                cells.append(first_part_cell)
+        else:
+
+            cell.merge()
+            result_vector.append(cell.vector)
+            result_weights.append(cell.weights)
+
+        cells.remove(cells[0])
+
+    return result_vector, result_weights
 
 def check_statistical_subdivision(cell, size_of_divide_particles):
 
