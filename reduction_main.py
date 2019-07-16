@@ -34,10 +34,8 @@ class Algorithm:
         if type == "voronoi":
             return Voronoi_algorithm.VoronoiMergingAlgorithm(parameters.tolerance)
         if type == "voronoi_prob":
-            print('parameters.reduction_percent  '+ str(parameters.reduction_percent))
-            print('parameters.ratio_left_particles  '+ str(parameters.ratio_left_particles))
             voronoi_parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters\
-                (tolerance, parameters.reduction_percent, parameters.ratio_left_particles)
+                (parameters.reduction_percent, parameters.ratio_left_particles)
             return Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm(voronoi_parameters)
         if type == "leveling":
             return Leveling_thinning_algorithm.Leveling_thinning_algorithm(parameters.leveling_coefficient)
@@ -151,6 +149,13 @@ def k_means_avg_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_perc
     parameters = k_means_merge_average_algorithm.K_means_merge_average_algorithm_parameters(reduction_percent)
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "kmeans_avg", parameters)
 
+
+def voronoi_prob_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
+    ratio_left_particles = 20
+    voronoi_parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters \
+        (reduction_percent, ratio_left_particles)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "voronoi_prob", voronoi_parameters)
+
     
 def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, position_tolerance):
 
@@ -242,9 +247,7 @@ if __name__ == "__main__":
         base_reduction_function(args.hdf, args.hdf_re, "voronoi", parameters)
 
     elif args.algorithm == 'voronoi_prob':
-
-        tolerance = [args.momentum_tol, args.momentum_pos]
-        parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance, args.reduction_percent, args.divide_particles)
+        parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters(args.reduction_percent, args.divide_particles)
         base_reduction_function(args.hdf, args.hdf_re, "voronoi_prob", parameters)
 
     elif args.algorithm == 'random':

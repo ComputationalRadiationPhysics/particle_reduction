@@ -76,6 +76,16 @@ def multiple_runs_voronoi(hdf_file_name, hdf_path_result, tolerance_momentum_sta
             reduction_main.voronoi_algorithm(hdf_file_name, name_hdf_file_reduction, tolerance_momentum, tolerance_position)
 
 
+def multiple_runs_voronoi_prob(hdf_file_name, hdf_path_result, reduction_percent_start, reduction_percent_end, reduction_percent_step):
+
+    number_of_runs = int((reduction_percent_end - reduction_percent_start)/reduction_percent_step)
+
+    for i in range(0, number_of_runs):
+        ratio_of_deleted_particles = reduction_percent_start + i * reduction_percent_step
+        name_hdf_file_reduction = hdf_path_result + '/voronoi_prob_' + str(ratio_of_deleted_particles)[0:3] + '.h5'
+        print('name_hdf_file_reduction  ' + str(name_hdf_file_reduction))
+        reduction_main.voronoi_prob_algorithm(hdf_file_name, name_hdf_file_reduction, ratio_of_deleted_particles)
+
 if __name__ == "__main__":
     """ Parse arguments from command line """
 
@@ -147,15 +157,13 @@ if __name__ == "__main__":
                                           args.reduction_percent_end, args.reduction_percent_step)
 
     elif args.algorithm == 'voronoi':
-        print(args.reduction_momentum_start)
-        print(args.reduction_momentum_end)
-        print(args.reduction_momentum_step)
-
-        print(args.reduction_position_start)
-        print(args.reduction_position_end)
-        print(args.reduction_position_step)
         multiple_runs_voronoi(args.hdf, args.hdf_re, args.reduction_momentum_start,
                                           args.reduction_momentum_end, args.reduction_momentum_step,
                               args.reduction_position_start, args.reduction_position_end, args.reduction_position_step)
+
+
+    elif args.algorithm == 'voronoi_prob':
+        multiple_runs_voronoi_prob(args.hdf, args.hdf_re, args.reduction_percent_start,
+                                          args.reduction_percent_end, args.reduction_percent_step)
 
 
