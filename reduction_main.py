@@ -13,6 +13,7 @@ import Algorithms.k_means_clustering_algorithm as k_means_clustering_algorithm
 import Algorithms.k_means_merge_average_algorithm as k_means_merge_average_algorithm
 import Algorithms.Voronoi_algorithm as Voronoi_algorithm
 import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
+import Algorithms.Voronoi_probabilistic_algorithm as Voronoi_probabilistic_algorithm
 
 class Algorithm:
     # Create based on class name:
@@ -32,6 +33,12 @@ class Algorithm:
                                                                                    divisions)
         if type == "voronoi":
             return Voronoi_algorithm.VoronoiMergingAlgorithm(parameters.tolerance)
+        if type == "voronoi_prob":
+            print('parameters.reduction_percent  '+ str(parameters.reduction_percent))
+            print('parameters.ratio_left_particles  '+ str(parameters.ratio_left_particles))
+            voronoi_parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters\
+                (tolerance, parameters.reduction_percent, parameters.ratio_left_particles)
+            return Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm(voronoi_parameters)
         if type == "leveling":
             return Leveling_thinning_algorithm.Leveling_thinning_algorithm(parameters.leveling_coefficient)
 
@@ -41,6 +48,7 @@ class Algorithm:
 
 
 def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parameters):
+
 
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
@@ -223,12 +231,21 @@ if __name__ == "__main__":
     parser.add_argument("-k_means_subdivision", metavar='leveling_coefficient', type=list,
                         help="leveling_coefficient")
 
+    parser.add_argument("-divide_particles", metavar='size_of_divide_particles', type=float,
+                        help="size_of_divide_particles")
+
     args = parser.parse_args()
 
     if args.algorithm == 'voronoi':
         tolerance = [args.momentum_tol, args.momentum_pos]
         parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
         base_reduction_function(args.hdf, args.hdf_re, "voronoi", parameters)
+
+    elif args.algorithm == 'voronoi_prob':
+
+        tolerance = [args.momentum_tol, args.momentum_pos]
+        parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance, args.reduction_percent, args.divide_particles)
+        base_reduction_function(args.hdf, args.hdf_re, "voronoi_prob", parameters)
 
     elif args.algorithm == 'random':
         parameters = Random_thinning_algorithm.Random_thinning_algorithm_parameters(args.reduction_percent)
