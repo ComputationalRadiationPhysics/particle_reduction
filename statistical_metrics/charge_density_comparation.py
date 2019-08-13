@@ -1,4 +1,5 @@
 
+import h5py
 import numpy
 import math
 import argparse
@@ -83,4 +84,14 @@ def write_values_into_csv_file(metric_values, csv_file_name):
         writer.writerow(row)
 
     csvFile.close()
+
+
+def compute_difference_charge_density(type_electrons, charge_density_first, charge_density_secound):
+
+    name_values = type_electrons + '_chargeDensity'
+    values_first = charge_density_first[name_values]
+    values_secound = charge_density_secound[name_values]
+    max_difference = compute_difference(values_first, values_secound)
+    eucledian_values = compute_eucledian(values_first, values_secound)
+    return max_difference, eucledian_values
 
