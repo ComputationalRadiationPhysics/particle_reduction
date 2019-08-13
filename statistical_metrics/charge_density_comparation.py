@@ -44,3 +44,15 @@ class Read_density():
                 self.density[name_group] = node.value
             if node.name.endswith('_energyDensity'):
                 self.energy_density[name_group] = node.value
+
+
+def compute_difference(values_first, values_secound):
+
+    difference_values = []
+    for i in range(0, len(values_first)):
+        for j in range(0, len(values_first[0])):
+            difference_values.append(abs(values_first[i][j] - values_secound[i][j]))
+    max_difference = numpy.max(difference_values)
+
+    return max_difference
+
