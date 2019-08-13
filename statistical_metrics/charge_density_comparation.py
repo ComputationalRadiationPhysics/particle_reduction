@@ -145,3 +145,14 @@ def print_density(density_reader_first, density_reader_second, file_idx, csv_fil
         values_into_csv = [name_csv, max_difference, eucledian_values]
         write_values_into_csv_file(values_into_csv, csv_file)
 
+
+def print_energy_density(density_reader_first, density_reader_second, file_idx, csv_file):
+
+    type_particles = ['C', 'H', 'N', 'e']
+
+    for name_type in type_particles:
+        max_difference, eucledian_values = compute_difference_energy_density(name_type, density_reader_first.energy_density,
+                                                                      density_reader_second.energy_density)
+        name_csv = name_type + '_density ' + file_idx
+        values_into_csv = [name_csv, max_difference, eucledian_values]
+        write_values_into_csv_file(values_into_csv, csv_file)
