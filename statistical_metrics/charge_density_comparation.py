@@ -1,4 +1,8 @@
+import sys
 
+sys.path.append("../")
+
+import read_hdf_file
 import h5py
 import numpy
 import math
@@ -117,4 +121,15 @@ def compute_difference_energy_density(type_electrons, density_first, density_sec
     eucledian_values = compute_eucledian(values_first, values_secound)
     return max_difference, eucledian_values
 
+
+def print_charge_density(density_reader_first, density_reader_second, file_idx, csv_file):
+
+    type_particles = ['C', 'H', 'N', 'e']
+
+    for name_type in type_particles:
+        max_difference, eucledian_values = compute_difference_charge_density(name_type, density_reader_first.charge_density,
+                                                                             density_reader_second.charge_density)
+        name_csv = name_type + '_charge_density ' + file_idx
+        values_into_csv = [name_csv, max_difference, eucledian_values]
+        write_values_into_csv_file(values_into_csv, csv_file)
 
