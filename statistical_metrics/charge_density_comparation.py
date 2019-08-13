@@ -107,3 +107,14 @@ def compute_difference_density(type_electrons, density_first, density_secound):
     eucledian_values = compute_eucledian(values_first, values_secound)
     return max_difference, eucledian_values
 
+
+def compute_difference_energy_density(type_electrons, density_first, density_secound):
+
+    name_values = type_electrons + '_energyDensity'
+    values_first = density_first[name_values]
+    values_secound = density_secound[name_values]
+    max_difference = compute_difference(values_first, values_secound)
+    eucledian_values = compute_eucledian(values_first, values_secound)
+    return max_difference, eucledian_values
+
+
