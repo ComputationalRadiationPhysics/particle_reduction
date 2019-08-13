@@ -70,3 +70,17 @@ def compute_eucledian(values_first, values_secound):
     sqrt_value = math.sqrt(sum_of_values)
     return sqrt_value
 
+
+def write_values_into_csv_file(metric_values, csv_file_name):
+
+    row = []
+
+    for value in metric_values:
+        row.append(str(value))
+
+    with open(csv_file_name, 'a') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerow(row)
+
+    csvFile.close()
+
