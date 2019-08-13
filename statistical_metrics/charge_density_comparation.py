@@ -56,3 +56,17 @@ def compute_difference(values_first, values_secound):
 
     return max_difference
 
+
+def compute_eucledian(values_first, values_secound):
+
+    eucludian_values = []
+    for i in range(0, len(values_first)):
+        for j in range(0, len(values_first[0])):
+            eucludian_values.append(
+                (values_first[i][j] - values_secound[i][j]) * (values_first[i][j] - values_secound[i][j]))
+
+    sum_of_values = numpy.sum(eucludian_values) / len(eucludian_values)
+
+    sqrt_value = math.sqrt(sum_of_values)
+    return sqrt_value
+
