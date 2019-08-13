@@ -179,3 +179,24 @@ def main(first_hdf_file_name, second_hdf_file_name, csv_file, file_idx):
     print_energy_density(density_reader_first, density_reader_second, file_idx, csv_file)
 
 
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="main reduction")
+
+    parser.add_argument("-hdf", metavar='hdf_file', type=str,
+                        help="hdf file without patches")
+
+    parser.add_argument("-hdf_re", metavar='hdf_file_reduction', type=str,
+                        help="reducted hdf file")
+
+    parser.add_argument("-csv_file", metavar='csv_file', type=str,
+                        help="csv file")
+
+    parser.add_argument("-file_idx", metavar='file_idx', type=str,
+                        help="file_idx")
+
+
+    args = parser.parse_args()
+    main(args.hdf, args.hdf_re, args.csv_file, args.file_idx)
