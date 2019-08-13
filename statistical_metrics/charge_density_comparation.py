@@ -156,3 +156,26 @@ def print_energy_density(density_reader_first, density_reader_second, file_idx, 
         name_csv = name_type + '_density ' + file_idx
         values_into_csv = [name_csv, max_difference, eucledian_values]
         write_values_into_csv_file(values_into_csv, csv_file)
+
+
+def main(first_hdf_file_name, second_hdf_file_name, csv_file, file_idx):
+
+    first_hdf_file = h5py.File(first_hdf_file_name, 'a')
+    second_hdf_file = h5py.File(second_hdf_file_name, 'a')
+
+
+    fields_first = get_fields()
+    first_hdf_file.visititems(fields_first)
+    density_reader_first = Read_density()
+    fields_first.fields.visititems(density_reader_first)
+
+    fields_second = get_fields()
+    second_hdf_file.visititems(fields_second)
+    density_reader_second = Read_density()
+    fields_second.fields.visititems(density_reader_second)
+
+    print_charge_density(density_reader_first, density_reader_second, file_idx, csv_file)
+    print_density(density_reader_first, density_reader_second, file_idx, csv_file)
+    print_energy_density(density_reader_first, density_reader_second, file_idx, csv_file)
+
+
