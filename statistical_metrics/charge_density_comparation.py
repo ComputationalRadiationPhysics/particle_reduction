@@ -4,6 +4,8 @@ import numpy
 import math
 import argparse
 import csv
+import scipy.spatial as sp
+
 class get_fields():
     """
 
@@ -91,6 +93,16 @@ def compute_difference_charge_density(type_electrons, charge_density_first, char
     name_values = type_electrons + '_chargeDensity'
     values_first = charge_density_first[name_values]
     values_secound = charge_density_secound[name_values]
+    max_difference = compute_difference(values_first, values_secound)
+    eucledian_values = compute_eucledian(values_first, values_secound)
+    return max_difference, eucledian_values
+
+
+def compute_difference_density(type_electrons, density_first, density_secound):
+
+    name_values = type_electrons + '_density'
+    values_first = density_first[name_values]
+    values_secound = density_secound[name_values]
     max_difference = compute_difference(values_first, values_secound)
     eucledian_values = compute_eucledian(values_first, values_secound)
     return max_difference, eucledian_values
