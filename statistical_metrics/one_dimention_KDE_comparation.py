@@ -205,6 +205,77 @@ def compute_1_d_stats_metrics(kernel_coords_first_x, kernel_coords_first_y, kern
     return result_rows
 
 
+def base_corparation(first_hdf_file_name, second_hdf_file_name, csv_file_name, file_indetifacator):
+
+
+    first_hdf_file = h5py.File(first_hdf_file_name, 'a')
+    second_hdf_file = h5py.File(second_hdf_file_name, 'a')
+
+    particles_name_first = read_hdf_file.get_particles_name(first_hdf_file)
+
+    particles_groups_first = read_hdf_file.ParticlesGroups(particles_name_first)
+    first_hdf_file.visititems(particles_groups_first)
+
+    particles_name_second = read_hdf_file.get_particles_name(second_hdf_file)
+
+    particles_groups_second = read_hdf_file.ParticlesGroups(particles_name_second)
+    second_hdf_file.visititems(particles_groups_second)
+
+    idx = first_hdf_file_name.rfind('/')
+    name_of_file = first_hdf_file_name[idx + 1:len(first_hdf_file_name) - 3]
+
+    for i in range(0, len(particles_groups_first.particles_groups)):
+
+
+        substr = particles_groups_first.particles_groups[i].name
+        print('name group '+ str(substr))
+
+        name_of_group = substr[substr.rfind('/') + 1:len(substr)]
+
+
+        absolute_coordinates_first, dimensions_first, weights_first =\
+            read_group_values(particles_groups_first, i)
+
+        if len(absolute_coordinates_first) == 0:
+            return
+
+
+        absolute_coordinates_second, dimensions_second, weights_second =\
+            read_group_values(particles_groups_second, i)
+
+        kernel_coords_first_x, kernel_coords_first_y, kernel_coords_first_z =\
+            compute_1d_kernels(0, dimensions_first.dimension_position, absolute_coordinates_first, weights_first)
+
+
+
+        kernel_coords_second_x, kernel_coords_second_y, kernel_coords_second_z =\
+            compute_1d_kernels(0, dimensions_second.dimension_position, absolute_coordinates_second, weights_second)
+        iteration_name = name_of_group + "coords"
+
+        row_coordinates = \
+            compute_1_d_stats_metrics(kernel_coords_first_x, kernel_coords_first_y, kernel_coords_first_z,
+                                      kernel_coords_second_x, kernel_coords_second_y, kernel_coords_second_z, name_of_file, iteration_name)
+
+        write_values_into_csv_file(row_coordinates, csv_file_name)
+
+        ######
+        momentum_idx = dimensions_first.dimension_position + dimensions_first.dimension_momentum
+        kernel_coords_first_x, kernel_coords_first_y, kernel_coords_first_z = \
+            compute_1d_kernels(dimensions_first.dimension_position, momentum_idx, absolute_coordinates_first, weights_first)
+
+        kernel_coords_second_x, kernel_coords_second_y, kernel_coords_second_z = \
+            compute_1d_kernels(dimensions_first.dimension_position, momentum_idx, absolute_coordinates_second, weights_second)
+        iteration_name = name_of_group + "momentum"
+
+        row_momentum = \
+            compute_1_d_stats_metrics(kernel_coords_first_x, kernel_coords_first_y, kernel_coords_first_z,
+                                      kernel_coords_second_x, kernel_coords_second_y, kernel_coords_second_z,
+                                      name_of_file, iteration_name)
+
+        write_values_into_csv_file(row_momentum, csv_file_name)
+
+
+
 if __name__ == "__main__":
 
 
@@ -225,3 +296,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     base_corparation(args.first_hdf, args.second_hdf, args.csv_file, args.file_indx)
+
+
