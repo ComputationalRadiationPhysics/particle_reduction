@@ -1,8 +1,12 @@
 import sys
 sys.path.append("../")
 import read_hdf_file
+import scipy.spatial as sp
+import h5py
 import csv
 import numpy
+from scipy import stats
+import copy
 import math
 import argparse
 
@@ -87,6 +91,60 @@ def compute_max_differences(values_kde_first, values_kde_second):
     max_difference = numpy.max(difference_values)
 
     return max_difference
+
+
+def compute_norm_eu_values(values_kde_first, values_kde_second):
+
+    eucludian_values = []
+    for i in range(0, len(values_kde_first)):
+        eucludian_values.append(
+            (values_kde_first[i] - values_kde_second[i]) * (values_kde_first[i] - values_kde_second[i]))
+
+    sum_of_values = numpy.sum(eucludian_values) / len(eucludian_values)
+
+    sqrt_value = math.sqrt(sum_of_values)
+
+    return sqrt_value
+
+
+def compute_stats_metrics(values_kde_first, values_kde_second):
+
+    print("values_kde_first "+str(values_kde_first))
+    print("values_kde_second " + str(values_kde_second))
+    if len(values_kde_first) == 0 or len(values_kde_second) == 0:
+        return 0, 0, 0, 0, 0, 0, 0, 0
+
+    eu_metric = compute_norm_eu_values(values_kde_first, values_kde_second)
+    print('my euclidian metric ' + str(eu_metric))
+
+    max_difference = compute_max_differences(values_kde_first, values_kde_second)
+    print('max diff' + str(max_difference))
+    print('-----------------------------------')
+    minkowski = sp.distance.minkowski(values_kde_first, values_kde_second)
+    print('minkovski')
+    print(minkowski)
+
+    print('cosine')
+    cosine = sp.distance.cosine(values_kde_first, values_kde_second)
+    print(cosine)
+
+    print('chebyshev')
+    chebyshev = sp.distance.chebyshev(values_kde_first, values_kde_second)
+    print(chebyshev)
+
+    print('correlation')
+    correlation = sp.distance.correlation(values_kde_first, values_kde_second)
+    print(correlation)
+
+    print('braycurtis')
+    braycurtis = sp.distance.braycurtis(values_kde_first, values_kde_second)
+    print(braycurtis)
+
+    print('cityblock')
+    cityblock = sp.distance.cityblock(values_kde_first, values_kde_second)
+    print(cityblock)
+
+    return eu_metric, max_difference, minkowski, cosine, chebyshev, correlation, braycurtis, cityblock
 
 
 if __name__ == "__main__":
