@@ -167,6 +167,44 @@ def compute_1d_kernels(idx_start, idx_end, values, weights):
 
     return kernel_x, kernel_y, kernel_z
 
+
+def compute_1_d_stats_metrics(kernel_coords_first_x, kernel_coords_first_y, kernel_coords_first_z,
+                              kernel_coords_second_x, kernel_coords_second_y, kernel_coords_second_z, file_name, name_metrics):
+
+    result_rows = []
+
+    eu_metric_x, max_difference_x, minkowski_x, cosine_x, chebyshev_x, correlation_x, braycurtis_x, cityblock_x = \
+        compute_stats_metrics(kernel_coords_first_x, kernel_coords_second_x)
+
+    result_name = file_name + name_metrics + "X"
+    vector_values = [result_name, str(eu_metric_x), str(max_difference_x), str(minkowski_x), str(cosine_x),
+                     str(chebyshev_x), str(correlation_x), str(braycurtis_x), str(cityblock_x)]
+
+    result_rows.append(vector_values)
+
+    result_name = file_name + name_metrics + "Y"
+    eu_metric_y, max_difference_y, minkowski_y, cosine_y, chebyshev_y, correlation_y, braycurtis_y, cityblock_y = \
+        compute_stats_metrics(kernel_coords_first_y, kernel_coords_second_y)
+
+    vector_values = [result_name, str(eu_metric_y), str(max_difference_y), str(minkowski_y), str(cosine_y),
+                     str(chebyshev_y), str(correlation_y), str(braycurtis_y), str(cityblock_y)]
+
+    result_rows.append(vector_values)
+
+    if kernel_coords_first_z != None and kernel_coords_second_z != None:
+
+        result_name = file_name + name_metrics + "Z"
+        eu_metric_z, max_difference_z, minkowski_z, cosine_z, chebyshev_z, correlation_z, braycurtis_z, cityblock_z = \
+            compute_stats_metrics(kernel_coords_first_z, kernel_coords_second_z)
+
+        vector_values = [result_name, str(eu_metric_z), str(max_difference_z),
+                         str(minkowski_z), str(cosine_z), str(chebyshev_z),
+                         str(correlation_z), str(braycurtis_z), str(cityblock_z)]
+        result_rows.append(vector_values)
+
+    return result_rows
+
+
 if __name__ == "__main__":
 
 
