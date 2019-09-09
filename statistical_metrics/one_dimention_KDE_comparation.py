@@ -147,6 +147,26 @@ def compute_stats_metrics(values_kde_first, values_kde_second):
     return eu_metric, max_difference, minkowski, cosine, chebyshev, correlation, braycurtis, cityblock
 
 
+def compute_1d_kernels(idx_start, idx_end, values, weights):
+
+
+    kernel_x = None
+    kernel_y = None
+    kernel_z = None
+
+    dimension = int(idx_end - idx_start)
+
+
+    if dimension == 3:
+        kernel_x = compute_kernel_1d(values[:, idx_start], weights)
+        kernel_y = compute_kernel_1d(values[:, idx_start + 1], weights)
+        kernel_z = compute_kernel_1d(values[:, idx_start + 2], weights)
+    elif dimension == 2:
+        kernel_x = compute_kernel_1d(values[:, idx_start], weights)
+        kernel_y = compute_kernel_1d(values[:, idx_start + 1], weights)
+
+    return kernel_x, kernel_y, kernel_z
+
 if __name__ == "__main__":
 
 
