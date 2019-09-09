@@ -1,7 +1,9 @@
 import sys
+sys.path.append("../")
 import read_hdf_file
 import csv
 import numpy
+import math
 import argparse
 
 
@@ -55,6 +57,26 @@ def compute_kernel_1d(array_x, weights):
 
     return array_kernell
 
+
+def read_group_values(particles_groups, idx):
+
+    group_first = particles_groups.particles_groups[idx]
+
+    data_first, weights_first, dimensions_first, unit_si_position_first, unit_si_momentum_first \
+        = read_hdf_file.read_points_group(group_first)
+
+    if len(data_first) == 0:
+        return [], [], []
+
+    position_offset_first, unit_si_offset_first = read_hdf_file.read_position_offset(group_first)
+
+    absolute_coordinates_first = read_hdf_file.get_absolute_coordinates(data_first, position_offset_first,
+                                                                        unit_si_offset_first,
+                                                                        unit_si_position_first, dimensions_first,
+                                                                        unit_si_momentum_first)
+    absolute_coordinates_first = numpy.array(absolute_coordinates_first)
+
+    return absolute_coordinates_first, dimensions_first, weights_first
 
 
 if __name__ == "__main__":
