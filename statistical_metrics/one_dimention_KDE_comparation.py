@@ -79,6 +79,16 @@ def read_group_values(particles_groups, idx):
     return absolute_coordinates_first, dimensions_first, weights_first
 
 
+def compute_max_differences(values_kde_first, values_kde_second):
+
+    difference_values = []
+    for i in range(0, len(values_kde_first)):
+        difference_values.append(abs(values_kde_first[i] - values_kde_second[i]))
+    max_difference = numpy.max(difference_values)
+
+    return max_difference
+
+
 if __name__ == "__main__":
 
 
