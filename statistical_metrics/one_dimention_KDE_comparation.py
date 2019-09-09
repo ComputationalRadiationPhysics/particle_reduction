@@ -1,4 +1,5 @@
 import sys
+import read_hdf_file
 import csv
 import numpy
 import argparse
@@ -30,9 +31,29 @@ def norm_array01(vector, max_value, min_value):
     return array_norm
 
 
+def compute_kernel_1d(array_x, weights):
 
+    copy_weights = copy.deepcopy(weights)
 
+    x_min = numpy.min(array_x)
+    x_max = numpy.max(array_x)
+    array_kernell = []
+    if abs(x_max - x_min) == 0:
+        return array_kernell
 
+    array_x_norm = norm_array01(array_x, x_min, x_max)
+
+    x_min = 0.
+    x_max = 1.
+
+    X = numpy.mgrid[x_min:x_max:250j]
+
+    positions = numpy.vstack([X.ravel()])
+    values = numpy.vstack([array_x_norm])
+    kernel = stats.gaussian_kde(values, weights=copy_weights)
+    array_kernell = kernel(positions)
+
+    return array_kernell
 
 
 
