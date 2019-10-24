@@ -543,8 +543,8 @@ def read_points_group(group):
     group.visititems(hdf_datasets)
     weighting = hdf_datasets.weighting
     bound_electrons = hdf_datasets.bound_electrons
-    position_values = DatasetReader('position')
-    momentum_values = DatasetReader('momentum')
+    position_values = Dataset_Reader('position')
+    momentum_values = Dataset_Reader('momentum')
 
     if len(hdf_datasets.positions) == 0 or len(hdf_datasets.momentum) == 0:
         return [], [], [], [], []
@@ -576,7 +576,7 @@ def read_position_offset(group):
 
     hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
-    position_offset_values = DatasetReader('positionOffset')
+
     position_offset_group = hdf_datasets.position_offset[0]
     position_offset_group.visititems(position_offset_values)
 
@@ -589,6 +589,7 @@ def read_position_offset(group):
                          zip(position_offset_values.vector_x, position_offset_values.vector_y,
                              position_offset_values.vector_z)]
 
+    position_offset_values = Dataset_Reader('positionOffset')
     offset_unit_si = position_offset_values.get_unit_si_array()
 
     return offset_values, offset_unit_si
@@ -606,9 +607,9 @@ def write_group_values(hdf_file_reduction, group, library_datasets, offset):
 
     hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
-    position_values = DatasetReader('position')
-    momentum_values = DatasetReader('momentum')
-    position_offset_values = DatasetReader('positionOffset')
+    position_values = Dataset_Reader('position')
+    momentum_values = Dataset_Reader('momentum')
+    position_offset_values = Dataset_Reader('positionOffset')
     position_offset_group = hdf_datasets.position_offset[0]
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
@@ -680,8 +681,8 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
 
     hdf_datasets = ParticlesFunctor()
     group.visititems(hdf_datasets)
-    position_values = DatasetReader('position')
-    momentum_values = DatasetReader('momentum')
+    position_values = Dataset_Reader('position')
+    momentum_values = Dataset_Reader('momentum')
     position_offset_values = DatasetReader('positionOffset')
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
