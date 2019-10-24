@@ -424,12 +424,12 @@ def create_points_array(hdf_file, idx_start, idx_end, coord_collection, momentum
     return vector_coords
 
 
-    elif dimension_coord == 3 and dimension_momentum == 2:
+def get_weights(hdf_file, idx_start, idx_end, path_weights):
 
-    elif dimension_coord == 2 and dimension_momentum == 3:
-        vector_coords = [list(x) for x in
-                         zip(coord_collection.vector_x, coord_collection.vector_y,
-                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
+    weights = hdf_file[path_weights][()][idx_start:idx_end]
+    return weights
+
+
 def get_position_offset(hdf_file, idx_start, idx_end, position_offset):
 
     vector_offset = []
@@ -530,10 +530,6 @@ def create_library_of_datasets(points):
     datasets['weighting'] = weighting
 
     return datasets
-
-
-    points = create_points_library(position_values, momentum_values, weighting)
-    return points
 
 
 def read_mass(group):
@@ -694,7 +690,7 @@ def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     group.visititems(hdf_datasets)
     position_values = Dataset_Reader('position')
     momentum_values = Dataset_Reader('momentum')
-    position_offset_values = DatasetReader('positionOffset')
+    position_offset_values = Dataset_Reader('positionOffset')
     position_group = hdf_datasets.positions[0]
     momentum_group = hdf_datasets.momentum[0]
     position_offset_group = hdf_datasets.position_offset[0]
