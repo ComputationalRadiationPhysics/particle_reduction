@@ -430,13 +430,20 @@ def create_points_array(hdf_file, idx_start, idx_end, coord_collection, momentum
         vector_coords = [list(x) for x in
                          zip(coord_collection.vector_x, coord_collection.vector_y,
                              momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
+def get_position_offset(hdf_file, idx_start, idx_end, position_offset):
 
-    elif dimension_coord == 2 and dimension_momentum == 2:
-        vector_coords = [list(x) for x in
-                         zip(coord_collection.vector_x, coord_collection.vector_y,
-                             momentum_collection.vector_x, momentum_collection.vector_y)]
+    vector_offset = []
 
-    return vector_coords
+    for i in range(0, len(position_offset.vector)):
+        if position_offset.vector[i] != "":
+            current_vector = hdf_file[position_offset.vector[i]][()][idx_start:idx_end]
+            vector_offset.append(current_vector)
+
+    vector_offset = numpy.array(vector_offset)
+    vector_offset = vector_offset.transpose()
+
+    return vector_offset
+
 
 
 def create_points_array_bound_electrons(coord_collection, momentum_collection, bound_electrons):
@@ -525,24 +532,6 @@ def create_library_of_datasets(points):
     return datasets
 
 
-def read_group_values(group):
-    """
-
-    convert values from position and momentum datasets into points
-    group -- base group of points from hdf file
-
-    """
-
-    hdf_datasets = ParticlesFunctor()
-    group.visititems(hdf_datasets)
-    weighting = hdf_datasets.weighting
-    position_values = DatasetReader('position')
-    momentum_values = DatasetReader('momentum')
-
-    position_group = hdf_datasets.positions[0]
-    momentum_group = hdf_datasets.momentum[0]
-    position_group.visititems(position_values)
-    momentum_group.visititems(momentum_values)
     points = create_points_library(position_values, momentum_values, weighting)
     return points
 
