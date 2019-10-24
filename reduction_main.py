@@ -6,6 +6,7 @@ import copy
 import h5py
 import argparse
 import time
+import math
 import Algorithms.Random_thinning_algorithm as Random_thinning_algorithm
 import Algorithms.Number_conservative_thinning_algorithm as Number_conservative_thinning_algorithm
 import Algorithms.Energy_conservative_thinning_algorithm as Energy_conservative_thinning_algorithm
@@ -54,15 +55,27 @@ class Algorithm:
 
 def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parameters):
 
+    print("base_reduction_function")
 
-    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
+    copyfile(hdf_file_name, hdf_file_reduction_name)
+    hdf_file = h5py.File(hdf_file_name, 'a')
+
+    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
         print('name group '+ str(group.name))
+        process_reduction_group(type, group, hdf_file, hdf_file_reduction, parameters)
+
+
+def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, parameters):
+    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
+
+    for group in particles_collect.particles_groups:
         process_reduction_group(type, group, hdf_file_reduction, parameters)
 
 
-def process_reduction_group(type, group, hdf_file_reduction, parameters):
+def process_reduction_group(type, group, hdf_file, hdf_file_reduction, parameters):
+
     mass = read_hdf_file.read_mass(group)
     algorithm = Algorithm.factory(type, parameters, mass)
     name_idx = group.name.rfind("/")
@@ -75,7 +88,7 @@ def process_reduction_group(type, group, hdf_file_reduction, parameters):
         else:
             algorithm.divisions = [16, 40]
 
-    process_patches_in_group(hdf_file_reduction, group, algorithm)
+    process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm)
 
 
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
@@ -106,6 +119,9 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     read_hdf_file.write_patch_group(group, hdf_file_reduction, result_num_particles_offset, result_num_particles)
 
     library_datasets = read_hdf_file.create_datasets_from_vector(relative_coordinates, dimensions, offset)
+    read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
+
+
 def get_dimensions(position_values, momentum_values):
 
     dimension_position = position_values.get_dimension()
@@ -206,6 +222,9 @@ def process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm):
                                     hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, reduced_weight)
 
 
+
+def get_particles_groups(hdf_file, hdf_file_reduction_name):
+
     hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
     particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
     particles_collect = read_hdf_file.ParticlesGroups(particles_name)
@@ -279,8 +298,8 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
         end = int(ranges_patches[i + 1])
 
         start_time = time.time()
-        copy_data = copy.deepcopy(data[start:end] )
 
+        copy_data = copy.deepcopy(data[start:end])
         copy_weights = copy.deepcopy(weights[start:end])
         reduced_data_patch, reduced_weight_patch = algorithm._run(copy_data, copy_weights)
 
@@ -301,7 +320,7 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
 if __name__ == "__main__":
     """ Parse arguments from command line """
 
-    parser = argparse.ArgumentParser(description="voronoi reduction")
+    parser = argparse.ArgumentParser(description="main reduction")
 
     parser.add_argument("-algorithm", metavar='algorithm', type=str,
                         help="hdf file without patches")
