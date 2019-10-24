@@ -177,6 +177,67 @@ class points_writer():
         return None
 
 
+class vector_writer():
+    """
+
+    Write dataset into result hdf file
+    name_dataset -- name recorded dataset
+    hdf_file -- result hdf file
+    result_points -- points to write to hdf file
+
+    """
+
+    def __init__(self, hdf_file, vector_values, name_dataset, start_dimension):
+        self.dataset_x = name_dataset + '/x'
+        self.dataset_y = name_dataset + '/y'
+        self.dataset_z = name_dataset + '/z'
+
+        self.vector_values = vector_values
+        self.hdf_file = hdf_file
+        self.is_first_part = True
+        self.start_dimension = start_dimension
+
+    def __call__(self, name, node):
+
+        if isinstance(node, h5py.Dataset):
+            if node.name.endswith(self.dataset_x):
+                self.choose_writing_type(node, self.start_dimension)
+
+            elif node.name.endswith(self.dataset_y):
+                self.choose_writing_type(node, self.start_dimension + 1)
+
+            elif node.name.endswith(self.dataset_z):
+                self.choose_writing_type(node, self.start_dimension + 2)
+
+    def choose_writing_type(self, node, type_idx):
+        if self.is_first_part:
+            self.first_part_writing(node, self.vector_values[:, type_idx])
+        else:
+            self.resize_writing(node, self.vector_values[:, type_idx])
+
+    def first_part_writing(self, node, values):
+
+        attributes = {}
+        for attr in node.attrs.keys():
+            attributes[attr] = node.attrs[attr]
+
+        node_name = node.name
+        current_dtype = self.hdf_file[node.name].dtype
+        del self.hdf_file[node.name]
+        dset = self.hdf_file.create_dataset(node_name, maxshape=(None,), data=values, dtype=current_dtype, chunks=True)
+        for attr in attributes:
+            dset.attrs[attr] = attributes[attr]
+
+        return None
+
+    def resize_writing(self, node, values):
+
+        node_name = node.name
+        self.hdf_file[node_name].resize((self.hdf_file[node_name].shape[0] + values.shape[0]), axis=0)
+        self.hdf_file[node_name][-values.shape[0]:] = values
+
+
+
 class dataset_writer():
     """
 
