@@ -599,15 +599,14 @@ def read_points_group_v2(hdf_datasets):
     return position_values, momentum_values, hdf_datasets.weighting, hdf_datasets.bound_electrons
 
 
-    elif position_offset_values.get_dimension() == 3:
-        offset_values = [list(x) for x in
-                         zip(position_offset_values.vector_x, position_offset_values.vector_y,
-                             position_offset_values.vector_z)]
+def read_position_offset(hdf_datasets):
 
     position_offset_values = Dataset_Reader('positionOffset')
+    position_offset_group = hdf_datasets.position_offset[0]
+    position_offset_group.visititems(position_offset_values)
     offset_unit_si = position_offset_values.get_unit_si_array()
 
-    return offset_values, offset_unit_si
+    return position_offset_values, offset_unit_si
 
 
 def write_group_values(hdf_file_reduction, group, library_datasets, offset):
@@ -733,6 +732,7 @@ def read_patches_values(group):
     patch_values = ReadPatchValues()
     patch_group.patch_group[0].visititems(patch_values)
     return patch_values.numParticles, patch_values.numParticlesOffset
+
 
 def get_absolute_coordinates(data, position_offset, unit_si_offset, unit_si_position, dimensions, unit_si_momentum):
 
