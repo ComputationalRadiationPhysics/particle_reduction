@@ -503,23 +503,6 @@ def create_library_of_datasets(points):
     return datasets
 
 
-def create_points_library(coord_collect, momentum_collect, weighting):
-    """
-
-    create set of postion points and momentum points
-
-    """
-
-    points_coords = create_point_array(coord_collect, weighting)
-    points_momentum = create_point_array(momentum_collect, weighting)
-
-    points = {}
-    points['position'] = points_coords
-    points['momentum'] = points_momentum
-
-    return points
-
-
 def read_group_values(group):
     """
 
