@@ -288,7 +288,11 @@ class dataset_writer():
         self.hdf_file[node_name][-values.shape[0]:] = values
 
 
-class PatchValuesWriter():
+        return None
+
+
+
+class patch_values_writer():
     """
 
     Write dataset into result hdf file
