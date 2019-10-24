@@ -393,7 +393,7 @@ def decode_name(attribute_name):
     return decoding_name
 
 
-def create_points_array(coord_collection, momentum_collection):
+def create_points_array(hdf_file, idx_start, idx_end, coord_collection, momentum_collection, bound_electrons):
     """
 
     create array of 2-d, 3-d points from datasets
@@ -403,20 +403,28 @@ def create_points_array(coord_collection, momentum_collection):
 
     vector_coords = []
 
-    dimension_coord = coord_collection.get_dimension()
-    dimension_momentum = momentum_collection.get_dimension()
+    for i in range(0, len(coord_collection.vector)):
+        if coord_collection.vector[i] != "":
+            current_vector = hdf_file[coord_collection.vector[i]][()][idx_start:idx_end]
+            vector_coords.append(current_vector)
 
+    for j in range(0, len(momentum_collection.vector)):
+        if momentum_collection.vector[j] != "":
+            current_vector = hdf_file[momentum_collection.vector[j]][()][idx_start:idx_end]
+            vector_coords.append(current_vector)
 
+    if bound_electrons != '':
+        bound_vector_values = hdf_file[bound_electrons][()][idx_start:idx_end]
 
-    if dimension_coord == 3 and dimension_momentum == 3:
-        vector_coords = [list(x) for x in
-                         zip(coord_collection.vector_x, coord_collection.vector_y, coord_collection.vector_z,
-                             momentum_collection.vector_x, momentum_collection.vector_y, momentum_collection.vector_z)]
+        vector_coords.append(bound_vector_values)
+
+    vector_coords = numpy.array(vector_coords)
+    vector_coords = vector_coords.transpose()
+
+    return vector_coords
+
 
     elif dimension_coord == 3 and dimension_momentum == 2:
-        vector_coords = [list(x) for x in
-                         zip(coord_collection.vector_x, coord_collection.vector_y, coord_collection.vector_z,
-                             momentum_collection.vector_x, momentum_collection.vector_y)]
 
     elif dimension_coord == 2 and dimension_momentum == 3:
         vector_coords = [list(x) for x in
