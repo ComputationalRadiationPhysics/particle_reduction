@@ -306,7 +306,7 @@ class PatchValuesWriter():
         return None
 
 
-class DatasetReader():
+class Dataset_Reader():
     """
 
      Read datasets values from hdf file
@@ -315,12 +315,8 @@ class DatasetReader():
     """
 
     def __init__(self, name_dataset):
-        self.vector_x = []
-        self.vector_y = []
-        self.vector_z = []
-        self.unit_SI_x = 1.
-        self.unit_SI_y = 1.
-        self.unit_SI_z = 1.
+        self.vector = ['', '', '']
+        self.unit = [1., 1., 1.]
         self.name_dataset = name_dataset
 
     def __call__(self, name, node):
@@ -329,17 +325,17 @@ class DatasetReader():
         dataset_y = self.name_dataset + '/y'
         dataset_z = self.name_dataset + '/z'
         if isinstance(node, h5py.Dataset):
-            if node.name.endswith(dataset_x):
-                self.vector_x = node.value
-                self.unit_SI_x = node.attrs["unitSI"]
+            if node.name.endswith(dataset_x) and node.shape != None:
+                self.vector[0] = node.name
+                self.unit[0] = node.attrs["unitSI"]
 
-            if node.name.endswith(dataset_y):
-                self.vector_y = node.value
-                self.unit_SI_y = node.attrs["unitSI"]
+            if node.name.endswith(dataset_y) and node.shape != None:
+                self.vector[1] = node.name
+                self.unit[1] = node.attrs["unitSI"]
 
-            if node.name.endswith(dataset_z):
-                self.vector_z = node.value
-                self.unit_SI_z = node.attrs["unitSI"]
+            if node.name.endswith(dataset_z) and node.shape != None:
+                self.vector[2] = node.name
+                self.unit[2] = node.attrs["unitSI"]
 
         return None
 
@@ -347,9 +343,9 @@ class DatasetReader():
 
         array_unit_SI = []
         if self.get_dimension() == 3:
-            array_unit_SI = [self.unit_SI_x, self.unit_SI_y, self.unit_SI_z]
+            array_unit_SI = [self.unit[0], self.unit[1], self.unit[2]]
         elif self.get_dimension() == 2:
-            array_unit_SI = [self.unit_SI_x, self.unit_SI_y]
+            array_unit_SI = [self.unit[0], self.unit[1]]
 
         return array_unit_SI
 
@@ -359,17 +355,7 @@ class DatasetReader():
          get dimension of particles datasets
 
         """
-
-        size = 0
-        if len(self.vector_x) > 0:
-            if len(self.vector_y) > 0:
-                if len(self.vector_z) > 0:
-                    size = 3
-                else:
-                    size = 2
-            else:
-                size = 1
-
+        size = len(list(filter(lambda x: (x != ""), self.vector)))
         return size
 
 
