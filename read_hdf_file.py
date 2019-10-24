@@ -19,20 +19,20 @@ class ParticlesFunctor():
     """
 
     def __init__(self):
-        self.positions = []
         self.momentum = []
         self.weighting = []
-        self.bound_electrons = []
+        self.positions = []
+        self.bound_electrons = ""
         self.position_offset = []
 
     def __call__(self, name, node):
 
         if isinstance(node, h5py.Dataset):
             if node.name.endswith('weighting'):
-                self.weighting = node.value
+                self.weighting = node.name
 
             if node.name.endswith('boundElectrons'):
-                self.bound_electrons = node.value
+                self.bound_electrons = node.name
 
         if isinstance(node, h5py.Group):
             if node.name.endswith('position'):
@@ -253,25 +253,39 @@ class dataset_writer():
         self.values = values
         self.hdf_file = hdf_file
         self.name_dataset = name_dataset
+        self.is_first_part = True
 
     def __call__(self, name, node):
-
-
 
         if isinstance(node, h5py.Dataset):
 
             if node.name.endswith(self.name_dataset):
-                attributes = {}
-                for attr in node.attrs.keys():
-                    attributes[attr] = node.attrs[attr]
-                node_name = node.name
-                current_dtype = self.hdf_file[node.name].dtype
-                del self.hdf_file[node.name]
-                dset = self.hdf_file.create_dataset(node_name, data=self.values, dtype=current_dtype)
-                for attr in attributes:
-                    dset.attrs[attr] = attributes[attr]
+                if self.is_first_part:
+                    self.first_part_writing(node, self.values)
+                else:
+                    self.resize_writing(node, self.values)
+
+    def first_part_writing(self, node, values):
+
+        attributes = {}
+        for attr in node.attrs.keys():
+            attributes[attr] = node.attrs[attr]
+
+        node_name = node.name
+        current_dtype = self.hdf_file[node.name].dtype
+        del self.hdf_file[node.name]
+        dset = self.hdf_file.create_dataset(node_name, maxshape=(None,), data=values, dtype=current_dtype,
+                                            chunks=True)
+        for attr in attributes:
+            dset.attrs[attr] = attributes[attr]
+
         return None
 
+    def resize_writing(self, node, values):
+
+        node_name = node.name
+        self.hdf_file[node_name].resize((self.hdf_file[node_name].shape[0] + values.shape[0]), axis=0)
+        self.hdf_file[node_name][-values.shape[0]:] = values
 
 
 class PatchValuesWriter():
