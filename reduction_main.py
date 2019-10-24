@@ -106,11 +106,13 @@ def process_patches_in_group(hdf_file_reduction, group, algorithm):
     read_hdf_file.write_patch_group(group, hdf_file_reduction, result_num_particles_offset, result_num_particles)
 
     library_datasets = read_hdf_file.create_datasets_from_vector(relative_coordinates, dimensions, offset)
+def get_dimensions(position_values, momentum_values):
 
-    print(group.name)
-    print(len(relative_coordinates[:, 0]))
+    dimension_position = position_values.get_dimension()
+    dimension_momentum = momentum_values.get_dimension()
+    dimensions = Dimensions(dimension_position, dimension_momentum)
 
-    read_hdf_file.write_group_values(hdf_file_reduction, group, library_datasets, reduced_weights)
+    return dimensions
 
 
 def get_particles_groups(hdf_file_name, hdf_file_reduction_name):
