@@ -125,6 +125,44 @@ def get_patches_ranges(hdf_file, group, position_collection):
 
     return ranges_patches
 
+
+def writing_reduced_information(current_idx, hdf_file_reduction, relative_coordinates,
+                                hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, weights):
+
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_offset_group = hdf_datasets.position_offset[0]
+
+    write_position = read_hdf_file.vector_writer(hdf_file_reduction, relative_coordinates, 'position', 0)
+    if current_idx > 0:
+        write_position.is_first_part = False
+    position_group.visititems(write_position)
+
+    write_momentum = read_hdf_file.vector_writer(hdf_file_reduction, relative_coordinates, 'momentum',
+                                                 dimensions.dimension_position)
+    if current_idx > 0:
+        write_momentum.is_first_part = False
+    momentum_group.visititems(write_momentum)
+
+    write_position_offset = read_hdf_file.vector_writer(hdf_file_reduction, relative_position_offset, 'positionOffset',
+                                                        0)
+    if current_idx > 0:
+        write_position_offset.is_first_part = False
+    position_offset_group.visititems(write_position_offset)
+
+    write_weighting = read_hdf_file.dataset_writer(hdf_file_reduction, weights, 'weighting')
+    if current_idx > 0:
+        write_weighting.is_first_part = False
+    group.visititems(write_weighting)
+
+    if bound_electrons != "":
+        idx_bound_electrons = len(relative_coordinates[0]) - 1
+        write_bound_electrons = read_hdf_file.dataset_writer(hdf_file_reduction, relative_coordinates[:, idx_bound_electrons], 'boundElectrons')
+        if current_idx > 0:
+            write_bound_electrons.is_first_part = False
+        group.visititems(write_bound_electrons)
+
+
     hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
     particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
     particles_collect = read_hdf_file.ParticlesGroups(particles_name)
