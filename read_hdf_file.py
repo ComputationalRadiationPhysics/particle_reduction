@@ -577,19 +577,27 @@ def read_points_group(group):
     return points, weighting, dimensions, unit_SI_position, unit_SI_momentum
 
 
-def read_position_offset(group):
+def read_points_group_v2(hdf_datasets):
+    """
 
-    offset_values = []
+    convert values from position and momentum datasets into points
+    group -- base group of points from hdf file
 
-    hdf_datasets = ParticlesFunctor()
-    group.visititems(hdf_datasets)
+    """
 
-    position_offset_group = hdf_datasets.position_offset[0]
-    position_offset_group.visititems(position_offset_values)
+    position_values = Dataset_Reader('position')
+    momentum_values = Dataset_Reader('momentum')
 
-    if position_offset_values.get_dimension() == 2:
-        offset_values = [list(x) for x in
-                         zip(position_offset_values.vector_x, position_offset_values.vector_y)]
+    if len(hdf_datasets.positions) == 0 or len(hdf_datasets.momentum) == 0:
+        return position_values, momentum_values, [], []
+
+    position_group = hdf_datasets.positions[0]
+    momentum_group = hdf_datasets.momentum[0]
+    position_group.visititems(position_values)
+    momentum_group.visititems(momentum_values)
+
+    return position_values, momentum_values, hdf_datasets.weighting, hdf_datasets.bound_electrons
+
 
     elif position_offset_values.get_dimension() == 3:
         offset_values = [list(x) for x in
