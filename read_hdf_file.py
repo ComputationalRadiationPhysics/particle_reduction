@@ -2,10 +2,6 @@ import h5py
 import re
 import numpy
 
-class Dimensions:
-    def __init__(self, dimension_position, dimension_momentum):
-        self.dimension_position = dimension_position
-        self.dimension_momentum = dimension_momentum
 
 
 class ParticlesFunctor():

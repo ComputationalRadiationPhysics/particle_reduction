@@ -15,6 +15,13 @@ import Algorithms.Voronoi_algorithm as Voronoi_algorithm
 import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
 import Algorithms.Voronoi_probabilistic_algorithm as Voronoi_probabilistic_algorithm
 
+
+class Dimensions:
+    def __init__(self, dimension_position, dimension_momentum):
+        self.dimension_position = dimension_position
+        self.dimension_momentum = dimension_momentum
+
+
 class Algorithm:
     # Create based on class name:
     def factory( type, parameters, mass):
