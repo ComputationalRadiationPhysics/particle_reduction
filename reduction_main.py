@@ -163,6 +163,49 @@ def writing_reduced_information(current_idx, hdf_file_reduction, relative_coordi
         group.visititems(write_bound_electrons)
 
 
+def process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm):
+
+    hdf_datasets = read_hdf_file.ParticlesFunctor()
+    group.visititems(hdf_datasets)
+
+    position_collection, momentum_collection, weighting, bound_electrons = read_hdf_file.read_points_group_v2(hdf_datasets)
+
+    if position_collection.get_dimension() == 0 or momentum_collection.get_dimension() == 0:
+        return
+
+    position_offset, unit_si_offset = read_hdf_file.read_position_offset(hdf_datasets)
+
+    ranges_patches = get_patches_ranges(hdf_file, group, position_collection)
+    dimensions = get_dimensions(position_collection, momentum_collection)
+
+    for i in range(0, len(ranges_patches) - 1):
+
+        idx_start = int(ranges_patches[i])
+        idx_end = int(ranges_patches[i + 1])
+
+        unit_si_position = position_collection.get_unit_si_array()
+        unit_si_momentum = momentum_collection.get_unit_si_array()
+
+        data = read_hdf_file.create_points_array(hdf_file, idx_start, idx_end, position_collection, momentum_collection, bound_electrons)
+
+        weights = read_hdf_file.get_weights(hdf_file, idx_start, idx_end, hdf_datasets.weighting)
+
+        position_offset_vector = read_hdf_file.get_position_offset(hdf_file, idx_start, idx_end, position_offset)
+        absolute_coordinates = read_hdf_file.get_absolute_coordinates(data, position_offset_vector, unit_si_offset,
+                                                                      unit_si_position, dimensions, unit_si_momentum)
+        copy_data = copy.deepcopy(absolute_coordinates)
+
+        copy_weights = copy.deepcopy(weights)
+        reduced_data, reduced_weight = algorithm._run(copy_data, copy_weights)
+
+        relative_coordinates, relative_position_offset = read_hdf_file.get_relative_coordinates(reduced_data, unit_si_offset,
+                                                                              unit_si_position, dimensions,
+                                                                              unit_si_momentum)
+
+        writing_reduced_information(i, hdf_file_reduction, relative_coordinates,
+                                    hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, reduced_weight)
+
+
     hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
     particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
     particles_collect = read_hdf_file.ParticlesGroups(particles_name)
