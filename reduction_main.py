@@ -115,9 +115,16 @@ def get_dimensions(position_values, momentum_values):
     return dimensions
 
 
-def get_particles_groups(hdf_file_name, hdf_file_reduction_name):
-    copyfile(hdf_file_name, hdf_file_reduction_name)
-    hdf_file = h5py.File(hdf_file_name, 'a')
+def get_patches_ranges(hdf_file, group, position_collection):
+
+    num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
+    ranges_patches = num_particles_offset
+    size = hdf_file[position_collection.vector[0]][()].size
+    ranges_patches = numpy.append(ranges_patches, int(size))
+    ranges_patches.astype(int)
+
+    return ranges_patches
+
     hdf_file_reduction = h5py.File(hdf_file_reduction_name, 'a')
     particles_name = read_hdf_file.get_particles_name(hdf_file_reduction)
     particles_collect = read_hdf_file.ParticlesGroups(particles_name)
