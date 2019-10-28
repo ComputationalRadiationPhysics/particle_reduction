@@ -71,6 +71,7 @@ def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, paramet
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
+        print('name group ' + str(group.name))
         process_reduction_group(type, group, hdf_file_reduction, parameters)
 
 
@@ -87,7 +88,7 @@ def process_reduction_group(type, group, hdf_file, hdf_file_reduction, parameter
             algorithm.divisions = [32, 60]
         else:
             algorithm.divisions = [16, 40]
-
+    print("current_group_name " + str(current_group_name))
     process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm)
 
 
@@ -142,7 +143,7 @@ def get_patches_ranges(hdf_file, group, position_collection):
     return ranges_patches
 
 
-def writing_reduced_information(current_idx, hdf_file_reduction, relative_coordinates,
+def writing_reduced_information(rewrite_start_node, hdf_file_reduction, relative_coordinates,
                                 hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, weights):
 
     position_group = hdf_datasets.positions[0]
@@ -150,32 +151,32 @@ def writing_reduced_information(current_idx, hdf_file_reduction, relative_coordi
     position_offset_group = hdf_datasets.position_offset[0]
 
     write_position = read_hdf_file.vector_writer(hdf_file_reduction, relative_coordinates, 'position', 0)
-    if current_idx > 0:
-        write_position.is_first_part = False
+
+    write_position.is_first_part = rewrite_start_node
     position_group.visititems(write_position)
 
     write_momentum = read_hdf_file.vector_writer(hdf_file_reduction, relative_coordinates, 'momentum',
                                                  dimensions.dimension_position)
-    if current_idx > 0:
-        write_momentum.is_first_part = False
+
+    write_momentum.is_first_part = rewrite_start_node
     momentum_group.visititems(write_momentum)
 
     write_position_offset = read_hdf_file.vector_writer(hdf_file_reduction, relative_position_offset, 'positionOffset',
                                                         0)
-    if current_idx > 0:
-        write_position_offset.is_first_part = False
+
+    write_position_offset.is_first_part = rewrite_start_node
     position_offset_group.visititems(write_position_offset)
 
     write_weighting = read_hdf_file.dataset_writer(hdf_file_reduction, weights, 'weighting')
-    if current_idx > 0:
-        write_weighting.is_first_part = False
+
+    write_weighting.is_first_part = rewrite_start_node
     group.visititems(write_weighting)
 
     if bound_electrons != "":
         idx_bound_electrons = len(relative_coordinates[0]) - 1
         write_bound_electrons = read_hdf_file.dataset_writer(hdf_file_reduction, relative_coordinates[:, idx_bound_electrons], 'boundElectrons')
-        if current_idx > 0:
-            write_bound_electrons.is_first_part = False
+
+        write_bound_electrons.is_first_part = rewrite_start_node
         group.visititems(write_bound_electrons)
 
 
@@ -194,6 +195,8 @@ def process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm):
     ranges_patches = get_patches_ranges(hdf_file, group, position_collection)
     dimensions = get_dimensions(position_collection, momentum_collection)
 
+    rewrite_start_node = True
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
@@ -203,6 +206,9 @@ def process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm):
         unit_si_momentum = momentum_collection.get_unit_si_array()
 
         data = read_hdf_file.create_points_array(hdf_file, idx_start, idx_end, position_collection, momentum_collection, bound_electrons)
+
+        if len(data) == 0:
+            return
 
         weights = read_hdf_file.get_weights(hdf_file, idx_start, idx_end, hdf_datasets.weighting)
 
@@ -218,8 +224,9 @@ def process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm):
                                                                               unit_si_position, dimensions,
                                                                               unit_si_momentum)
 
-        writing_reduced_information(i, hdf_file_reduction, relative_coordinates,
+        writing_reduced_information(rewrite_start_node, hdf_file_reduction, relative_coordinates,
                                     hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, reduced_weight)
+        rewrite_start_node = False
 
 
 
