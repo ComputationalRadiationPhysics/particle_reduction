@@ -26,6 +26,10 @@ def get_particles_sizes(hdf_file, group):
     if position_collection.get_dimension() == 0 or momentum_collection.get_dimension() == 0:
         return
 
+    size = hdf_file[position_collection.vector[0]][()].size
+    print("current size: "+ str(size))
+
+
     position_offset, unit_si_offset = read_hdf_file.read_position_offset(hdf_datasets)
 
     ranges_patches = get_patches_ranges(hdf_file, group, position_collection)
