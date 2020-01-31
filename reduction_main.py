@@ -279,6 +279,24 @@ def absolute_momentum_array(array_dataset, unit_si_momentum):
     return absolute_momentum
 
 
+def get_absolute_momentum(series, momentum_values, idx_start, idx_end):
+
+    absolute_momentum = []
+    for value in momentum_values.items():
+        name_value = value[0]
+        momentum_axis = momentum_values[name_value]
+
+        array_dataset = momentum_axis[idx_start:idx_end]
+        series.flush()
+        unit_si_momentum = momentum_axis.unit_SI
+        item_absolute_values = absolute_momentum_array(array_dataset, unit_si_momentum)
+
+        absolute_momentum.append(item_absolute_values)
+
+    absolute_momentum = numpy.transpose(absolute_momentum)
+
+    return absolute_momentum
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
