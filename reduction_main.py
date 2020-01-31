@@ -313,6 +313,46 @@ def create_input_data(absolute_coordinates, absolute_momentum, bound_elctrons):
 
     return result_data
 
+
+def get_relative_coordinates(absolute_values, unit_si_offset,
+                             unit_si_position, unit_si_momentum):
+
+    relative_result = []
+    offset = []
+
+    unit_si_position = numpy.array(unit_si_position)
+    dimension_position = len(unit_si_position)
+    unit_si_offset = numpy.array(unit_si_offset)
+    unit_si_momentum = numpy.array(unit_si_momentum)
+    dimension_momentum = len(unit_si_momentum)
+
+    for point in absolute_values:
+        coordinates = numpy.array(point[0:dimension_position])
+        position_offset = numpy.divide(coordinates, unit_si_position)
+
+        position_offset = position_offset.astype(int)
+
+        offset.append(position_offset.tolist())
+
+        relative_coordinates = numpy.divide((coordinates - position_offset * unit_si_offset), unit_si_position)
+
+        momentum = point[dimension_position:dimension_momentum + dimension_position]
+
+        relative_momentum = numpy.divide(momentum, unit_si_momentum)
+
+        other_values = point[dimension_momentum + dimension_position:
+                             len(point)]
+
+        relative_point = numpy.append(relative_coordinates, relative_momentum)
+        relative_point = numpy.append(relative_point, other_values)
+
+        relative_result.append(relative_point.tolist())
+
+    relative_result = numpy.array(relative_result)
+    offset = numpy.array(offset)
+
+    return relative_result, offset
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
