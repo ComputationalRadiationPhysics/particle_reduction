@@ -420,6 +420,20 @@ def make_particle_patches_structure(particle_species, particle_species_reduction
     make_vector_structures(patches_structure, patches_structure_reduction, "extent", -1)
 
 
+def make_copy_vector_structures(particle_species, particle_species_reduction, name_of_dataset, name_of_copy_dataset):
+
+    position = particle_species[name_of_dataset]
+    position_redutcion = particle_species_reduction[name_of_copy_dataset]
+
+    for vector in position:
+
+        struction_size = position[vector].shape[0]
+        dtype = position[vector].dtype
+        d = Dataset(dtype, [struction_size])
+        current_vector = position_redutcion[vector]
+        current_vector.reset_dataset(d)
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
