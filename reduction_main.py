@@ -250,10 +250,24 @@ def absolute_item(values, offset, unit_si_offset, unit_si_position):
 
     return absolute_result
 
-    ranges_patches = get_patches_ranges(hdf_file, group, position_collection)
-    dimensions = get_dimensions(position_collection, momentum_collection)
 
-    rewrite_start_node = True
+def get_absolute_coordinates(series, position, position_offset, idx_start, idx_end):
+
+    absolute_coordinates = []
+
+    for value in position.items():
+        name_value = value[0]
+        position_axis = position[name_value]
+        position_offset_axis = position_offset[str(name_value)]
+        position_dataset = position_axis[idx_start:idx_end]
+        position_offset_dataset = position_offset_axis[idx_start:idx_end]
+        series.flush()
+        item_values = absolute_item(position_dataset, position_offset_dataset, position_offset_axis.unit_SI, position_axis.unit_SI)
+        absolute_coordinates.append(item_values)
+
+    absolute_coordinates = numpy.transpose(absolute_coordinates)
+
+    return absolute_coordinates
 
     for i in range(0, len(ranges_patches) - 1):
 
