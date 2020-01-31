@@ -400,6 +400,26 @@ def make_vector_structures(particle_species, particle_species_reduction, name_of
         current_vector.reset_dataset(d)
         current_vector.set_unit_SI(unit_si)
 
+
+def make_particle_patches_structure(particle_species, particle_species_reduction):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    dtype_patches = particle_species.particle_patches["numParticles"][SCALAR].dtype
+    extent = particle_species.particle_patches["numParticles"][SCALAR].shape[0]
+
+
+    dset = Dataset(dtype_patches, extent=[extent])
+
+    particle_species_reduction.particle_patches["numParticles"][SCALAR].reset_dataset(dset)
+    particle_species_reduction.particle_patches["numParticlesOffset"][SCALAR]. \
+        reset_dataset(dset)
+
+    patches_structure = particle_species.particle_patches
+    patches_structure_reduction = particle_species_reduction.particle_patches
+    make_vector_structures(patches_structure, patches_structure_reduction, "offset", -1)
+    make_vector_structures(patches_structure, patches_structure_reduction, "extent", -1)
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
