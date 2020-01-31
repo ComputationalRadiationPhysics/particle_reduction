@@ -79,6 +79,18 @@ def copy_attributes(start_obj, end_obj):
         end_obj.set_attribute(attr, start_obj.get_attribute(attr))
 
 
+def copy_iteration_parameters(current_iteration, reduction_iteration):
+
+    time_unit_SI = current_iteration.time_unit_SI()
+    time = current_iteration.time()
+    dt = current_iteration.dt()
+
+    copy_attributes(current_iteration, reduction_iteration)
+    reduction_iteration.set_time(time) \
+        .set_dt(dt) \
+        .set_time_unit_SI(time_unit_SI)
+
+
 def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, parameters):
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
