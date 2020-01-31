@@ -138,14 +138,14 @@ def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, paramet
         process_iteration_group(type, group, hdf_file_reduction, parameters)
 
 
-def process_reduction_group(type, group, hdf_file, hdf_file_reduction, parameters):
+def check_item_exist(particle_species, name_item):
 
-    mass = read_hdf_file.read_mass(group)
-    algorithm = Algorithm.factory(type, parameters, mass)
-    name_idx = group.name.rfind("/")
-    current_group_name = group.name[name_idx + 1: len(group.name)]
+    item_exist = False
+    for value in particle_species.items():
+        if value[0] == name_item:
+            item_exist = True
 
-    if type == "kmeans" or type == "kmeans_avg":
+    return item_exist
 
         if current_group_name == 'e':
             algorithm.divisions = [32, 60]
