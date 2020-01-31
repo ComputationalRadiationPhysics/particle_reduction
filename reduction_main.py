@@ -91,6 +91,30 @@ def copy_iteration_parameters(current_iteration, reduction_iteration):
         .set_time_unit_SI(time_unit_SI)
 
 
+def copy_meshes(series_hdf, reduction_series, current_iteration, reduction_iteration):
+
+    mesh_record_start = current_iteration.meshes
+    mesh_record_end = reduction_iteration.meshes
+
+    copy_attributes(mesh_record_start, mesh_record_end)
+
+    for mesh in current_iteration.meshes:
+        current_mesh = current_iteration.meshes[mesh]
+        reduction_mesh = reduction_iteration.meshes[mesh]
+        copy_attributes(current_mesh, reduction_mesh)
+        for component in current_mesh:
+            mesh_component = current_mesh[component]
+            component_values = current_mesh[component][()]
+            reduction_values = reduction_mesh[component]
+            series_hdf.flush()
+            dset = Dataset(component_values.dtype, extent=[len(component_values), len(component_values[0])])
+
+            copy_attributes(mesh_component, reduction_values)
+            reduction_values.reset_dataset(dset)
+
+            reduction_mesh[component][()] = component_values
+            reduction_series.flush()
+
 def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, parameters):
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
