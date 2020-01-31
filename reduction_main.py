@@ -383,6 +383,23 @@ def is_vector_exist(vector_name, particle_species):
     return False
 
 
+def make_vector_structures(particle_species, particle_species_reduction, name_of_structure, struction_size):
+
+    position = particle_species[name_of_structure]
+    position_redutcion = particle_species_reduction[name_of_structure]
+
+    for vector in position:
+
+        if struction_size == -1:
+            struction_size = position[vector].shape[0]
+        dtype = position[vector].dtype
+        d = Dataset(dtype, [struction_size])
+        unit_si = position[vector].unit_SI
+
+        current_vector = position_redutcion[vector]
+        current_vector.reset_dataset(d)
+        current_vector.set_unit_SI(unit_si)
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
