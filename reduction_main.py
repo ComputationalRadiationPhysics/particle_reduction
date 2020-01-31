@@ -199,17 +199,6 @@ def get_dimensions(position_values, momentum_values):
     return dimensions
 
 
-def get_patches_ranges(hdf_file, group, position_collection):
-
-    num_particles, num_particles_offset = read_hdf_file.read_patches_values(group)
-    ranges_patches = num_particles_offset
-    size = hdf_file[position_collection.vector[0]][()].size
-    ranges_patches = numpy.append(ranges_patches, int(size))
-    ranges_patches.astype(int)
-
-    return ranges_patches
-
-
 def writing_reduced_information(rewrite_start_node, hdf_file_reduction, relative_coordinates,
                                 hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, weights):
 
