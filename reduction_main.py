@@ -72,9 +72,11 @@ def copy_all_root_attributes(series_hdf, series_hdf_reduction):
     series_hdf_reduction.set_software(series_hdf.software)
     series_hdf_reduction.set_software_version(series_hdf.software_version)
 
-    for group in particles_collect.particles_groups:
-        print('name group '+ str(group.name))
-        process_reduction_group(type, group, hdf_file, hdf_file_reduction, parameters)
+
+def copy_attributes(start_obj, end_obj):
+
+    for attr in start_obj.attributes:
+        end_obj.set_attribute(attr, start_obj.get_attribute(attr))
 
 
 def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, parameters):
