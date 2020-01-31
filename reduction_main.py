@@ -297,6 +297,22 @@ def get_absolute_momentum(series, momentum_values, idx_start, idx_end):
 
     return absolute_momentum
 
+
+def create_input_data(absolute_coordinates, absolute_momentum, bound_elctrons):
+
+    result_data = []
+
+    for i in range(0, len(absolute_coordinates)):
+        value = []
+        if len(bound_elctrons) == 0:
+            value = numpy.concatenate((absolute_coordinates[0], absolute_momentum[0]), axis=None)
+        else:
+            value = numpy.concatenate((absolute_coordinates[i], absolute_momentum[i], bound_elctrons[i]), axis=None)
+
+        result_data.append(value)
+
+    return result_data
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
