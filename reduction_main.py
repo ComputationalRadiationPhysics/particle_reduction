@@ -374,6 +374,15 @@ def get_units_si(position, position_offset, momentum):
     return position_si, position_offset_si, momentum_si
 
 
+def is_vector_exist(vector_name, particle_species):
+
+    for key in particle_species:
+        if key == vector_name:
+            return True
+
+    return False
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
