@@ -115,6 +115,22 @@ def copy_meshes(series_hdf, reduction_series, current_iteration, reduction_itera
             reduction_mesh[component][()] = component_values
             reduction_series.flush()
 
+
+def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type_algorithm, parameters):
+
+    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access_Type.read_only)
+    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access_Type.create)
+
+    copy_all_root_attributes(series_hdf, series_hdf_reduction)
+    algorithm = Algorithm.factory(type_algorithm, parameters, 1.)
+    for iteration in series_hdf.iterations:
+        current_iteration = series_hdf.iterations[iteration]
+        reduction_iteration = series_hdf_reduction.iterations[iteration]
+        copy_iteration_parameters(current_iteration, reduction_iteration)
+        copy_meshes(series_hdf, series_hdf_reduction, current_iteration, reduction_iteration)
+        process_iteration_group(algorithm, current_iteration, series_hdf, series_hdf_reduction, reduction_iteration)
+
+
 def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, parameters):
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
