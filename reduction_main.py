@@ -147,12 +147,16 @@ def check_item_exist(particle_species, name_item):
 
     return item_exist
 
-        if current_group_name == 'e':
-            algorithm.divisions = [32, 60]
-        else:
-            algorithm.divisions = [16, 40]
-    print("current_group_name " + str(current_group_name))
-    process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm)
+
+def process_iteration_group(algorithm, iteration, series_hdf, series_hdf_reduction, reduction_iteration):
+
+    for name_group in iteration.particles:
+
+        if not (check_item_exist(iteration.particles[name_group], "momentum") and
+                check_item_exist(iteration.particles[name_group], "position")):
+            continue
+        process_patches_in_group_v2(iteration.particles[name_group], series_hdf,
+                                    series_hdf_reduction, reduction_iteration.particles[name_group], algorithm)
 
 
 def process_patches_in_group(hdf_file_reduction, group, algorithm):
