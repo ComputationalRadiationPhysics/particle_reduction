@@ -16,6 +16,10 @@ import Algorithms.Voronoi_algorithm as Voronoi_algorithm
 import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
 import Algorithms.Voronoi_probabilistic_algorithm as Voronoi_probabilistic_algorithm
 
+import openpmd_api
+
+from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component, \
+    Unit_Dimension
 
 class Dimensions:
     def __init__(self, dimension_position, dimension_momentum):
@@ -53,14 +57,20 @@ class Algorithm:
     factory = staticmethod(factory)
 
 
-def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type, parameters):
+def copy_all_root_attributes(series_hdf, series_hdf_reduction):
 
-    print("base_reduction_function")
+    series_hdf_reduction.set_author(series_hdf.author)
 
-    copyfile(hdf_file_name, hdf_file_reduction_name)
-    hdf_file = h5py.File(hdf_file_name, 'a')
+    series_hdf_reduction.set_date(series_hdf.date)
+    series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
+    series_hdf_reduction.set_iteration_format(series_hdf.iteration_format)
+    series_hdf_reduction.set_meshes_path(series_hdf.meshes_path)
 
-    particles_collect, hdf_file_reduction = get_particles_groups(hdf_file, hdf_file_reduction_name)
+    series_hdf_reduction.set_openPMD(series_hdf.openPMD)
+    series_hdf_reduction.set_openPMD_extension(series_hdf.openPMD_extension)
+    series_hdf_reduction.set_particles_path(series_hdf.particles_path)
+    series_hdf_reduction.set_software(series_hdf.software)
+    series_hdf_reduction.set_software_version(series_hdf.software_version)
 
     for group in particles_collect.particles_groups:
         print('name group '+ str(group.name))
