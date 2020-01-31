@@ -353,6 +353,27 @@ def get_relative_coordinates(absolute_values, unit_si_offset,
 
     return relative_result, offset
 
+
+def get_units_si(position, position_offset, momentum):
+
+    position_si = []
+    position_offset_si = []
+    for value in position.items():
+        name_value = value[0]
+        position_axis = position[name_value]
+        position_offset_axis = position_offset[str(name_value)]
+        position_si.append(position_axis.unit_SI)
+        position_offset_si.append(position_offset_axis.unit_SI)
+
+    momentum_si = []
+    for value in momentum.items():
+        name_value = value[0]
+        momentum_axis = momentum[name_value]
+        momentum_si.append(momentum_axis.unit_SI)
+
+    return position_si, position_offset_si, momentum_si
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
