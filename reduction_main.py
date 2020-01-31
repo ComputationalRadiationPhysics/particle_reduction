@@ -236,17 +236,19 @@ def writing_reduced_information(rewrite_start_node, hdf_file_reduction, relative
         group.visititems(write_bound_electrons)
 
 
-def process_patches_in_group_v2(hdf_file, hdf_file_reduction, group, algorithm):
+def absolute_item(values, offset, unit_si_offset, unit_si_position):
 
-    hdf_datasets = read_hdf_file.ParticlesFunctor()
-    group.visititems(hdf_datasets)
+    absolute_result = []
 
-    position_collection, momentum_collection, weighting, bound_electrons = read_hdf_file.read_points_group_v2(hdf_datasets)
+    i = 0
 
-    if position_collection.get_dimension() == 0 or momentum_collection.get_dimension() == 0:
-        return
+    for point in values:
 
-    position_offset, unit_si_offset = read_hdf_file.read_position_offset(hdf_datasets)
+        absolute_coord = point * unit_si_position + offset[i] * unit_si_offset
+        absolute_result.append(absolute_coord)
+        i = +1
+
+    return absolute_result
 
     ranges_patches = get_patches_ranges(hdf_file, group, position_collection)
     dimensions = get_dimensions(position_collection, momentum_collection)
