@@ -269,6 +269,16 @@ def get_absolute_coordinates(series, position, position_offset, idx_start, idx_e
 
     return absolute_coordinates
 
+
+def absolute_momentum_array(array_dataset, unit_si_momentum):
+
+    absolute_momentum = []
+    for point in array_dataset:
+        absolute_momentum.append(point * unit_si_momentum)
+
+    return absolute_momentum
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
