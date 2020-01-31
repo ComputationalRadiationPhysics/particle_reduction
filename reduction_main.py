@@ -135,8 +135,7 @@ def base_reduction_voronoi(hdf_file_name, hdf_file_reduction_name, type, paramet
     particles_collect, hdf_file_reduction = get_particles_groups(hdf_file_name, hdf_file_reduction_name)
 
     for group in particles_collect.particles_groups:
-        print('name group ' + str(group.name))
-        process_reduction_group(type, group, hdf_file_reduction, parameters)
+        process_iteration_group(type, group, hdf_file_reduction, parameters)
 
 
 def process_reduction_group(type, group, hdf_file, hdf_file_reduction, parameters):
