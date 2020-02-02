@@ -434,6 +434,20 @@ def make_copy_vector_structures(particle_species, particle_species_reduction, na
         current_vector.reset_dataset(d)
 
 
+def create_copy_dataset_structures(particle_species, particle_species_reduction):
+
+
+    make_copy_vector_structures(particle_species, particle_species_reduction, "weighting", "weighting_copy")
+
+    make_copy_vector_structures(particle_species, particle_species_reduction, "position", "position_copy")
+    make_copy_vector_structures(particle_species, particle_species_reduction, "momentum", "momentum_copy")
+    make_copy_vector_structures(particle_species, particle_species_reduction, "positionOffset", "positionOffset_copy")
+
+
+    if is_vector_exist("boundElectrons", particle_species):
+        make_copy_vector_structures(particle_species, particle_species_reduction, "boundElectrons",
+                                    "boundElectrons_copy")
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
