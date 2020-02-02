@@ -448,6 +448,23 @@ def create_copy_dataset_structures(particle_species, particle_species_reduction)
         make_copy_vector_structures(particle_species, particle_species_reduction, "boundElectrons",
                                     "boundElectrons_copy")
 
+
+def copy_unit_dimension(obj, reduction_obj):
+
+    unit_dimension = obj.unit_dimension
+
+    dict_units = [Unit_Dimension.L, Unit_Dimension.M, Unit_Dimension.T, Unit_Dimension.I,
+                  Unit_Dimension.theta, Unit_Dimension.N, Unit_Dimension.J]
+
+    result_unit_dimesion = {}
+    i = 0
+    for dict_value in dict_units:
+        result_unit_dimesion[dict_value] = unit_dimension[i]
+        i = i + 1
+
+    reduction_obj.set_unit_dimension(result_unit_dimesion)
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
