@@ -554,6 +554,17 @@ def write_draft_copy(reduced_weight, reduced_data, particle_species, series_hdf_
         bound_electrons[previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
 
+
+def write_patches_information(series_hdf, particle_species, num_particles, num_particles_offset):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+
+    for i in range(0, len(num_particles)):
+        particle_species.particle_patches["numParticles"][SCALAR].store(i, numpy.array([num_particles[i]], dtype=numpy.ulonglong))
+
+    for i in range(0, len(num_particles_offset)):
+        particle_species.particle_patches["numParticlesOffset"][SCALAR].store(i, numpy.array([num_particles_offset[i]],
+                                                                                       dtype=numpy.ulonglong))
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
