@@ -565,6 +565,58 @@ def write_patches_information(series_hdf, particle_species, num_particles, num_p
     for i in range(0, len(num_particles_offset)):
         particle_species.particle_patches["numParticlesOffset"][SCALAR].store(i, numpy.array([num_particles_offset[i]],
                                                                                        dtype=numpy.ulonglong))
+
+def copy_main_version(series_hdf_reduction, particle_species_reduction, result_size):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    series_hdf_reduction.flush()
+    copy_values = particle_species_reduction["weighting_copy"][SCALAR][0:result_size]
+    series_hdf_reduction.flush()
+    particle_species_reduction["weighting"][SCALAR][0:result_size] = copy_values
+    series_hdf_reduction.flush()
+    del particle_species_reduction["weighting_copy"]
+
+    position = particle_species_reduction["position"]
+    momentum = particle_species_reduction["momentum"]
+    position_offset = particle_species_reduction["positionOffset"]
+    position_draft = particle_species_reduction["position_copy"]
+    momentum_draft = particle_species_reduction["momentum_copy"]
+    position_offset_draft = particle_species_reduction["positionOffset_copy"]
+
+    for vector in position_offset_draft:
+        copy_values = position_offset_draft[vector][0:result_size]
+        series_hdf_reduction.flush()
+        position_offset[vector][0:result_size] = copy_values
+        series_hdf_reduction.flush()
+
+    del particle_species_reduction["positionOffset_copy"]
+
+    for vector in position_draft:
+        copy_values = position_draft[vector][0:result_size]
+        series_hdf_reduction.flush()
+        position[vector][0:result_size] = copy_values
+        series_hdf_reduction.flush()
+
+    del particle_species_reduction["position_copy"]
+
+    for vector in momentum_draft:
+        copy_values = momentum_draft[vector][0:result_size]
+        series_hdf_reduction.flush()
+        momentum[vector][0:result_size] = copy_values
+        series_hdf_reduction.flush()
+
+    del particle_species_reduction["momentum_copy"]
+
+    if is_vector_exist("boundElectrons_copy", particle_species_reduction):
+        bound_electrons_draft = particle_species_reduction["boundElectrons_copy"]
+        bound_electrons = particle_species_reduction["boundElectrons"]
+        test_values = bound_electrons_draft[SCALAR][0:result_size]
+        series_hdf_reduction.flush()
+        bound_electrons[SCALAR][0:result_size] = test_values
+        series_hdf_reduction.flush()
+        del particle_species_reduction["boundElectrons_copy"]
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
