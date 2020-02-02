@@ -517,6 +517,43 @@ def count_reduction_size(reduction_percent, num_particles):
     return result_size, num_particles_reduction
 
 
+def write_draft_copy(reduced_weight, reduced_data, particle_species, series_hdf_reduction,
+                     offset, previos_idx, current_idx):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    particle_species["weighting_copy"][SCALAR][previos_idx:current_idx] = reduced_weight
+
+    series_hdf_reduction.flush()
+    position = particle_species["position_copy"]
+    momentum = particle_species["momentum_copy"]
+    position_offset = particle_species["positionOffset_copy"]
+
+    pos_vector_in_reduction_data = 0
+    idx_position_offset_vector = 0
+    for vector in position_offset:
+        current_offset = offset[:, idx_position_offset_vector].astype(numpy.int32)
+        position_offset[vector][previos_idx:current_idx] = current_offset
+        series_hdf_reduction.flush()
+        idx_position_offset_vector = idx_position_offset_vector + 1
+
+    for vector in position:
+        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.float32)
+        position[vector][previos_idx:current_idx] = current_reduced_data
+        series_hdf_reduction.flush()
+        pos_vector_in_reduction_data = pos_vector_in_reduction_data + 1
+
+    for vector in momentum:
+        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.float32)
+        momentum[vector][previos_idx:current_idx] = current_reduced_data
+        series_hdf_reduction.flush()
+        pos_vector_in_reduction_data =pos_vector_in_reduction_data + 1
+
+    if len(reduced_data[0]) > pos_vector_in_reduction_data:
+        bound_electrons = particle_species["boundElectrons_copy"][SCALAR]
+        current_reduced_data = reduced_data[:,pos_vector_in_reduction_data].astype(numpy.float32)
+        bound_electrons[previos_idx:current_idx] = current_reduced_data
+        series_hdf_reduction.flush()
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
