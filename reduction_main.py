@@ -465,6 +465,18 @@ def copy_unit_dimension(obj, reduction_obj):
     reduction_obj.set_unit_dimension(result_unit_dimesion)
 
 
+def copy_momentum_parameters(current_momentum, reduction_momentum):
+
+    for attr in current_momentum.attributes:
+        if attr != "unitDimension" and attr != "timeOffset":
+            reduction_momentum.set_attribute(attr, current_momentum.get_attribute(attr))
+
+    macro_weighted = current_momentum.time_offset
+    reduction_momentum.set_time_offset(macro_weighted)
+
+    copy_unit_dimension(current_momentum, reduction_momentum)
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
