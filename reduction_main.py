@@ -617,6 +617,23 @@ def copy_main_version(series_hdf_reduction, particle_species_reduction, result_s
         del particle_species_reduction["boundElectrons_copy"]
 
 
+def set_scalar_group(particle_species, particle_species_reduction, name_group):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    group = particle_species[name_group]
+    reduction_group = particle_species_reduction[name_group]
+    mass_value = particle_species[name_group][SCALAR][0]
+    mass_reduction = particle_species_reduction[name_group][SCALAR]
+    mass_reduction.make_constant(mass_value)
+    reduction_group.set_time_offset(group.time_offset)
+
+    for attr in group.attributes:
+        if attr != "unitDimension" and attr != "timeOffset":
+            reduction_group.set_attribute(attr, group.get_attribute(attr))
+
+    copy_unit_dimension(group, reduction_group)
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
