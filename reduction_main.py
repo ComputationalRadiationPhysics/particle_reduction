@@ -477,6 +477,31 @@ def copy_momentum_parameters(current_momentum, reduction_momentum):
     copy_unit_dimension(current_momentum, reduction_momentum)
 
 
+def create_dataset_structures(particle_species, particle_species_reduction, reduction_size):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    weights = particle_species["weighting"][SCALAR]
+
+    d = Dataset(weights.dtype, [reduction_size])
+    weights_reduction = particle_species_reduction["weighting"][SCALAR]
+    weights_reduction.reset_dataset(d)
+    make_vector_structures(particle_species, particle_species_reduction, "position", reduction_size)
+    make_vector_structures(particle_species, particle_species_reduction, "momentum", reduction_size)
+    make_vector_structures(particle_species, particle_species_reduction, "positionOffset", reduction_size)
+
+    make_particle_patches_structure(particle_species, particle_species_reduction)
+
+    copy_momentum_parameters(particle_species["position"], particle_species_reduction["position"])
+    copy_momentum_parameters(particle_species["momentum"], particle_species_reduction["momentum"])
+    copy_momentum_parameters(particle_species["positionOffset"], particle_species_reduction["positionOffset"])
+
+    if is_vector_exist("boundElectrons", particle_species):
+
+        bound_electrons = particle_species["boundElectrons"][SCALAR]
+        d = Dataset(bound_electrons.dtype, [reduction_size])
+        weights_reduction = particle_species_reduction["boundElectrons"][SCALAR]
+        weights_reduction.reset_dataset(d)
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
