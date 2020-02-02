@@ -634,6 +634,15 @@ def set_scalar_group(particle_species, particle_species_reduction, name_group):
     copy_unit_dimension(group, reduction_group)
 
 
+def write_scalar_groups(particle_species, particle_species_reduction):
+
+    if is_vector_exist("mass", particle_species):
+        set_scalar_group(particle_species, particle_species_reduction, "mass")
+
+    if is_vector_exist("charge", particle_species):
+        set_scalar_group(particle_species, particle_species_reduction, "charge")
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
