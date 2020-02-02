@@ -643,37 +643,85 @@ def write_scalar_groups(particle_species, particle_species_reduction):
         set_scalar_group(particle_species, particle_species_reduction, "charge")
 
 
+def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reduction,
+                                particle_species_reduction, algorithm):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    num_particles = particle_species.particle_patches["numParticles"][SCALAR].load()
+    series_hdf.flush()
+
+
+    create_copy_dataset_structures(particle_species, particle_species_reduction)
+
+    copy_attributes(particle_species, particle_species_reduction)
+    #
+
+    position_offset = particle_species["positionOffset"]
+    position = particle_species["position"]
+    momentum = particle_species["momentum"]
+
+    weights = particle_species["weighting"][SCALAR]
+
+    bound_electrons = []
+    if is_vector_exist("boundElectrons", particle_species):
+        bound_electrons = particle_species["boundElectrons"][SCALAR]
+
+    dataset_size_max = position['x'].shape[0]
+
+    num_particles_offset = particle_species.particle_patches["numParticlesOffset"][SCALAR].load()
+    series_hdf.flush()
+
+    ranges_patches = numpy.append(num_particles_offset, dataset_size_max)
+
+    absolute_bound_electrons = []
+
+    previos_idx = 0
+    current_idx = 0
+
+    result_size = 0
+
+    new_num_particles = []
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
         idx_end = int(ranges_patches[i + 1])
+        absolute_weights = weights[idx_start:idx_end]
+        series_hdf.flush()
+        absolute_coordinates = get_absolute_coordinates(series_hdf, position, position_offset, idx_start, idx_end)
 
-        unit_si_position = position_collection.get_unit_si_array()
-        unit_si_momentum = momentum_collection.get_unit_si_array()
+        absolute_momentum = get_absolute_momentum(series_hdf, momentum, idx_start, idx_end)
 
-        data = read_hdf_file.create_points_array(hdf_file, idx_start, idx_end, position_collection, momentum_collection, bound_electrons)
+        if len(bound_electrons) != 0:
+            absolute_bound_electrons = bound_electrons[idx_start:idx_end]
+            series_hdf.flush()
 
-        if len(data) == 0:
-            return
+        result_data = create_input_data(absolute_coordinates, absolute_momentum, absolute_bound_electrons)
 
-        weights = read_hdf_file.get_weights(hdf_file, idx_start, idx_end, hdf_datasets.weighting)
+        reduced_data, reduced_weight = algorithm._run(result_data, absolute_weights)
 
-        position_offset_vector = read_hdf_file.get_position_offset(hdf_file, idx_start, idx_end, position_offset)
-        absolute_coordinates = read_hdf_file.get_absolute_coordinates(data, position_offset_vector, unit_si_offset,
-                                                                      unit_si_position, dimensions, unit_si_momentum)
-        copy_data = copy.deepcopy(absolute_coordinates)
+        position_si, position_offset_si, momentum_si = get_units_si(position, position_offset, momentum)
 
-        copy_weights = copy.deepcopy(weights)
-        reduced_data, reduced_weight = algorithm._run(copy_data, copy_weights)
+        relative_result, offset = get_relative_coordinates(reduced_data, position_offset_si, position_si, momentum_si)
+        new_num_particles.append(len(reduced_weight))
+        current_idx += len(reduced_weight)
+        write_draft_copy(reduced_weight, relative_result,
+                         particle_species_reduction, series_hdf_reduction, offset, previos_idx, current_idx)
 
-        relative_coordinates, relative_position_offset = read_hdf_file.get_relative_coordinates(reduced_data, unit_si_offset,
-                                                                              unit_si_position, dimensions,
-                                                                              unit_si_momentum)
 
-        writing_reduced_information(rewrite_start_node, hdf_file_reduction, relative_coordinates,
-                                    hdf_datasets, group, relative_position_offset, dimensions, bound_electrons, reduced_weight)
-        rewrite_start_node = False
+        previos_idx += len(reduced_weight)
+        result_size = previos_idx
 
+    new_num_particles_offset = numpy.cumsum(new_num_particles[0:len(new_num_particles) - 1], dtype=int)
+    new_num_particles_offset = numpy.insert(new_num_particles_offset, 0, 0)
+
+    create_dataset_structures(particle_species, particle_species_reduction, result_size)
+
+    write_patches_information(series_hdf_reduction, particle_species_reduction, new_num_particles,
+                              new_num_particles_offset)
+    write_scalar_groups(particle_species, particle_species_reduction)
+
+    copy_main_version(series_hdf_reduction, particle_species_reduction, result_size)
 
 
 def get_particles_groups(hdf_file, hdf_file_reduction_name):
