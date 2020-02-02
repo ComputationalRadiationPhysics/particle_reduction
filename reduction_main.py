@@ -502,6 +502,21 @@ def create_dataset_structures(particle_species, particle_species_reduction, redu
         weights_reduction = particle_species_reduction["boundElectrons"][SCALAR]
         weights_reduction.reset_dataset(d)
 
+
+def count_reduction_size(reduction_percent, num_particles):
+
+    result_size = 0
+    num_particles_reduction = [0]
+
+    for value in num_particles:
+        patch_size = int(round(value * (1 -reduction_percent)))
+        result_size += patch_size
+        num_particles_reduction.append(patch_size)
+    num_particles_reduction = numpy.cumsum(num_particles_reduction)
+
+    return result_size, num_particles_reduction
+
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
