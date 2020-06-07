@@ -110,7 +110,7 @@ def copy_meshes(series_hdf, reduction_series, current_iteration, reduction_itera
             component_values = current_mesh[component][()]
             reduction_values = reduction_mesh[component]
             series_hdf.flush()
-            dset = Dataset(component_values.dtype, extent=[len(component_values), len(component_values[0]), len(component_values[0][0])])
+            dset = Dataset(component_values.dtype, extent=component_values.shape)
             copy_attributes(mesh_component, reduction_values)
             reduction_values.reset_dataset(dset)
             reduction_mesh[component][()] = component_values
@@ -544,20 +544,23 @@ def write_draft_copy(reduced_weight, reduced_data, particle_species, series_hdf_
 
 
     for vector in position:
-        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.double)
+        current_type = position[vector].dtype
+        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(current_type)
         position[vector][previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
         pos_vector_in_reduction_data = pos_vector_in_reduction_data + 1
 
     for vector in momentum:
-        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.double)
+        current_type = momentum[vector].dtype
+        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(current_type)
         momentum[vector][previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
         pos_vector_in_reduction_data = pos_vector_in_reduction_data + 1
 
     if len(reduced_data[0]) > pos_vector_in_reduction_data:
         bound_electrons = particle_species["boundElectrons_copy"][SCALAR]
-        current_reduced_data = reduced_data[:,pos_vector_in_reduction_data].astype(numpy.double)
+        current_type = bound_electrons.dtype
+        current_reduced_data = reduced_data[:,pos_vector_in_reduction_data].astype(current_type)
         bound_electrons[previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
 
