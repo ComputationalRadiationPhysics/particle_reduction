@@ -21,15 +21,17 @@ import openpmd_api
 from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component, \
     Unit_Dimension
 
+
 class Dimensions:
     def __init__(self, dimension_position, dimension_momentum):
         self.dimension_position = dimension_position
         self.dimension_momentum = dimension_momentum
 
 
+
 class Algorithm:
     # Create based on class name:
-    def factory( type, parameters, mass):
+    def factory(type, parameters, mass):
 
         if type == "random": return Random_thinning_algorithm.Random_thinning_algorithm(parameters.reduction_percent)
         if type == "number_conservative": return Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(parameters.reduction_percent)
@@ -59,7 +61,7 @@ class Algorithm:
 
 def copy_all_root_attributes(series_hdf, series_hdf_reduction):
 
-    series_hdf_reduction.set_author(series_hdf.author)
+#    series_hdf_reduction.set_author(series_hdf.author)
 
     series_hdf_reduction.set_date(series_hdf.date)
     series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
@@ -76,6 +78,7 @@ def copy_all_root_attributes(series_hdf, series_hdf_reduction):
 def copy_attributes(start_obj, end_obj):
 
     for attr in start_obj.attributes:
+
         end_obj.set_attribute(attr, start_obj.get_attribute(attr))
 
 
@@ -107,11 +110,9 @@ def copy_meshes(series_hdf, reduction_series, current_iteration, reduction_itera
             component_values = current_mesh[component][()]
             reduction_values = reduction_mesh[component]
             series_hdf.flush()
-            dset = Dataset(component_values.dtype, extent=[len(component_values), len(component_values[0])])
-
+            dset = Dataset(component_values.dtype, extent=[len(component_values), len(component_values[0]), len(component_values[0][0])])
             copy_attributes(mesh_component, reduction_values)
             reduction_values.reset_dataset(dset)
-
             reduction_mesh[component][()] = component_values
             reduction_series.flush()
 
@@ -489,7 +490,8 @@ def create_dataset_structures(particle_species, particle_species_reduction, redu
     make_vector_structures(particle_species, particle_species_reduction, "momentum", reduction_size)
     make_vector_structures(particle_species, particle_species_reduction, "positionOffset", reduction_size)
 
-    make_particle_patches_structure(particle_species, particle_species_reduction)
+    if is_vector_exist("numParticles", particle_species):
+        make_particle_patches_structure(particle_species, particle_species_reduction)
 
     copy_momentum_parameters(particle_species["position"], particle_species_reduction["position"])
     copy_momentum_parameters(particle_species["momentum"], particle_species_reduction["momentum"])
@@ -517,6 +519,16 @@ def count_reduction_size(reduction_percent, num_particles):
     return result_size, num_particles_reduction
 
 
+def write_reduction_vector(particle_species, name_vector, series_hdf_reduction, reduction_vector, pos_in_vector,
+                           previos_idx, current_idx):
+
+    position_offset = particle_species[name_vector]
+    for vector in position_offset:
+        current_offset = reduction_vector[:, pos_in_vector].astype(numpy.int32)
+        position_offset[vector][previos_idx:current_idx] = current_offset
+        series_hdf_reduction.flush()
+        idx_position_offset_vector = idx_position_offset_vector + 1
+
 def write_draft_copy(reduced_weight, reduced_data, particle_species, series_hdf_reduction,
                      offset, previos_idx, current_idx):
 
@@ -526,31 +538,26 @@ def write_draft_copy(reduced_weight, reduced_data, particle_species, series_hdf_
     series_hdf_reduction.flush()
     position = particle_species["position_copy"]
     momentum = particle_species["momentum_copy"]
-    position_offset = particle_species["positionOffset_copy"]
+
 
     pos_vector_in_reduction_data = 0
-    idx_position_offset_vector = 0
-    for vector in position_offset:
-        current_offset = offset[:, idx_position_offset_vector].astype(numpy.int32)
-        position_offset[vector][previos_idx:current_idx] = current_offset
-        series_hdf_reduction.flush()
-        idx_position_offset_vector = idx_position_offset_vector + 1
+
 
     for vector in position:
-        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.float32)
+        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.double)
         position[vector][previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
         pos_vector_in_reduction_data = pos_vector_in_reduction_data + 1
 
     for vector in momentum:
-        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.float32)
+        current_reduced_data = reduced_data[:, pos_vector_in_reduction_data].astype(numpy.double)
         momentum[vector][previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
-        pos_vector_in_reduction_data =pos_vector_in_reduction_data + 1
+        pos_vector_in_reduction_data = pos_vector_in_reduction_data + 1
 
     if len(reduced_data[0]) > pos_vector_in_reduction_data:
         bound_electrons = particle_species["boundElectrons_copy"][SCALAR]
-        current_reduced_data = reduced_data[:,pos_vector_in_reduction_data].astype(numpy.float32)
+        current_reduced_data = reduced_data[:,pos_vector_in_reduction_data].astype(numpy.double)
         bound_electrons[previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
 
@@ -643,18 +650,40 @@ def write_scalar_groups(particle_species, particle_species_reduction):
         set_scalar_group(particle_species, particle_species_reduction, "charge")
 
 
+def get_chunk_sizes(particle_species, series_hdf):
+
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+
+    dataset_size_max = particle_species["position"]["x"].shape[0]
+    max_chunk_size = 1e7
+
+    ranges_patches = []
+
+    if is_vector_exist("numParticlesOffset", particle_species):
+        ranges_patches = particle_species.particle_patches["numParticlesOffset"][SCALAR].load()
+        series_hdf.flush()
+        ranges_patches = numpy.append(ranges_patches, dataset_size_max)
+    else:
+        num_full_chunks = dataset_size_max/max_chunk_size
+        if num_full_chunks > 1:
+            ranges_patches = numpy.full(dataset_size_max, num_full_chunks)
+            ranges_patches = numpy.append(ranges_patches, dataset_size_max - max_chunk_size * num_full_chunks)
+        else:
+            ranges_patches = numpy.append(ranges_patches, 0)
+            ranges_patches = numpy.append(ranges_patches, dataset_size_max)
+
+    return ranges_patches
+
+
 def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reduction,
                                 particle_species_reduction, algorithm):
 
     SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
-    num_particles = particle_species.particle_patches["numParticles"][SCALAR].load()
-    series_hdf.flush()
-
 
     create_copy_dataset_structures(particle_species, particle_species_reduction)
 
     copy_attributes(particle_species, particle_species_reduction)
-    #
+
 
     position_offset = particle_species["positionOffset"]
     position = particle_species["position"]
@@ -666,14 +695,10 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
     if is_vector_exist("boundElectrons", particle_species):
         bound_electrons = particle_species["boundElectrons"][SCALAR]
 
-    dataset_size_max = position['x'].shape[0]
 
-    num_particles_offset = particle_species.particle_patches["numParticlesOffset"][SCALAR].load()
-    series_hdf.flush()
-
-    ranges_patches = numpy.append(num_particles_offset, dataset_size_max)
 
     absolute_bound_electrons = []
+    ranges_patches = get_chunk_sizes(particle_species, series_hdf)
 
     previos_idx = 0
     current_idx = 0
@@ -788,11 +813,9 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
     ranges_patches = numpy.append(ranges_patches, len(data))
     ranges_patches.astype(int)
 
-
     reduced_data = []
     reduced_weights = []
     result_num_particles = []
-
 
     for i in range(0, len(ranges_patches) - 1):
         start = int(ranges_patches[i])
@@ -812,7 +835,7 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
             reduced_weights.append(weight)
 
         end_time = time.time()
-        print('TIME ' + str(end_time - start_time))
+
         result_num_particles.append(len(reduced_data_patch))
 
     return reduced_data, reduced_weights, result_num_particles
@@ -886,9 +909,6 @@ if __name__ == "__main__":
     elif args.algorithm == 'kmeans_avg':
         parameters = k_means_merge_average_algorithm.K_means_merge_average_algorithm_parameters(args.reduction_percent)
         base_reduction_function(args.hdf, args.hdf_re, "kmeans_avg", parameters)
-
-    elif args.algorithm == 'vranic_algorithm':
-        Vranic_algorithm_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.particles_type)
 
     elif args.algorithm == 'leveling':
         parameters = Leveling_thinning_algorithm.Leveling_thinning_algorithm_parameters(args.leveling_coefficient)

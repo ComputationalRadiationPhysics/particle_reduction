@@ -217,6 +217,3 @@ def check_statistical_subdivision(cell, size_of_divide_particles):
 
 
 
-
-
-

@@ -93,7 +93,6 @@ class K_means_merge_average_algorithm:
         result_weights = []
 
         for i in range(0, len(num_particles_offset) - 1):
-            print('i iteration == '+ str(i))
 
             current_data, current_weights = self.iterate_cell(
                 moved_values[num_particles_offset[i]:num_particles_offset[i + 1]],
@@ -142,15 +141,9 @@ class K_means_merge_average_algorithm:
         num_to_keep = size - num_to_remove
         data_copy = self.normalize_array(data)
 
-        start = time.time()
-
-
         kmeans = MiniBatchKMeans(n_clusters=num_to_keep, max_iter=self.max_iterations,
                                  batch_size=num_to_keep * 3, tol=self.tolerance)\
             .fit(data_copy)
-
-        end = time.time()
-        print('TIME ' + str(end - start))
 
         result_data, result_weights = recount_data(dimension, num_to_keep, kmeans.labels_, data, weights_copy)
 

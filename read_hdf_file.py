@@ -211,6 +211,14 @@ class vector_writer():
         else:
             self.resize_writing(node, self.vector_values[:, type_idx])
 
+    def node_exists(self, name):
+        e = True
+        try:
+            self.hdf_file[name]
+        except KeyError:
+            e = False
+        return e
+
     def first_part_writing(self, node, values):
 
         attributes = {}
@@ -686,7 +694,7 @@ def create_datasets_from_vector(reduced_data, dimensions, position_offset):
 def write_group_values(hdf_file_reduction, group, reduced_data, weights):
     """
 
-    write values from point library to hdf file
+    write values from point library to hdf fileParticlesGroups
     hdf_file_reduction -- result file
     group -- base group of partilces from original file
     result -- library points
