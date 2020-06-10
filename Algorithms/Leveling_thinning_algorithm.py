@@ -2,15 +2,15 @@ import numpy
 
 
 class Leveling_thinning_algorithm_parameters:
-    def __init__(self, awg_weight_coef):
+    def __init__(self, leveling_coefficient):
         """..."""
-        self.awg_weight_coef = awg_weight_coef
+        self.leveling_coefficient = leveling_coefficient
 
 
 class Leveling_thinning_algorithm:
 
-    def __init__(self, awg_weight_coef):
-        self.awg_weight_coef = awg_weight_coef
+    def __init__(self, leveling_coefficient):
+        self.leveling_coefficient = leveling_coefficient
         self.dimensions = None
 
     def _run(self, data, weigths, dimensions):
@@ -19,7 +19,7 @@ class Leveling_thinning_algorithm:
         data = numpy.array(data)
         weigths = numpy.array(weigths)
         avg_weight = sum(weigths)/size
-        weight_value_of_reduced_particle = self.awg_weight_coef * avg_weight
+        weight_value_of_reduced_particle = self.leveling_coefficient * avg_weight
 
         indices_to_remove = get_indices_to_remove(weight_value_of_reduced_particle, weigths)
         all_data_indexes = numpy.array(range(size))

@@ -163,6 +163,9 @@ def _merge(data, weights, parameters, dimensions):
     result_vector = []
     result_weights = []
     cells = [initial_cell]
+    print(len(data))
+    print(dimensions.dimension_position)
+    print(dimensions.dimension_momentum)
     while len(cells) > 0:
         cell = cells[0]
 

@@ -77,6 +77,11 @@ class K_means_clustering_algorithm:
         self.min_max_values = []
 
     def _run(self, data, weights, dimensions):
+
+        self.dimensions = dimensions
+        if dimensions.dimension_position == 2:
+            self.divisions = self.divisions[0:2]
+
         if len(data) == 0:
             return [], []
         data = numpy.array(data)
@@ -98,7 +103,6 @@ class K_means_clustering_algorithm:
         result_weights = []
 
         for i in range(0, len(num_particles_offset) - 1):
-            print('i iteration '+ str(i))
             current_data, current_weights = self.iterate_cell(moved_values[num_particles_offset[i]:num_particles_offset[i + 1]],
                               moved_weights[num_particles_offset[i]:num_particles_offset[i + 1]])
 
@@ -107,6 +111,9 @@ class K_means_clustering_algorithm:
 
             for weight in current_weights:
                 result_weights.append(weight)
+
+        result_data = numpy.asarray(result_data)
+        result_weights = numpy.asarray(result_weights)
 
         return result_data, result_weights
 
