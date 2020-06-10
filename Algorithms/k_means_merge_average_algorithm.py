@@ -63,7 +63,7 @@ class K_means_merge_average_algorithm:
     """
     """
 
-    def __init__(self, reduction_percent, max_iterations, tolerance, divisions):
+    def __init__(self, reduction_percent, divisions, max_iterations=30, tolerance=0.1):
         self.reduction_percent = reduction_percent
         self.max_iterations = max_iterations
         self.tolerance = tolerance
@@ -72,6 +72,10 @@ class K_means_merge_average_algorithm:
         self.min_max_values = []
 
     def _run(self, data, weights, dimensions):
+
+        self.dimensions = dimensions
+        if dimensions.dimension_position == 2:
+            self.divisions = self.divisions[0:2]
 
         data = numpy.array(data)
         coordinates_without_bound_electrons = self.dimensions.dimension_position + self.dimensions.dimension_momentum

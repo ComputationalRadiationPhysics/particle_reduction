@@ -38,13 +38,13 @@ class Algorithm:
         if type == "energy_conservative":
             return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(parameters.reduction_percent, mass)
         if type == "kmeans":
-            divisions = [16, 40]
+            divisions = [16, 16, 4]
             return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
                                                                              divisions)
         if type == "kmeans_avg":
-            divisions = [32, 60]
-            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
-                                                                                   divisions)
+            divisions = [32, 60, 16]
+            return k_means_merge_average_algorithm.K_means_merge_average_algorithm(parameters.reduction_percent, divisions,
+                                                                                   parameters.max_iterations, parameters.tolerance)
         if type == "voronoi":
             return Voronoi_algorithm.VoronoiMergingAlgorithm(parameters.tolerance)
         if type == "voronoi_prob":
@@ -60,9 +60,6 @@ class Algorithm:
 
 
 def copy_all_root_attributes(series_hdf, series_hdf_reduction):
-
-#    series_hdf_reduction.set_author(series_hdf.author)
-
     series_hdf_reduction.set_date(series_hdf.date)
     series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
     series_hdf_reduction.set_iteration_format(series_hdf.iteration_format)
@@ -754,7 +751,6 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
         write_draft_copy(reduced_weight, relative_result,
                          particle_species_reduction, series_hdf_reduction, offset, previos_idx, current_idx)
 
-
         previos_idx += len(reduced_weight)
         result_size = previos_idx
 
@@ -790,11 +786,6 @@ def number_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_nam
     parameters = Number_conservative_thinning_algorithm.\
         Number_conservative_thinning_algorithm_parameters(reduction_percent)
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "number_conservative", parameters)
-
-
-def leveling_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, leveling_coefficient):
-    algorithm = Leveling_thinning_algorithm.Leveling_thinning_algorithm(leveling_coefficient)
-    thinning_base_procedure(hdf_file_name, hdf_file_reduction_name, algorithm)
 
 
 def energy_conservative_thinning_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_percent):
@@ -864,7 +855,10 @@ def iterate_patches(data, weights, num_particles_offset, algorithm):
 
 
 if __name__ == "__main__":
-    """ Parse arguments from command line """
+    """ Parse arguments from command line 
+    
+    
+    """
 
     parser = argparse.ArgumentParser(description="main reduction")
 
@@ -872,34 +866,25 @@ if __name__ == "__main__":
                         help="hdf file without patches")
 
     parser.add_argument("-hdf", metavar='hdf_file', type=str,
-                        help="hdf file without patches")
+                        help="hdf file to be reducted")
 
     parser.add_argument("-hdf_re", metavar='hdf_file_reduction', type=str,
-                        help="reducted hdf file")
+                        help="result reduction hdf file")
 
     parser.add_argument("-reduction_percent", metavar='reduction_percent', type=float,
-                        help="part of the particles to reduce")
-
-    parser.add_argument("-sample_amount", metavar='sample_amount', type=int,
-                        help="amount of sample ")
+                        help="part of the particles to reduce( used in Energy_conservative, random, number_conservative,"
+                             "kmeans, kmeans_avg algorithms and in voronoi probalistic algorithm )")
 
     parser.add_argument("-momentum_tol", metavar='tolerance_momentum', type=float,
-                        help="tolerance of momentum")
+                        help="tolerance of momentum ( in SI ), used in voronoi algorithm")
 
     parser.add_argument("-position_lol", metavar='tolerance_position', type=float,
-                        help="tolerance of position")
+                        help="tolerance of position( in SI ), used in voronoi algorithm")
 
-    parser.add_argument("-particles_type", metavar='particles_type', type=str,
-                        help="types of particles")
 
     parser.add_argument("-leveling_coefficient", metavar='leveling_coefficient', type=float,
-                        help="leveling_coefficient")
+                        help="leveling_coefficient, used in leveling algorithm")
 
-    parser.add_argument("-k_means_subdivision", metavar='leveling_coefficient', type=list,
-                        help="leveling_coefficient")
-
-    parser.add_argument("-divide_particles", metavar='size_of_divide_particles', type=float,
-                        help="size_of_divide_particles")
 
     args = parser.parse_args()
 

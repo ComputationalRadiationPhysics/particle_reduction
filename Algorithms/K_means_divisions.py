@@ -36,7 +36,7 @@ def move_values(data, final_size, new_indexes, weights):
     moved_values = []
     moved_weights = np.zeros(len(weights))
     for i in range(0, size):
-        moved_values.append( np.zeros(dimension))
+        moved_values.append(np.zeros(dimension))
 
     for i in range(0, len(final_size) - 1):
         for j in range(int(final_size[i]), int(final_size[i + 1])):
@@ -129,8 +129,9 @@ def points_to_patches(patch_data):
 
     list_number_particles_in_parts = np.zeros(patch_data.get_size_split() + 1, dtype=int)
     links_to_array = []
+
     for i in range(0, patch_data.get_array_lenght()):
-        particle_idx = patch_data. get_position_idx(i)
+        particle_idx = patch_data.get_position_idx(i)
         sum_links = list_number_particles_in_parts[particle_idx]
         list_number_particles_in_parts[particle_idx] = sum_links + 1
         links_to_array.append(particle_idx)
@@ -143,10 +144,3 @@ def count_patches_sizes(size_array, size_indexes, list_number_particles_in_parts
 
     amount_particles_in_patches = count_cells_sizes(links_to_array, final_size, size_indexes, size_array)
     return amount_particles_in_patches, final_size
-
-
-
-
-
-
-

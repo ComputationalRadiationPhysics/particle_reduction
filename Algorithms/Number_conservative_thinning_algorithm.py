@@ -28,7 +28,10 @@ class Number_conservative_thinning_algorithm:
         num_indexes_to_keep = numpy.array(indexes_to_keep)[:, 0]
         weights_to_keep = recount_weights(weigths, sample, number_of_k_sample, indexes_to_keep)
 
-        return data[num_indexes_to_keep], weights_to_keep
+        result_data = numpy.asarray(data[num_indexes_to_keep])
+        result_weights = numpy.asarray(weights_to_keep)
+
+        return result_data, result_weights
 
 
 def get_random_sample(weights, number_of_k_sample):

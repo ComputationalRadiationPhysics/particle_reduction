@@ -19,7 +19,8 @@ class Energy_conservative_thinning_algorithm:
 
     def _run(self, data, weigths, dimensions):
 
-        start_time = time.time()
+        self.dimensions = dimensions
+
         size = len(data)
         number_of_k_sample = int((1 - self.ratio) * size)
         data = numpy.array(data)
@@ -36,9 +37,12 @@ class Energy_conservative_thinning_algorithm:
 
         weights_to_keep = recount_weights(weigths, sample, number_of_k_sample, indexes_to_keep, energy_values, sum_weighted_energy)
         end_time = time.time()
-        print('TIME ' + str(end_time - start_time))
 
-        return data[num_indexes_to_keep], weights_to_keep
+
+        result_data = numpy.asarray(data[num_indexes_to_keep])
+        result_weights = numpy.asarray(weights_to_keep)
+
+        return result_data, result_weights
 
 
 def calculate_energy_from_momentum(momentum, mass):
