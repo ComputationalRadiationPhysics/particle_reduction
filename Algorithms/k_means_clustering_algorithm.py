@@ -76,7 +76,7 @@ class K_means_clustering_algorithm:
         self.divisions = divisions
         self.min_max_values = []
 
-    def _run(self, data, weights):
+    def _run(self, data, weights, dimensions):
         if len(data) == 0:
             return [], []
         data = numpy.array(data)

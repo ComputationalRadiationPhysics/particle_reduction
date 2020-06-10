@@ -14,7 +14,7 @@ class Random_thinning_algorithm:
         self.reduction_percent = reduction_percent
         self.dimensions = None
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, dimensions):
         size = len(data)
 
         data = numpy.array(data)

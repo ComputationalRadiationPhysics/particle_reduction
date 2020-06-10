@@ -306,7 +306,7 @@ def create_input_data(absolute_coordinates, absolute_momentum, bound_elctrons):
     for i in range(0, len(absolute_coordinates)):
         value = []
         if len(bound_elctrons) == 0:
-            value = numpy.concatenate((absolute_coordinates[0], absolute_momentum[0]), axis=None)
+            value = numpy.concatenate((absolute_coordinates[i], absolute_momentum[i]), axis=None)
         else:
             value = numpy.concatenate((absolute_coordinates[i], absolute_momentum[i], bound_elctrons[i]), axis=None)
 
@@ -533,6 +533,7 @@ def write_draft_copy(reduced_weight, reduced_data, particle_species, series_hdf_
                      offset, previos_idx, current_idx):
 
     SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+
     particle_species["weighting_copy"][SCALAR][previos_idx:current_idx] = reduced_weight
 
     series_hdf_reduction.flush()
@@ -677,6 +678,20 @@ def get_chunk_sizes(particle_species, series_hdf):
 
     return ranges_patches
 
+def get_dimentions(position, momentum):
+
+    dimension_momentum = 0
+    for obj in momentum.items():
+        dimension_momentum = dimension_momentum + 1
+
+    dimension_position = 0
+    for obj in position.items():
+        dimension_position = dimension_position + 1
+
+    dimensions = Dimensions(dimension_position, dimension_momentum)
+
+    return dimensions
+
 
 def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reduction,
                                 particle_species_reduction, algorithm):
@@ -710,13 +725,17 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
 
     new_num_particles = []
 
+    dimensions = get_dimentions(position, momentum)
+
     for i in range(0, len(ranges_patches) - 1):
 
         idx_start = int(ranges_patches[i])
         idx_end = int(ranges_patches[i + 1])
+
         absolute_weights = weights[idx_start:idx_end]
         series_hdf.flush()
         absolute_coordinates = get_absolute_coordinates(series_hdf, position, position_offset, idx_start, idx_end)
+
 
         absolute_momentum = get_absolute_momentum(series_hdf, momentum, idx_start, idx_end)
 
@@ -725,8 +744,7 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
             series_hdf.flush()
 
         result_data = create_input_data(absolute_coordinates, absolute_momentum, absolute_bound_electrons)
-
-        reduced_data, reduced_weight = algorithm._run(result_data, absolute_weights)
+        reduced_data, reduced_weight = algorithm._run(result_data, absolute_weights, dimensions)
 
         position_si, position_offset_si, momentum_si = get_units_si(position, position_offset, momentum)
 
@@ -805,6 +823,7 @@ def voronoi_prob_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_per
 def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, position_tolerance):
 
     tolerance = [momentum_tolerance, position_tolerance]
+
     parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "voronoi", parameters)
 
@@ -867,7 +886,7 @@ if __name__ == "__main__":
     parser.add_argument("-momentum_tol", metavar='tolerance_momentum', type=float,
                         help="tolerance of momentum")
 
-    parser.add_argument("-momentum_pos", metavar='tolerance_position', type=float,
+    parser.add_argument("-position_lol", metavar='tolerance_position', type=float,
                         help="tolerance of position")
 
     parser.add_argument("-particles_type", metavar='particles_type', type=str,
@@ -885,8 +904,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.algorithm == 'voronoi':
-        tolerance = [args.momentum_tol, args.momentum_pos]
+        tolerance = [args.momentum_tol, args.position_lol]
         parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
+        voronoi_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.position_lol)
         base_reduction_function(args.hdf, args.hdf_re, "voronoi", parameters)
 
     elif args.algorithm == 'voronoi_prob':

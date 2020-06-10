@@ -15,7 +15,7 @@ class Number_conservative_thinning_algorithm:
         self.reduction_percent = reduction_percent
         self.dimensions = None
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, dimensions):
 
         size = len(data)
         if size == 0:

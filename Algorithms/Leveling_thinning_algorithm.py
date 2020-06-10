@@ -13,7 +13,7 @@ class Leveling_thinning_algorithm:
         self.awg_weight_coef = awg_weight_coef
         self.dimensions = None
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, dimensions):
         size = len(data)
 
         data = numpy.array(data)

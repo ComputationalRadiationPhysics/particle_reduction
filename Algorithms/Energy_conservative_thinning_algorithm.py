@@ -17,7 +17,7 @@ class Energy_conservative_thinning_algorithm:
         self.mass = mass
         self.dimensions = None
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, dimensions):
 
         start_time = time.time()
         size = len(data)

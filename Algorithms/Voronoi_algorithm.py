@@ -17,9 +17,10 @@ class VoronoiMergingAlgorithm:
         self.parameters = parameters
         self.dimensions = None
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, dimensions):
 
         """Points is a collection of Point"""
+        self.dimensions = dimensions
         return _merge(data, weigths, self.parameters, self.dimensions)
 
 
@@ -39,6 +40,7 @@ class _VoronoiCell:
         """Get max variance coefficient of Voronoi cell"""
 
         dimension = len(self.vector[0])
+
         avg_values = []
 
         for i in range(0, dimension):
@@ -52,6 +54,7 @@ class _VoronoiCell:
             avg_values.append(std)
 
         max_idx, max_avg = get_max_coef(avg_values)
+
         return max_idx, max_avg
 
     def divide(self, devide_hyperlane):
@@ -128,10 +131,24 @@ def weighted_std(values, weights):
     values, weights -- Numpy ndarrays with the same shape.
 
     """
-    weighted_average = numpy.average(values, weights=weights)
+
+    weighted_average = 0
+
+    for i in range(0, len(values)):
+        weighted_average = weighted_average + values[i] * weights[i]
+
+    sum_weights = sum(weights)
+
+    weighted_sq_average = 0
+    for i in range(0, len(values)):
+        weighted_sq_average = weighted_sq_average + values[i] * values[i] *weights[i]
+
+    weighted_average = weighted_average / sum_weights
+    weighted_sq_average = weighted_sq_average / sum_weights
     # Fast and numerically precise:
-    variance = numpy.average((values-weighted_average)**2, weights=weights)
-    return math.sqrt(variance)
+    variance = weighted_sq_average - weighted_average * weighted_average
+
+    return variance
 
 
 def _merge(data, weights, parameters, dimensions):
@@ -142,7 +159,6 @@ def _merge(data, weights, parameters, dimensions):
 
     """
     initial_cell = _VoronoiCell(data, weights)
-
 
     result_vector = []
     result_weights = []
@@ -178,6 +194,9 @@ def _merge(data, weights, parameters, dimensions):
 
         cells.remove(cells[0])
 
+    result_vector = numpy.asarray(result_vector)
+    result_weights = numpy.asarray(result_weights)
+
     return result_vector, result_weights
 
 
@@ -193,6 +212,7 @@ def check_needs_subdivision(parameters, max_avg, max_idx, dimensions):
     position_tolerance = parameters[0]
     momentum_tolerance = parameters[1]
     position_vector_idx = dimensions.dimension_position
+
 
     if max_idx <= position_vector_idx:
         return max_avg > position_tolerance

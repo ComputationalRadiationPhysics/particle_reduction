@@ -19,9 +19,11 @@ class Voronoi_probabilistic_algorithm:
         self.parameters = parameters
         self.dimensions = None
 
-    def _run(self, data, weigths):
+    def _run(self, data, weigths, dimensions):
 
         """Points is a collection of Point"""
+
+        print("data len : "+ str(len(data)))
         return _merge(data, weigths, self.parameters, self.dimensions)
 
 
@@ -36,6 +38,8 @@ class _Voronoi_cell:
         self.weights = numpy.array(weigths)
         self.size_of_divide_particles = size_of_divide_particles
         self.expected_number_of_particles = expected_number_of_particles
+
+
 
     def get_coeff_var(self):
 
@@ -57,7 +61,8 @@ class _Voronoi_cell:
         max_idx, max_avg = get_max_coef(avg_values)
         return max_idx, max_avg
 
-    def divide(self, devide_hyperlane, ratio_left_partilces):
+
+    def divide(self, devide_hyperlane, reduction_percent):
 
         """
 
@@ -81,15 +86,33 @@ class _Voronoi_cell:
             else:
                 second.append(self.vector[i])
                 weights_second.append(self.weights[i])
-
+        first_number_expected_particles = 0
+        second_number_expected_particles = 0
         if len(self.vector) > self.size_of_divide_particles:
-            first_number_expected_particles = ratio_left_partilces * len(first)
-            second_number_expected_particles = ratio_left_partilces * len(second)
+         #   print("ratio_left_partilces "+ str(reduction_percent))
+          #  print("len(first) "+ str(len(first)))
+           # print("len(second) " + str(len(second)))
+            first_number_expected_particles = reduction_percent * len(first)
+            second_number_expected_particles = reduction_percent * len(second)
 
         else:
             b = (self.expected_number_of_particles + len(self.vector))/ 2.0
-            first_number_expected_particles = len(first)/len(self.vector) * b
-            second_number_expected_particles = len(second) / len(self.vector) * b
+           # print("self.expected_number_of_particles")
+           # print(self.expected_number_of_particles)
+           # print("self.vector")
+           # print(len(self.vector))
+            first_number_expected_particles = len(first) * b / len(self.vector)
+            second_number_expected_particles = len(second) * b / len(self.vector)
+
+        if len(self.vector) < first_number_expected_particles:
+            print("len(self.vector)" + str(len(self.vector)))
+            print("first_number_expected_particles" + str(first_number_expected_particles))
+            assert(False)
+
+        if len(self.vector) < second_number_expected_particles:
+            print("len(self.vector)" + str(len(self.vector)))
+            print("second_number_expected_particles" + str(second_number_expected_particles))
+            assert(False)
 
 
         first_cell = _Voronoi_cell(first, weights_first, first_number_expected_particles,
@@ -159,19 +182,28 @@ def _merge(data, weights, parameters, dimensions):
     initial_cell = _Voronoi_cell(data, weights, parameters.reduction_percent * len(data),
                                 parameters.ratio_left_particles)
 
+    print(parameters.reduction_percent)
 
     result_vector = []
     result_weights = []
     cells = [initial_cell]
     while len(cells) > 0:
         cell = cells[0]
-
         max_idx, max_avg = cell.get_coeff_var()
+        if len(cell.vector) < 2:
+            for i in range(0, len(cell.vector)):
+                result_vector.append(cell.vector[i])
+
+            for i in range(0, len(cell.weights)):
+                result_weights.append(cell.weights[i])
+            cells.remove(cells[0])
+            continue
+
         needs_subdivision = check_statistical_subdivision(cell, parameters.ratio_left_particles)
        # needs_subdivision = check_needs_subdivision(parameters, max_avg, max_idx, dimensions)
 
         if needs_subdivision:
-            first_part_cell, secound_part_cell = cell.divide(max_idx, parameters.ratio_left_particles)
+            first_part_cell, secound_part_cell = cell.divide(max_idx, parameters.reduction_percent)
             if len(first_part_cell.vector) == 0:
                 if len(secound_part_cell.vector) != 0:
                     secound_part_cell.merge()
@@ -195,24 +227,34 @@ def _merge(data, weights, parameters, dimensions):
 
         cells.remove(cells[0])
 
+    result_vector = numpy.asarray(result_vector)
+    result_weights = numpy.asarray(result_weights)
+
+    print("end of function")
     return result_vector, result_weights
 
 
+
 def check_statistical_subdivision(cell, size_of_divide_particles):
+
 
     if len(cell.vector) > size_of_divide_particles:
         return True
 
     b_value = (cell.expected_number_of_particles + len(cell.vector))/2.
 
-    p_value = (cell.expected_number_of_particles - 1) / (b_value - 1)
+    p_value = (cell.expected_number_of_particles - 1.) / (b_value - 1.)
+
+
+    if len(cell.vector) == 3:
+        p_value = (cell.expected_number_of_particles - 1.) / 2.0
+
+    if len(cell.vector) == 2:
+        p_value = cell.expected_number_of_particles - 1.
 
     random_value = random.uniform(0, 1)
 
     return random_value < p_value
-
-
-
 
 
 

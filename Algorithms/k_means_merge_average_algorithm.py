@@ -71,7 +71,7 @@ class K_means_merge_average_algorithm:
         self.divisions = divisions
         self.min_max_values = []
 
-    def _run(self, data, weights):
+    def _run(self, data, weights, dimensions):
 
         data = numpy.array(data)
         coordinates_without_bound_electrons = self.dimensions.dimension_position + self.dimensions.dimension_momentum

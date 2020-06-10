@@ -41,7 +41,7 @@ def compute_weight_sum(weight, values):
 
 def get_dataset_values(group, name_dataset):
 
-    values = read_hdf_file.DatasetReader(name_dataset)
+    values = read_hdf_file.Dataset_Reader(name_dataset)
     group.visititems(values)
     weight_reader = WeightReader()
     group.visititems(weight_reader)
