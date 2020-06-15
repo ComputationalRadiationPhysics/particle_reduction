@@ -35,11 +35,15 @@ class _VoronoiCell:
         self.vector = numpy.array(data)
         self.weights = numpy.array(weigths)
 
-    def get_coeff_var(self):
+    def get_coeff_var(self, parameters, dimensions):
 
         """Get max variance coefficient of Voronoi cell"""
 
         dimension = len(self.vector[0])
+
+        position_tolerance = parameters[0]
+        momentum_tolerance = parameters[1]
+        position_vector_idx = dimensions.dimension_position
 
         avg_values = []
 
@@ -51,11 +55,14 @@ class _VoronoiCell:
                 weights_dimension.append(self.weights[j])
 
             std = weighted_std(values_dimension, weights_dimension)
-            avg_values.append(std)
+            if i <= position_vector_idx:
+                avg_values.append(std/position_tolerance)
+            else:
+                avg_values.append(std/momentum_tolerance)
 
         max_idx, max_avg = get_max_coef(avg_values)
 
-        return max_idx, max_avg
+        return max_avg
 
     def divide(self, devide_hyperlane):
 
@@ -163,14 +170,11 @@ def _merge(data, weights, parameters, dimensions):
     result_vector = []
     result_weights = []
     cells = [initial_cell]
-    print(len(data))
-    print(dimensions.dimension_position)
-    print(dimensions.dimension_momentum)
     while len(cells) > 0:
         cell = cells[0]
 
-        max_idx, max_avg = cell.get_coeff_var()
-        needs_subdivision = check_needs_subdivision(parameters, max_avg, max_idx, dimensions)
+        max_avg = cell.get_coeff_var(parameters, dimensions)
+        needs_subdivision = (max_avg > 1)
 
         if needs_subdivision:
             first_part_cell, secound_part_cell = cell.divide(max_idx)
