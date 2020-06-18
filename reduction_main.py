@@ -79,6 +79,80 @@ def copy_attributes(start_obj, end_obj):
         end_obj.set_attribute(attr, start_obj.get_attribute(attr))
 
 
+def transform_into_weighted_values(series, record_component, weights, idx_start, idx_end):
+
+    weightingPower = record_component.get_attribute("weightingPower")
+    weighted_values = []
+    for name, values in record_component.items():
+        current_values = values[idx_start: idx_end]
+        series.flush()
+        components = multiply_macroweighted(current_values, weights, weightingPower)
+        weighted_values.append(components)
+
+    weighted_values = numpy.transpose(weighted_values)
+
+    return weighted_values
+
+def transform_from_unweighted_values(values, record_component, weights):
+
+    weightingPower = record_component.get_attribute("weightingPower")
+    weighted_values = []
+    for i in range(0, len(values)):
+        weighted_value = values[i] /( weights[i] ** weightingPower )
+        weighted_values.append(weighted_value)
+
+    weighted_values = numpy.transpose(weighted_values)
+
+    return weighted_values
+
+def get_non_transformed_values(series, record_component, idx_start, idx_end):
+
+    weighted_values = []
+    for name, values in record_component.items():
+        current_values = values[idx_start: idx_end]
+        series.flush()
+        weighted_values.append(current_values)
+
+    weighted_values = numpy.transpose(weighted_values)
+    return weighted_values
+
+def multiply_macroweighted(values, weights, weightingPower):
+
+    multiply_values = []
+
+    for i in range(0, len(values)):
+        multiply_values.append(values[i] * weights[i]**weightingPower)
+
+    return multiply_values
+
+
+def get_macroweighted(series, record_component, weights, idx_start, idx_end):
+
+    macroWeighted = record_component.get_attribute("macroWeighted")
+
+    weighted_values = []
+
+    if macroWeighted == 1:
+        weighted_values = transform_into_weighted_values(series, record_component, weights, idx_start, idx_end)
+    else:
+        weighted_values = get_non_transformed_values(series, record_component, idx_start, idx_end)
+
+    return weighted_values
+
+def get_unmacroweighted(values, record_component, weights):
+
+    macroWeighted = record_component.get_attribute("macroWeighted")
+
+    weighted_values = []
+
+    if macroWeighted == 1:
+        weighted_values = transform_from_unweighted_values(values, record_component, weights)
+    else:
+        weighted_values = values
+
+    return weighted_values
+
+
 def copy_iteration_parameters(current_iteration, reduction_iteration):
 
     time_unit_SI = current_iteration.time_unit_SI()
