@@ -892,7 +892,6 @@ if __name__ == "__main__":
         tolerance = [args.momentum_tol, args.position_lol]
         parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
         voronoi_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.position_lol)
-        base_reduction_function(args.hdf, args.hdf_re, "voronoi", parameters)
 
     elif args.algorithm == 'voronoi_prob':
         parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters(args.reduction_percent, args.divide_particles)
