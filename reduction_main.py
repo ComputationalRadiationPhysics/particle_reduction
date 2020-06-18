@@ -308,69 +308,49 @@ def writing_reduced_information(rewrite_start_node, hdf_file_reduction, relative
         group.visititems(write_bound_electrons)
 
 
-def absolute_item(values, offset, unit_si_offset, unit_si_position):
-
-    absolute_result = []
-
-    i = 0
-
-    for point in values:
-
-        absolute_coord = point * unit_si_position + offset[i] * unit_si_offset
-        absolute_result.append(absolute_coord)
-        i = +1
-
-    return absolute_result
-
-
-def get_absolute_coordinates(series, position, position_offset, idx_start, idx_end):
+def get_absolute_coordinates(position, position_offset, unit_si_offset, unit_si_position):
 
     absolute_coordinates = []
 
-    for value in position.items():
-        name_value = value[0]
-        position_axis = position[name_value]
-        position_offset_axis = position_offset[str(name_value)]
-        position_dataset = position_axis[idx_start:idx_end]
-        position_offset_dataset = position_offset_axis[idx_start:idx_end]
-        series.flush()
-        item_values = absolute_item(position_dataset, position_offset_dataset, position_offset_axis.unit_SI, position_axis.unit_SI)
-        absolute_coordinates.append(item_values)
+    size_position = len(position)
 
-    absolute_coordinates = numpy.transpose(absolute_coordinates)
+    for i in range(0, size_position):
+        point = position[i]
+        offset = position_offset[i]
+
+        absolute_point = point * unit_si_position + offset * unit_si_offset
+        absolute_coordinates.append(absolute_point)
 
     return absolute_coordinates
 
 
-def absolute_momentum_array(array_dataset, unit_si_momentum):
 
-    absolute_momentum = []
-    for point in array_dataset:
-        absolute_momentum.append(point * unit_si_momentum)
+def get_absolute_values(record_values, unit_si):
 
-    return absolute_momentum
+    absolute_values = []
+    size_values = len(record_values)
 
+    for i in range(0, size_values):
+        point = record_values[i]
+        absolute_point = point * unit_si
+        absolute_values.append(absolute_point)
 
-def get_absolute_momentum(series, momentum_values, idx_start, idx_end):
+    return numpy.array(absolute_values)
 
-    absolute_momentum = []
-    for value in momentum_values.items():
-        name_value = value[0]
-        momentum_axis = momentum_values[name_value]
+def get_relative_values(values, unit_si):
 
-        array_dataset = momentum_axis[idx_start:idx_end]
-        series.flush()
-        unit_si_momentum = momentum_axis.unit_SI
-        item_absolute_values = absolute_momentum_array(array_dataset, unit_si_momentum)
+    relative_values = []
+    size_values = len(values)
 
-        absolute_momentum.append(item_absolute_values)
+    for i in range(0, size_values):
+        point = values[i]
+        absolute_point = point / unit_si
+        relative_values.append(absolute_point)
 
-    absolute_momentum = numpy.transpose(absolute_momentum)
-
-    return absolute_momentum
+    return numpy.array(relative_values)
 
 
-def create_input_data(absolute_coordinates, absolute_momentum, bound_elctrons):
+def create_input_data(absolute_coordinates, absolute_momentum, absolute_mass, absolute_charge, bound_elctrons):
 
     result_data = []
 
@@ -764,16 +744,33 @@ def get_dimentions(position, momentum):
     return dimensions
 
 
-def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reduction,
-                                particle_species_reduction, algorithm):
+def get_unit_SI(record):
+
+    unit_SI = []
+
+    for idx, value in record.items():
+        unit_SI.append(value.unit_SI)
+
+    return unit_SI
+
+def get_value_record(series_hdf, particle_species, weights, idx_start, idx_end):
 
     SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
 
-    create_copy_dataset_structures(particle_species, particle_species_reduction)
+    mass_weight_values = []
+    if is_vector_exist("mass", particle_species):
+        mass = particle_species["mass"][SCALAR]
+        mass_weight_values = get_macroweighted(series_hdf, mass, weights, idx_start, idx_end)
 
-    copy_attributes(particle_species, particle_species_reduction)
+    charge_weight_values = []
+    if is_vector_exist("charge", particle_species):
+        charge = particle_species["charge"][SCALAR]
+        charge_weight_values = get_macroweighted(series_hdf, charge, weights, idx_start, idx_end)
+
+    return mass_weight_values, charge_weight_values
 
 
+def get_coordinates(series_hdf, particle_species, idx_start, idx_end):
     position_offset = particle_species["positionOffset"]
     position = particle_species["position"]
     momentum = particle_species["momentum"]
