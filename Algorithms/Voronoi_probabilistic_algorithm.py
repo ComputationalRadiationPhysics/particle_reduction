@@ -182,7 +182,7 @@ def weighted_variance(values, weights):
     weighted_sq_average = weighted_sq_average / sum_weights
     # Fast and numerically precise:
     variance = weighted_sq_average - weighted_average * weighted_average
-    return variance
+    return abs(variance)
 
 
 def get_max_coef(avg_values, range_momentum, range_position):
