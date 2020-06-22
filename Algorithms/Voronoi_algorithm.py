@@ -17,11 +17,11 @@ class VoronoiMergingAlgorithm:
         self.parameters = parameters
         self.dimensions = None
 
-    def _run(self, data, weigths, dimensions):
+    def _run(self, data, weigths, dict_data_indexes):
 
         """Points is a collection of Point"""
-        self.dimensions = dimensions
-        return _merge(data, weigths, self.parameters, self.dimensions)
+        self.dict_data_indexes = dict_data_indexes
+        return _merge(data, weigths, self.parameters, self.dict_data_indexes)
 
 
 class _VoronoiCell:
@@ -35,32 +35,36 @@ class _VoronoiCell:
         self.vector = numpy.array(data)
         self.weights = numpy.array(weigths)
 
-    def get_coeff_var(self, parameters, dimensions):
+    def get_coeff_var(self, parameters, dict_data_indexes):
 
         """Get max variance coefficient of Voronoi cell"""
 
-        dimension = len(self.vector[0])
-
         position_tolerance = parameters[1]
         momentum_tolerance = parameters[0]
-        position_vector_idx = dimensions.dimension_position
+
 
         avg_values = []
 
-        for i in range(0, dimension):
-            values_dimension = []
-            weights_dimension = []
-            for j in range(0, len(self.vector)):
-                values_dimension.append(self.vector[j][i])
-                weights_dimension.append(self.weights[j])
+        range_momentum = range(dict_data_indexes["momentum"][0], dict_data_indexes["momentum"][1])
+        range_position = range(dict_data_indexes["position"][0], dict_data_indexes["position"][1])
 
-            std = numpy.sqrt(weighted_variance(values_dimension, weights_dimension))
-            if i < position_vector_idx:
-                avg_values.append(std/position_tolerance)
-            else:
-                avg_values.append(std/momentum_tolerance)
 
-        max_idx, max_avg = get_max_coef(avg_values)
+        for i in range_momentum:
+            values_dimension = self.vector[ : , i]
+
+            std = numpy.sqrt(weighted_variance(values_dimension, self.weights))
+            avg_values.append(std / momentum_tolerance)
+
+
+        for i in range_position:
+            values_dimension = self.vector[ : , i]
+
+            std = numpy.sqrt(weighted_variance(values_dimension, self.weights))
+            avg_values.append(std / position_tolerance)
+
+
+        max_idx, max_avg = get_max_coef(avg_values, range_momentum, range_position)
+
 
         return max_idx, max_avg
 
@@ -96,28 +100,37 @@ class _VoronoiCell:
 
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
-    def merge(self):
+    def merge(self, dict_data_indexes):
         """ Merge Voronoi cell into one point """
 
-        dimension = len(self.vector[0])
-
-        self.vector, self.weights = merge_points(dimension, self.vector, self.weights)
 
 
-def merge_points(dimension, vector, weights_vector):
+        self.vector, self.weights = merge_points(dict_data_indexes, self.vector, self.weights)
+
+
+def merge_points(dict_data_indexes, vector, weights_vector):
     """ Merge coordinates into one point """
 
     values_vector = []
+    dimension = len(vector[0])
     sum_weights = numpy.sum(weights_vector, dtype=float)
     vector = numpy.array(vector)
 
+
+    range_momentum = range(dict_data_indexes["momentum"][0], dict_data_indexes["momentum"][1])
+    range_position = range(dict_data_indexes["position"][0], dict_data_indexes["position"][1])
+
     for i in range(0, dimension):
-        values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
+        if i in range_momentum:
+            values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
+        elif i in range_position:
+            values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
+        else:
+            values_vector.append(vector[0][i])
 
     return values_vector, sum_weights
 
-
-def get_max_coef(avg_values):
+def get_max_coef(avg_values, range_momentum, range_position):
     """ Find max coefficient of variance """
 
     max_value = float("-inf")
@@ -127,6 +140,12 @@ def get_max_coef(avg_values):
         if avg_values[i] > max_value:
             max_value = avg_values[i]
             max_idx = i
+
+    if max_idx < len(range_momentum):
+        max_idx = range_momentum[0] + max_idx
+
+    else:
+        max_idx = max_idx - len(range_momentum) + range_position[0]
 
     return max_idx, max_value
 
@@ -160,7 +179,7 @@ def weighted_variance(values, weights):
     return variance
 
 
-def _merge(data, weights, parameters, dimensions):
+def _merge(data, weights, parameters, dict_data_indexes):
     """
     Merging algorithm:
     points -- original points
@@ -175,7 +194,8 @@ def _merge(data, weights, parameters, dimensions):
     while len(cells) > 0:
         cell = cells[0]
 
-        max_idx, max_avg = cell.get_coeff_var(parameters, dimensions)
+        max_idx, max_avg = cell.get_coeff_var(parameters, dict_data_indexes)
+
         needs_subdivision = (max_avg > 1)
 
         if needs_subdivision:
@@ -196,8 +216,7 @@ def _merge(data, weights, parameters, dimensions):
                 cells.append(secound_part_cell)
                 cells.append(first_part_cell)
         else:
-
-            cell.merge()
+            cell.merge(dict_data_indexes)
             result_vector.append(cell.vector)
             result_weights.append(cell.weights)
 
@@ -209,22 +228,3 @@ def _merge(data, weights, parameters, dimensions):
     return result_vector, result_weights
 
 
-def check_needs_subdivision(parameters, max_avg, max_idx, dimensions):
-    """
-    Check that Voronoi cell need to devide
-    parametrs -- subdivision tolerances
-    max_avg -- value of max variance
-    max_key -- parameter with max variance
-
-    """
-
-    position_tolerance = parameters[1]
-    momentum_tolerance = parameters[0]
-    position_vector_idx = dimensions.dimension_position
-
-
-    if max_idx <= position_vector_idx:
-        return max_avg > position_tolerance
-
-    if max_idx > position_vector_idx:
-        return max_avg > momentum_tolerance
