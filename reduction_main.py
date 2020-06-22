@@ -942,7 +942,7 @@ if __name__ == "__main__":
     parser.add_argument("-hdf_re", metavar='hdf_file_reduction', type=str,
                         help="result reduction hdf file")
 
-    parser.add_argument("-reduction_percent", metavar='reduction_percent', type=float,
+    parser.add_argument("-ratio_deleted_particles", metavar='ratio_deleted_particles', type=float,
                         help="part of the particles to reduce( used in Energy_conservative, random, number_conservative,"
                              "kmeans, kmeans_avg algorithms and in voronoi probalistic algorithm )")
 
@@ -965,23 +965,24 @@ if __name__ == "__main__":
         voronoi_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.position_lol)
 
     elif args.algorithm == 'voronoi_prob':
-        parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters(args.reduction_percent, args.divide_particles)
+        divide_particles = 20
+        parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters(1. - args.ratio_deleted_particles, divide_particles)
         base_reduction_function(args.hdf, args.hdf_re, "voronoi_prob", parameters)
 
     elif args.algorithm == 'random':
-        parameters = Random_thinning_algorithm.Random_thinning_algorithm_parameters(args.reduction_percent)
+        parameters = Random_thinning_algorithm.Random_thinning_algorithm_parameters(args.ratio_deleted_particles)
         base_reduction_function(args.hdf, args.hdf_re, "random", parameters)
 
     elif args.algorithm == 'number_conservative':
-        parameters = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm_parameters(args.reduction_percent)
+        parameters = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm_parameters(args.ratio_deleted_particles)
         base_reduction_function(args.hdf, args.hdf_re, "number_conservative", parameters)
 
     elif args.algorithm == 'energy_conservative':
-        parameters = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm_parameters(args.reduction_percent)
+        parameters = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm_parameters(args.ratio_deleted_particles)
         base_reduction_function(args.hdf, args.hdf_re, "energy_conservative", parameters)
 
     elif args.algorithm == 'kmeans':
-        parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_parameters(args.reduction_percent)
+        parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_parameters(args.ratio_deleted_particles)
         base_reduction_function(args.hdf, args.hdf_re, "kmeans", parameters)
 
     elif args.algorithm == 'kmeans_avg':
