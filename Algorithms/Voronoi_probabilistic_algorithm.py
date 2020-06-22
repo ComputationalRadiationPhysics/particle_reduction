@@ -19,12 +19,12 @@ class Voronoi_probabilistic_algorithm:
         self.parameters = parameters
         self.dimensions = None
 
-    def _run(self, data, weigths, dimensions):
+    def _run(self, data, weigths, dict_data_indexes):
 
         """Points is a collection of Point"""
 
         print("data len : "+ str(len(data)))
-        return _merge(data, weigths, self.parameters, self.dimensions)
+        return _merge(data, weigths, self.parameters, dict_data_indexes)
 
 
 class _Voronoi_cell:
@@ -41,24 +41,33 @@ class _Voronoi_cell:
 
 
 
-    def get_coeff_var(self):
+    def get_coeff_var(self, dict_data_indexes):
 
         """Get max variance coefficient of Voronoi cell"""
 
-        dimension = len(self.vector[0])
         avg_values = []
 
-        for i in range(0, dimension):
-            values_dimension = []
-            weights_dimension = []
-            for j in range(0, len(self.vector)):
-                values_dimension.append(self.vector[j][i])
-                weights_dimension.append(self.weights[j])
+        range_momentum = range(dict_data_indexes["momentum"][0], dict_data_indexes["momentum"][1])
+        range_position = range(dict_data_indexes["position"][0], dict_data_indexes["position"][1])
 
-            std = weighted_std(values_dimension, weights_dimension)
+
+        for i in range_momentum:
+            values_dimension = self.vector[ : , i]
+
+            std = numpy.sqrt(weighted_variance(values_dimension, self.weights))
             avg_values.append(std)
 
-        max_idx, max_avg = get_max_coef(avg_values)
+
+        for i in range_position:
+            values_dimension = self.vector[ : , i]
+
+            std = numpy.sqrt(weighted_variance(values_dimension, self.weights))
+            avg_values.append(std)
+
+
+        max_idx, max_avg = get_max_coef(avg_values, range_momentum, range_position)
+
+
         return max_idx, max_avg
 
 
@@ -89,18 +98,12 @@ class _Voronoi_cell:
         first_number_expected_particles = 0
         second_number_expected_particles = 0
         if len(self.vector) > self.size_of_divide_particles:
-         #   print("ratio_left_partilces "+ str(reduction_percent))
-          #  print("len(first) "+ str(len(first)))
-           # print("len(second) " + str(len(second)))
+
             first_number_expected_particles = reduction_percent * len(first)
             second_number_expected_particles = reduction_percent * len(second)
 
         else:
-            b = (self.expected_number_of_particles + len(self.vector))/ 2.0
-           # print("self.expected_number_of_particles")
-           # print(self.expected_number_of_particles)
-           # print("self.vector")
-           # print(len(self.vector))
+            b = (self.expected_number_of_particles + len(self.vector)) / 2.0
             first_number_expected_particles = len(first) * b / len(self.vector)
             second_number_expected_particles = len(second) * b / len(self.vector)
 
@@ -124,28 +127,65 @@ class _Voronoi_cell:
 
         #"""component - index of coordinate to use for subdivision, this function returns two Voronoi Cells"""
 
-    def merge(self):
+    def merge(self, dict_data_indexes):
         """ Merge Voronoi cell into one point """
 
-        dimension = len(self.vector[0])
 
-        self.vector, self.weights = merge_points(dimension, self.vector, self.weights)
+        self.vector, self.weights = merge_points(dict_data_indexes, self.vector, self.weights)
 
 
-def merge_points(dimension, vector, weights_vector):
+def merge_points(dict_data_indexes, vector, weights_vector):
     """ Merge coordinates into one point """
 
     values_vector = []
+    dimension = len(vector[0])
     sum_weights = numpy.sum(weights_vector, dtype=float)
     vector = numpy.array(vector)
 
+
+    range_momentum = range(dict_data_indexes["momentum"][0], dict_data_indexes["momentum"][1])
+    range_position = range(dict_data_indexes["position"][0], dict_data_indexes["position"][1])
+
     for i in range(0, dimension):
-        values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
+        if i in range_momentum:
+            values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
+        elif i in range_position:
+            values_vector.append(numpy.average(vector[:, i], weights=weights_vector))
+        else:
+            values_vector.append(vector[0][i])
 
     return values_vector, sum_weights
 
+def weighted_variance(values, weights):
+    """
+    Return the weighted variance.
 
-def get_max_coef(avg_values):
+    values, weights -- Numpy ndarrays with the same shape.
+
+    """
+
+    if len(values) == 1:
+        return 0
+
+    weighted_average = 0
+
+    for i in range(0, len(values)):
+        weighted_average = weighted_average + values[i] * weights[i]
+
+    sum_weights = sum(weights)
+
+    weighted_sq_average = 0
+    for i in range(0, len(values)):
+        weighted_sq_average = weighted_sq_average + values[i] * values[i] * weights[i]
+
+    weighted_average = weighted_average / sum_weights
+    weighted_sq_average = weighted_sq_average / sum_weights
+    # Fast and numerically precise:
+    variance = weighted_sq_average - weighted_average * weighted_average
+    return variance
+
+
+def get_max_coef(avg_values, range_momentum, range_position):
     """ Find max coefficient of variance """
 
     max_value = float("-inf")
@@ -156,8 +196,13 @@ def get_max_coef(avg_values):
             max_value = avg_values[i]
             max_idx = i
 
-    return max_idx, max_value
+    if max_idx < len(range_momentum):
+        max_idx = range_momentum[0] + max_idx
 
+    else:
+        max_idx = max_idx - len(range_momentum) + range_position[0]
+
+    return max_idx, max_value
 
 def weighted_std(values, weights):
     """
@@ -172,7 +217,7 @@ def weighted_std(values, weights):
     return math.sqrt(variance)
 
 
-def _merge(data, weights, parameters, dimensions):
+def _merge(data, weights, parameters, dict_data_indexes):
     """
     Merging algorithm:
     points -- original points
@@ -189,7 +234,7 @@ def _merge(data, weights, parameters, dimensions):
     cells = [initial_cell]
     while len(cells) > 0:
         cell = cells[0]
-        max_idx, max_avg = cell.get_coeff_var()
+        max_idx, max_avg = cell.get_coeff_var(dict_data_indexes)
         if len(cell.vector) < 2:
             for i in range(0, len(cell.vector)):
                 result_vector.append(cell.vector[i])
@@ -206,7 +251,7 @@ def _merge(data, weights, parameters, dimensions):
             first_part_cell, secound_part_cell = cell.divide(max_idx, parameters.reduction_percent)
             if len(first_part_cell.vector) == 0:
                 if len(secound_part_cell.vector) != 0:
-                    secound_part_cell.merge()
+                    secound_part_cell.merge(dict_data_indexes)
                     result_vector.append(secound_part_cell.vector)
                     result_weights.append(secound_part_cell.weights)
 
@@ -221,7 +266,7 @@ def _merge(data, weights, parameters, dimensions):
                 cells.append(first_part_cell)
         else:
 
-            cell.merge()
+            cell.merge(dict_data_indexes)
             result_vector.append(cell.vector)
             result_weights.append(cell.weights)
 
@@ -230,7 +275,6 @@ def _merge(data, weights, parameters, dimensions):
     result_vector = numpy.asarray(result_vector)
     result_weights = numpy.asarray(result_weights)
 
-    print("end of function")
     return result_vector, result_weights
 
 
