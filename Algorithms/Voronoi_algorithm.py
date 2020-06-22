@@ -176,7 +176,8 @@ def weighted_variance(values, weights):
     weighted_sq_average = weighted_sq_average / sum_weights
     # Fast and numerically precise:
     variance = weighted_sq_average - weighted_average * weighted_average
-    return variance
+
+    return abs(variance)
 
 
 def _merge(data, weights, parameters, dict_data_indexes):
@@ -202,13 +203,13 @@ def _merge(data, weights, parameters, dict_data_indexes):
             first_part_cell, secound_part_cell = cell.divide(max_idx)
             if len(first_part_cell.vector) == 0:
                 if len(secound_part_cell.vector) != 0:
-                    secound_part_cell.merge()
+                    secound_part_cell.merge(dict_data_indexes)
                     result_vector.append(secound_part_cell.vector)
                     result_weights.append(secound_part_cell.weights)
 
             if len(secound_part_cell.vector) == 0:
                 if len(first_part_cell.vector) != 0:
-                    first_part_cell.merge()
+                    first_part_cell.merge(dict_data_indexes)
                     result_vector.append(first_part_cell.vector)
                     result_weights.append(first_part_cell.weights)
 
