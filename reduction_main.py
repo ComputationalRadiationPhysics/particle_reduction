@@ -36,7 +36,7 @@ class Algorithm:
         if type == "random": return Random_thinning_algorithm.Random_thinning_algorithm(parameters.reduction_percent)
         if type == "number_conservative": return Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm(parameters.reduction_percent)
         if type == "energy_conservative":
-            return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(parameters.reduction_percent, mass)
+            return Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm(parameters.reduction_percent)
         if type == "kmeans":
             divisions = [16, 16, 4]
             return k_means_clustering_algorithm.K_means_clustering_algorithm(parameters.reduction_percent, parameters.max_iterations, parameters.tolerance,
