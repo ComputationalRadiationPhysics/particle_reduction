@@ -300,13 +300,20 @@ def get_relative_data(data, partcles_spices, dict_data_indexes, weights):
     for record_name in dict_data_indexes:
         if record_name == "position":
             continue
+
+
         indexes_data = dict_data_indexes[record_name]
         current_record = partcles_spices[record_name]
+
         values = data[:, indexes_data[0]:indexes_data[1]]
         unmacroweighted = get_unmacroweighted(values, current_record, weights)
         unit_si = get_unit_SI(current_record)
-        revative_values = get_relative_values(unmacroweighted, unit_si)
-        relative_data.append(revative_values)
+        relative_values = get_relative_values(unmacroweighted, unit_si)
+        for i in range(0, len(relative_values[0])):
+            relative_data.append(relative_values[:, i])
+
+    relative_data = numpy.array(relative_data)
+    relative_data = relative_data.T
 
     return relative_data
 
@@ -428,10 +435,9 @@ def create_dataset_structures(particle_species, particle_species_reduction, redu
 def write_record_copy(particle_record, values_to_write, series_hdf_reduction, previos_idx, current_idx):
 
     pos_vector_in_reduction_data = 0
-
-
     for vector in particle_record:
         current_type = particle_record[vector].dtype
+
         current_reduced_data = values_to_write[:, pos_vector_in_reduction_data].astype(current_type)
         particle_record[vector][previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
@@ -448,19 +454,28 @@ def write_draft_position(particle_species, series_hdf_reduction, position_values
     write_record_copy(position_offset, offset, series_hdf_reduction, previos_idx, current_idx)
 
 
-def write_draft_copy(data, dict_data_indexes, series_hdf_reduction, base_record,
+def write_draft_copy(data, reduced_weight, dict_data_indexes, series_hdf_reduction, base_record,
                      previos_idx, current_idx):
-    print(len(data))
 
     for record_name in dict_data_indexes:
         if record_name == "position":
             continue
 
         particle_index_range = dict_data_indexes[record_name]
-        values = data[particle_index_range[0]:particle_index_range[1]][0]
+        values = data[:, particle_index_range[0]:particle_index_range[1]]
         draft_record_name = record_name +"_copy"
         current_record = base_record[draft_record_name]
         write_record_copy(current_record, values, series_hdf_reduction, previos_idx, current_idx)
+
+
+    weighting_record = base_record["weighting_copy"][Mesh_Record_Component.SCALAR]
+    current_type = weighting_record.dtype
+    reduced_weight = reduced_weight.astype(current_type)
+
+    weighting_record[previos_idx:current_idx] = reduced_weight
+    series_hdf_reduction.flush()
+
+
 
 
 def write_patches_information(particle_species, num_particles, num_particles_offset):
@@ -635,6 +650,7 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
             data.append(absolute_coordinates[:, i])
 
         data = numpy.transpose(data)
+
         weights = weights[SCALAR][idx_start: idx_end]
         series_hdf.flush()
 
@@ -644,14 +660,17 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
         relative_coordinates, offset = get_relative_coordinates(reduced_data, dict_data_indexes, unit_si_offset,
                                  unit_si_position)
 
+
         relative_data = get_relative_data(reduced_data, particle_species, dict_data_indexes, reduced_weight)
+
 
         new_num_particles.append(len(reduced_weight))
         current_idx += len(reduced_weight)
 
         write_draft_position(particle_species_reduction, series_hdf_reduction, relative_coordinates,
                              offset, previos_idx, current_idx)
-        write_draft_copy(relative_data, dict_data_indexes, series_hdf_reduction, particle_species_reduction,
+
+        write_draft_copy(relative_data, reduced_weight, dict_data_indexes, series_hdf_reduction, particle_species_reduction,
                          previos_idx, current_idx)
 
         previos_idx += len(reduced_weight)
