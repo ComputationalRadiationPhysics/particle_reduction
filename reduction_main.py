@@ -15,6 +15,7 @@ import Algorithms.k_means_merge_average_algorithm as k_means_merge_average_algor
 import Algorithms.Voronoi_algorithm as Voronoi_algorithm
 import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
 import Algorithms.Voronoi_probabilistic_algorithm as Voronoi_probabilistic_algorithm
+import Algorithms.Vranic_algorithm as Vranic_algorithm
 
 import openpmd_api
 
@@ -54,7 +55,8 @@ class Algorithm:
         if type == "leveling":
             return Leveling_thinning_algorithm.Leveling_thinning_algorithm(parameters.leveling_coefficient)
 
-        if type == "vranic":pass
+        if type == "vranic":
+            return Vranic_algorithm.Vranic_algorithm(parameters)
         assert 0, "Bad type_algoritm: " + type
     factory = staticmethod(factory)
 
@@ -650,6 +652,12 @@ def write_scalar_groups(particle_species, particle_species_reduction):
     if is_vector_exist("charge", particle_species):
         set_scalar_group(particle_species, particle_species_reduction, "charge")
 
+def get_mass(particle_species):
+    assert(is_vector_exist("mass", particle_species))
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    mass_value = particle_species["mass"][SCALAR][0]
+    return mass_value
+
 
 def get_chunk_sizes(particle_species, series_hdf):
 
@@ -723,6 +731,10 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
     new_num_particles = []
 
     dimensions = get_dimentions(position, momentum)
+
+    if args.algorithm == 'vranic':
+        mass_value = get_mass(particle_species)
+        algorithm.parameters.mass = mass_value
 
     for i in range(0, len(ranges_patches) - 1):
 
@@ -921,4 +933,6 @@ if __name__ == "__main__":
         parameters = Leveling_thinning_algorithm.Leveling_thinning_algorithm_parameters(args.leveling_coefficient)
         base_reduction_function(args.hdf, args.hdf_re, "leveling", parameters)
 
-
+    elif args.algorithm == 'vranic':
+        parameters = Vranic_algorithm.Vranic_merging_algorithm_parameters(args.momentum_tol, args.position_lol)
+        base_reduction_function(args.hdf, args.hdf_re, "vranic", parameters)

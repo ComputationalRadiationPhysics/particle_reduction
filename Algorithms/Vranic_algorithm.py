@@ -32,13 +32,14 @@ class Momentum_cell:
         return indexes
 
 
-def create_sorted_momentum_list(data):
+def create_sorted_momentum_list(data, dimension):
     
     size = len(data)
     indexes = [i for i in range(len(data))]
     result = []
     for i in range(0, size):
-        result.append([data[i][3], data[i][4], data[i][5], indexes[i]])
+        result.append([data[i][dimensions.dimension_position], data[i][dimensions.dimension_position+1],
+                       data[i][dimensions.dimension_position+2], indexes[i]])
 
     sort_list = sorted(result, key=lambda e: (e[0], e[1], e[2]))
 
@@ -54,6 +55,10 @@ def get_segment(momentum_min, idx, step):
 
 def get_position_idx3d(x_patch, y_patch, z_patch, size_y, size_z):
     return (x_patch * size_y + y_patch) * size_z + z_patch
+
+
+def get_position_idx3d(x_patch, y_patch, size_y):
+    return x_patch * size_y + y_patch
 
 
 def get_cell_idx(max_coord, min_coord, separator, x_current):
@@ -92,20 +97,20 @@ def create_momentum_cells(sorted_momentum_list, tolerance_momentum, segment_x, s
     return cells
 
 
-def get_start_ranges(data):
+def get_start_ranges(data,dimensions):
 
-    x_min = min(data[:,3])
-    x_max = max(data[:,3])
+    x_min = min(data[:,dimensions.dimension_position])
+    x_max = max(data[:,dimensions.dimension_position])
 
     x_segment = Segment(x_min, x_max)
 
-    y_min = min(data[:,4])
-    y_max = max(data[:,4])
+    y_min = min(data[:,dimensions.dimension_position+1])
+    y_max = max(data[:,dimensions.dimension_position+1])
 
     y_segment = Segment(y_min, y_max)
 
-    z_min = min(data[:,5])
-    z_max = max(data[:,5])
+    z_min = min(data[:,dimensions.dimension_position+2])
+    z_max = max(data[:,dimensions.dimension_position+2])
 
     z_segment = Segment(z_min, z_max)
 
@@ -248,9 +253,9 @@ def get_vector_p_b(momentums, phi, alpha):
     return p_b
 
 
-def recalculate_momentum(momentums, weights, type_particles, mass):
+def recalculate_momentum(momentums, weights, mass):
 
-    if type_particles == 'massless':
+    if mass == 0.:
         alpha = get_angle_alpha(momentums)
 
         momentum_vector_t = get_weighted_momentum(momentums, weights)
@@ -260,7 +265,7 @@ def recalculate_momentum(momentums, weights, type_particles, mass):
         second_point = get_vector_p_b(momentum_vector_t, phi, alpha)
         return first_point, second_point
 
-    if type_particles == 'mass':
+    else:
 
         momentum_vector_t = get_weighted_momentum(momentums, weights)
         phi = get_angle_phi(momentums, mass, weights)
@@ -301,18 +306,12 @@ def recount_cells(data, weights, momentum_cells, mass):
     result = []
     weights_result = []
 
-    type_particles = ''
-    if mass == 0:
-        type_particles = 'massless'
-    else:
-        type_particles = 'mass'
-
     for i in range(0, len(momentum_cells)):
         if len(momentum_cells[i].momentums) != 0:
             idxes_array = momentum_cells[i].get_idixes()
-            if len(idxes_array) > 1:
+            if len(idxes_array) > 2:
                 first_coordinates, second_coordinates, result_weight = calculate_result_points(data, weights[idxes_array], idxes_array)
-                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], type_particles, mass)
+                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], mass)
                 first_point, second_point = merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum)
                 result.append(first_point)
                 result.append(second_point)
@@ -325,14 +324,81 @@ def recount_cells(data, weights, momentum_cells, mass):
 
     return result, weights_result
 
+def sortParticlesByBins(data, weights, tolerance_position, dimension):
+    """Returns a list of data and weight arrays sorted by bins of size tolerance_position in each direction"""
+
+    if dimensions.dimension_position == 2:
+        return sortParticlesByBins2D(data, weights, tolerance_position):
+    elif dimenions.dimension_position == 3:
+        return sortParticlesByBins3D(data, weights, tolerance_position):
+    else:
+        assert(0)
+
+def sortParticlesByBins2D(data, weights, tolerance_position):
+    """Version of sortParticlesByBins for 2D simulations"""
+
+    x_min = min(data[:,0])
+    x_max = max(data[:,0])
+    y_min = min(data[:,1])
+    y_max = max(data[:,1])
+
+    num_x_steps = int((x_max - x_min)/ tolerance_position) + 1
+    num_y_steps = int((y_max - y_min)/ tolerance_position) + 1
+
+    numbins = num_x_steps * num_y_steps
+
+    result_data = [np.zeros((0,data.shape[1])) for i in range(numbins)]
+    weight_data = [np.zeros((0)) for i in range(numbins)]
+
+    for i in range(0, data.shape[0]):
+        x_idx = get_cell_idx(x_max, x_min, num_x_steps, data[i][0])
+        y_idx = get_cell_idx(y_max, y_min, num_y_steps, data[i][1])
+
+        current_idx = get_position_idx3d(x_idx, y_idx, num_y_steps)
+        result_data[current_idx] = np.append(result_data[current_idx],data[i,:][None,:],axis=0)
+        weight_data[current_idx] = np.append(weight_data[current_idx],weights[i])
+
+    return result_data, weight_data
+
+def sortParticlesByBins3D(data, weights, tolerance_position):
+    """Version of sortParticlesByBins for 3D simulations"""
+
+    x_min = min(data[:,0])
+    x_max = max(data[:,0])
+    y_min = min(data[:,1])
+    y_max = max(data[:,1])
+    z_min = min(data[:,2])
+    z_max = max(data[:,2])
+
+    num_x_steps = int((x_max - x_min)/ tolerance_position) + 1
+    num_y_steps = int((y_max - y_min)/ tolerance_position) + 1
+    num_z_steps = int((z_max - z_min)/ tolerance_position) + 1
+
+    numbins = num_x_steps * num_y_steps * num_z_steps
+
+    result_data = [np.zeros((0,data.shape[1])) for i in range(numbins)]
+    weight_data = [np.zeros((0)) for i in range(numbins)]
+
+    for i in range(0, data.shape[0]):
+        x_idx = get_cell_idx(x_max, x_min, num_x_steps, data[i][0])
+        y_idx = get_cell_idx(y_max, y_min, num_y_steps, data[i][1])
+        z_idx = get_cell_idx(z_max, z_min, num_z_steps, data[i][2])
+
+        current_idx = get_position_idx3d(x_idx, y_idx, z_idx, num_y_steps, num_z_steps)
+        result_data[current_idx] = np.append(result_data[current_idx],data[i,:][None,:],axis=0)
+        weight_data[current_idx] = np.append(weight_data[current_idx],weights[i])
+
+    return result_data, weight_data
+
 
 class Vranic_merging_algorithm_parameters:
     """Tolerance is array-like, first -- coordinate tolerance, second -- momentum tolerance"""
 
-    def __init__(self, tolerance_momentum, dimension, type_particles):
+    def __init__(self, tolerance_momentum, tolerance_position):
         self.tolerance_momentum = tolerance_momentum
-        self.dimension = dimension
-        self.type_particles = type_particles
+        self.tolerance_position = tolerance_position
+        self.dimension = None
+        self.mass = None
 
 
 class Vranic_merging_algorithm:
@@ -340,17 +406,28 @@ class Vranic_merging_algorithm:
 
     def __init__(self, parameters):
         self.parameters = parameters
-        self.dimensions = None
 
-    def _run(self, data, weigths, mass):
+    def _run(self, data, weigths, dimension):
+        self.parameters.dimension = dimension
+        mass = self.parameters.mass
         data = np.array(data)
         weigths = np.array(weigths)
-        x_segment, y_segment, z_segment = get_start_ranges(data)
 
-        sorted_momentum = create_sorted_momentum_list(data)
-        cells = create_momentum_cells(sorted_momentum, self.parameters.tolerance_momentum, x_segment, y_segment, z_segment)
-        data, weights = recount_cells(data, weigths, cells, mass)
-        return data, weights
+        data_sorted_spatially, weights_sorted_spatially =
+                            sortParticlesByBins(data, weights, self.parameters.tolerance_position, dimension)
+
+        result_data = np.zeros((0,data.shape[1]))
+        result_weight = np.zeros((0))
+
+        for i in range(len(data_sorted_spatially)):
+            x_segment, y_segment, z_segment = get_start_ranges(data,dimension)
+
+            sorted_momentum = create_sorted_momentum_list(data, dimension)
+            cells = create_momentum_cells(sorted_momentum, self.parameters.tolerance_momentum, x_segment, y_segment, z_segment)
+            data_bin, weights_bin = recount_cells(data, weigths, cells, mass)
+            result_data = np.append(result_data,data_bin,axis=0)
+            result_weight = np.append(result_weight,weights_bin)
+        return result_data, result_weight
 
 
 
