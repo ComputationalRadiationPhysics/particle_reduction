@@ -56,7 +56,7 @@ class Algorithm:
             return Leveling_thinning_algorithm.Leveling_thinning_algorithm(parameters.leveling_coefficient)
 
         if type == "vranic":
-            return Vranic_algorithm.Vranic_algorithm(parameters)
+            return Vranic_algorithm.Vranic_merging_algorithm(parameters)
         assert 0, "Bad type_algoritm: " + type
     factory = staticmethod(factory)
 
@@ -127,7 +127,7 @@ def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type_algorit
         current_iteration = series_hdf.iterations[iteration]
         reduction_iteration = series_hdf_reduction.iterations[iteration]
         copy_iteration_parameters(current_iteration, reduction_iteration)
-        copy_meshes(series_hdf, series_hdf_reduction, current_iteration, reduction_iteration)
+        #copy_meshes(series_hdf, series_hdf_reduction, current_iteration, reduction_iteration)
         process_iteration_group(algorithm, current_iteration, series_hdf, series_hdf_reduction, reduction_iteration)
 
 
@@ -153,7 +153,8 @@ def process_iteration_group(algorithm, iteration, series_hdf, series_hdf_reducti
     for name_group in iteration.particles:
 
         if not (check_item_exist(iteration.particles[name_group], "momentum") and
-                check_item_exist(iteration.particles[name_group], "position")):
+                check_item_exist(iteration.particles[name_group], "position") and
+                 name_group == "phot"):
             continue
         process_patches_in_group_v2(iteration.particles[name_group], series_hdf,
                                     series_hdf_reduction, reduction_iteration.particles[name_group], algorithm)
