@@ -12,20 +12,28 @@ class Energy_conservative_thinning_algorithm_parameters:
 
 class Energy_conservative_thinning_algorithm:
 
-    def __init__(self, ratio, mass):
+    def __init__(self, ratio):
         self.ratio = ratio
-        self.mass = mass
-        self.dimensions = None
+        self.mass = None
+        self.dict_data_indexes = None
 
-    def _run(self, data, weigths, dimensions):
+    def _run(self, data, weigths, dict_data_indexes):
 
-        self.dimensions = dimensions
+        self.dict_data_indexes = dict_data_indexes
+        first_point = data[0]
+
+        if not("mass" in dict_data_indexes):
+            print("mass is necessary for this type of algorithm")
+            assert(False)
+        self.mass = first_point[dict_data_indexes["mass"][0]]
+
+        range_momentum = [dict_data_indexes["momentum"][0], dict_data_indexes["momentum"][1]]
 
         size = len(data)
         number_of_k_sample = int((1 - self.ratio) * size)
         data = numpy.array(data)
-        end_of_dimensions = len(data[0])
-        momentum_values = data[:, self.dimensions.dimension_momentum:end_of_dimensions]
+
+        momentum_values = data[:, range_momentum[0]:range_momentum[1]]
 
         energy_values = calculate_energy_values(momentum_values, self.mass)
         weigths = numpy.array(weigths)

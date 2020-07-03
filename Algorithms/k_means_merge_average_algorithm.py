@@ -69,27 +69,23 @@ class K_means_merge_average_algorithm:
         self.tolerance = tolerance
         self.dimensions = None
         self.divisions = divisions
-        self.min_max_values = []
 
-    def _run(self, data, weights, dimensions):
 
-        self.dimensions = dimensions
-        if dimensions.dimension_position == 2:
+    def _run(self, data, weights, dict_data_indexes):
+
+        range_position = [dict_data_indexes["position"][0], dict_data_indexes["position"][1]]
+
+        self.dict_data_indexes = dict_data_indexes
+        if range_position[1] - range_position[1] == 2:
             self.divisions = self.divisions[0:2]
 
         data = numpy.array(data)
-        coordinates_without_bound_electrons = self.dimensions.dimension_position + self.dimensions.dimension_momentum
 
-
-        for i in range(0, coordinates_without_bound_electrons):
-            max_value = max(data[:, i])
-            min_value = min(data[:, i])
-            pair = [min_value, max_value]
-            self.min_max_values.append(pair)
         if len(data) == 0:
             return [], []
 
-        coordinates = data[:, 0:self.dimensions.dimension_position]
+        coordinates = data[:, range_position[0]:range_position[1]]
+
         num_particles_offset, num_particles, moved_values, moved_weights \
             = K_means_divisions.handle_particle_data(coordinates, data, self.divisions, weights)
 
@@ -110,27 +106,25 @@ class K_means_merge_average_algorithm:
 
         return result_data, result_weights
 
+
     def normalize_array(self, data):
 
-        coordinates_without_bound_electrons = self.dimensions.dimension_position + self.dimensions.dimension_momentum
+        range_momentum = range(self.dict_data_indexes["momentum"][0], self.dict_data_indexes["momentum"][1])
+        range_position = range(self.dict_data_indexes["position"][0], self.dict_data_indexes["position"][1])
 
         normalized_values = []
-        for i in range(0, len(data)):
+        dimensions = len(data[0])
+        for i in range(0, dimensions):
+            current_values = data[:, i]
+            if i in range_momentum or i in range_position:
+                current_values = normalize_values(current_values)
+                normalized_values.append(current_values)
 
-            normalize_vector = []
-            for j in range(0, coordinates_without_bound_electrons):
-                diff = (self.min_max_values[j][1] - self.min_max_values[j][0])
-                if diff == 0:
-                    normalize_vector.append(0)
-                    continue
 
-                value = (data[i][j] - self.min_max_values[j][0])/diff
-                normalize_vector.append(value)
-            normalized_values.append(normalize_vector)
 
-        normalized_values = numpy.array(normalized_values)
-
+        normalized_values = numpy.transpose(normalized_values)
         return normalized_values
+
 
     def iterate_cell(self, data, weights):
         if len(data) == 0:
@@ -145,6 +139,7 @@ class K_means_merge_average_algorithm:
         num_to_keep = size - num_to_remove
         data_copy = self.normalize_array(data)
 
+
         kmeans = MiniBatchKMeans(n_clusters=num_to_keep, max_iter=self.max_iterations,
                                  batch_size=num_to_keep * 3, tol=self.tolerance)\
             .fit(data_copy)
@@ -153,3 +148,17 @@ class K_means_merge_average_algorithm:
 
 
         return result_data, result_weights
+
+def normalize_values(vector):
+
+    normalize = []
+    max_value = max(vector)
+    min_value = min(vector)
+
+    diff = max_value - min_value
+    if diff == 0:
+        normalize = numpy.zeros(shape=(1, len(vector)))[0]
+    else:
+        normalize = (vector - min_value) / diff
+
+    return normalize
