@@ -255,9 +255,7 @@ def recount_cells(data, weights, momentum_cells, mass, dimension, x_segment, y_s
             idxes_array = momentum_cells[i].get_idixes()
             if len(idxes_array) > 2:
                 first_coordinates, second_coordinates, result_weight = calculate_result_points(data, weights[idxes_array], idxes_array)
-                print("momentum_cells[i].momentums",momentum_cells[i].momentums)
                 first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], mass, x_segment, y_segment, z_segment)
-                print("first_momentum",first_momentum)
                 merged_points = merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum, dimension)
                 result = np.append(result,merged_points,axis=0)
                 weights_result = np.append(weights_result,result_weight[0])

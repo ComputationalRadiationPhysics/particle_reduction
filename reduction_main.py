@@ -153,8 +153,7 @@ def process_iteration_group(algorithm, iteration, series_hdf, series_hdf_reducti
     for name_group in iteration.particles:
 
         if not (check_item_exist(iteration.particles[name_group], "momentum") and
-                check_item_exist(iteration.particles[name_group], "position") and
-                 name_group == "phot"):
+                check_item_exist(iteration.particles[name_group], "position")):
             continue
         process_patches_in_group_v2(iteration.particles[name_group], series_hdf,
                                     series_hdf_reduction, reduction_iteration.particles[name_group], algorithm)
