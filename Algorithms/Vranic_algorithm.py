@@ -232,27 +232,43 @@ def calculate_result_points(data, weights, idxes_array):
     first_coordinates = data[idexes_coordinates[0]]
     second_coordinates = data[idexes_coordinates[1]]
 
-    return first_coordinates, second_coordinates, result_weight
+    return first_coordinates, second_coordinates, result_weight, idexes_coordinates
 
 
-def merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum, dict_data_indexes):
+def merge_into_points(first_coordinates, second_coordinates, first_momentum, 
+                               second_momentum, dict_data_indexes, data, indexes):
     dimension_position = dict_data_indexes["position"][1]-dict_data_indexes["position"][0]
     position_start = dict_data_indexes["position"][0]
     momentum_start = dict_data_indexes["momentum"][0]
+    range_momentum = range(dict_data_indexes["momentum"][0], dict_data_indexes["momentum"][1])
+    range_position = range(dict_data_indexes["position"][0], dict_data_indexes["position"][1]) 
     if dimension_position == 3:
-        merged_points = np.zeros((2,6))
-        merged_points[0,position_start:position_start+3] = np.array([first_coordinates[position_start], first_coordinates[position_start+1], first_coordinates[position_start+2]])
-        merged_points[0,momentum_start:momentum_start+3] = np.array([first_momentum[0], first_momentum[1], first_momentum[2]])
-        merged_points[1,position_start:position_start+3] = np.array([second_coordinates[position_start], second_coordinates[position_start+1], second_coordinates[position_start+2]])
-        merged_points[1,momentum_start:momentum_start+3] = np.array([second_momentum[0], second_momentum[1], second_momentum[2]])
+        merged_points = np.zeros((2,data.shape[1]))
+        merged_points[0,position_start:position_start+3] = np.array([first_coordinates[position_start],
+                                 first_coordinates[position_start+1], first_coordinates[position_start+2]])
+        merged_points[0,momentum_start:momentum_start+3] = np.array([first_momentum[0],
+                                                                     first_momentum[1], first_momentum[2]])
+        merged_points[1,position_start:position_start+3] = np.array([second_coordinates[position_start],
+                               second_coordinates[position_start+1], second_coordinates[position_start+2]])
+        merged_points[1,momentum_start:momentum_start+3] = np.array([second_momentum[0],
+                                                                   second_momentum[1], second_momentum[2]])
     elif dimension_position == 2:
-        merged_points = np.zeros((2,5))
-        merged_points[0,position_start:position_start+2] = np.array([first_coordinates[position_start], first_coordinates[position_start+1]])
-        merged_points[0,momentum_start:momentum_start+3] = np.array([first_momentum[0], first_momentum[1], first_momentum[2]])
-        merged_points[1,position_start:position_start+2] = np.array([second_coordinates[position_start], second_coordinates[position_start+1]])
-        merged_points[1,momentum_start:momentum_start+3] = np.array([second_momentum[0], second_momentum[1], second_momentum[2]])
+        merged_points = np.zeros((2,data.shape[1]))
+        merged_points[0,position_start:position_start+2] = np.array([first_coordinates[position_start],
+                                                                      first_coordinates[position_start+1]])
+        merged_points[0,momentum_start:momentum_start+3] = np.array([first_momentum[0],
+                                                                     first_momentum[1], first_momentum[2]])
+        merged_points[1,position_start:position_start+2] = np.array([second_coordinates[position_start],
+                                                                     second_coordinates[position_start+1]])
+        merged_points[1,momentum_start:momentum_start+3] = np.array([second_momentum[0],
+                                                                   second_momentum[1], second_momentum[2]])
     else:
         assert(0)
+
+    for i in range(data.shape[1]):
+        if (i not in range_position) and (i not in range_momentum):
+            merged_points[0,i] = data[indexes[0],i] 
+            merged_points[1,i] = data[indexes[1],i] 
 
     return merged_points
 
@@ -265,9 +281,12 @@ def recount_cells(data, weights, momentum_cells, mass, dict_data_indexes, x_segm
         if len(momentum_cells[i].momentums) != 0:
             idxes_array = momentum_cells[i].get_idixes()
             if len(idxes_array) > 2:
-                first_coordinates, second_coordinates, result_weight = calculate_result_points(data, weights[idxes_array], idxes_array)
-                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums, weights[idxes_array], mass, x_segment, y_segment, z_segment)
-                merged_points = merge_into_points(first_coordinates, second_coordinates, first_momentum, second_momentum, dict_data_indexes)
+                first_coordinates, second_coordinates, result_weight, indexes = \
+                    calculate_result_points(data, weights[idxes_array], idxes_array)
+                first_momentum, second_momentum = recalculate_momentum(momentum_cells[i].momentums,
+                                       weights[idxes_array], mass, x_segment, y_segment, z_segment)
+                merged_points = merge_into_points(first_coordinates, second_coordinates,
+                  first_momentum, second_momentum, dict_data_indexes, data, indexes)
                 result = np.append(result,merged_points,axis=0)
                 weights_result = np.append(weights_result,result_weight[0])
                 weights_result = np.append(weights_result,result_weight[1])
