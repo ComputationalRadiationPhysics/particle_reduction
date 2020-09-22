@@ -7,6 +7,8 @@ import h5py
 import argparse
 import time
 import math
+from argparse import RawTextHelpFormatter
+import textwrap
 import Algorithms.Random_thinning_algorithm as Random_thinning_algorithm
 import Algorithms.Number_conservative_thinning_algorithm as Number_conservative_thinning_algorithm
 import Algorithms.Energy_conservative_thinning_algorithm as Energy_conservative_thinning_algorithm
@@ -27,8 +29,6 @@ class Dimensions:
     def __init__(self, dimension_position, dimension_momentum):
         self.dimension_position = dimension_position
         self.dimension_momentum = dimension_momentum
-
-
 
 class Algorithm:
     # Create based on class name:
@@ -745,10 +745,18 @@ if __name__ == "__main__":
     
     """
 
-    parser = argparse.ArgumentParser(description="main reduction")
+    parser = argparse.ArgumentParser(description="main reduction", formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument("-algorithm", metavar='algorithm', type=str,
-                        help="hdf file without patches")
+                        help= textwrap.dedent('''\
+                                      random : random thinning 
+                                      number_conservative : number conservative thinning
+                                      number_conservative : number conservative thinning
+                                      kmeans : kmeans merging
+                                      voronoi : voronoi merging
+                                      voronoi_prob : voronoi algorithm, depending on ratio of deleted particles
+                                      vranic : vranic-based merging
+                                       '''))
 
     parser.add_argument("-hdf", metavar='hdf_file', type=str,
                         help="hdf file to be reducted")
