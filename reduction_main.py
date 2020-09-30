@@ -1,11 +1,6 @@
 from shutil import copyfile
 import numpy
-import read_hdf_file
-import os
-import copy
-import h5py
 import argparse
-import time
 import math
 from argparse import RawTextHelpFormatter
 import textwrap
@@ -63,7 +58,7 @@ class Algorithm:
 
 def copy_all_root_attributes(series_hdf, series_hdf_reduction):
     series_hdf_reduction.set_date(series_hdf.date)
-    series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
+  #  series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
     series_hdf_reduction.set_iteration_format(series_hdf.iteration_format)
     series_hdf_reduction.set_meshes_path(series_hdf.meshes_path)
 
@@ -100,10 +95,10 @@ def transform_from_unweighted_values(values, record_component, weights):
     weightingPower = record_component.get_attribute("weightingPower")
     weighted_values = []
     for i in range(0, len(values)):
-        weighted_value = values[i] /( weights[i] ** weightingPower )
+        weighted_value = values[i] /( weights[i] ** weightingPower)
         weighted_values.append(weighted_value)
 
-    weighted_values = numpy.transpose(weighted_values)
+   # weighted_values = numpy.transpose(weighted_values)
 
     return weighted_values
 
@@ -302,14 +297,12 @@ def get_relative_data(data, partcles_spices, dict_data_indexes, weights):
     for record_name in dict_data_indexes:
         if record_name == "position":
             continue
-
-
         indexes_data = dict_data_indexes[record_name]
         current_record = partcles_spices[record_name]
-
         values = data[:, indexes_data[0]:indexes_data[1]]
         unmacroweighted = get_unmacroweighted(values, current_record, weights)
         unit_si = get_unit_SI(current_record)
+
         relative_values = get_relative_values(unmacroweighted, unit_si)
         for i in range(0, len(relative_values[0])):
             relative_data.append(relative_values[:, i])
@@ -477,20 +470,20 @@ def write_draft_copy(data, reduced_weight, dict_data_indexes, series_hdf_reducti
     weighting_record[previos_idx:current_idx] = reduced_weight
     series_hdf_reduction.flush()
 
-
-
-
 def write_patches_information(particle_species, num_particles, num_particles_offset):
 
     SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+
+    dset = Dataset(numpy.dtype("uint64"), extent=[len(num_particles)])
+    particle_species.particle_patches["numParticles"][SCALAR].reset_dataset(dset)
+    particle_species.particle_patches["numParticlesOffset"][SCALAR].reset_dataset(dset)
 
     for i in range(0, len(num_particles)):
         particle_species.particle_patches["numParticles"][SCALAR].store(i, numpy.array([num_particles[i]], dtype=numpy.ulonglong))
 
     for i in range(0, len(num_particles_offset)):
-        particle_species.particle_patches["numParticlesOffset"][SCALAR].store(i, numpy.array([num_particles_offset[i]],
+        particle_species.particle_patches["numParticlesOffset"][SCALAR].store(i, numpy.array([num_particles_offset[i]], dtype=numpy.ulonglong))
 
-                                                                                       dtype=numpy.ulonglong))
 
 def copy_record_values_from_draft(record_draft, record_main, series_hdf_reduction, result_size,
                                   particle_species_reduction):
@@ -531,19 +524,22 @@ def get_chunk_sizes(particle_species, series_hdf):
     SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
 
     dataset_size_max = particle_species["position"]["x"].shape[0]
-    max_chunk_size = 1e7
+
+    max_chunk_size = 1e6
 
     ranges_patches = []
 
-    if is_vector_exist("numParticlesOffset", particle_species):
+    if particle_species.particle_patches.num_patches > 0:
         ranges_patches = particle_species.particle_patches["numParticlesOffset"][SCALAR].load()
         series_hdf.flush()
         ranges_patches = numpy.append(ranges_patches, dataset_size_max)
     else:
         num_full_chunks = dataset_size_max/max_chunk_size
         if num_full_chunks > 1:
-            ranges_patches = numpy.full(dataset_size_max, num_full_chunks)
-            ranges_patches = numpy.append(ranges_patches, dataset_size_max - max_chunk_size * num_full_chunks)
+            ranges_patches.append(0)
+            for i in range(0, math.floor(num_full_chunks)):
+                ranges_patches.append((i + 1) * max_chunk_size)
+            ranges_patches = numpy.append(ranges_patches, dataset_size_max)
         else:
             ranges_patches = numpy.append(ranges_patches, 0)
             ranges_patches = numpy.append(ranges_patches, dataset_size_max)
@@ -575,10 +571,13 @@ def get_unit_SI(record):
     return unit_SI
 
 def get_coordinates(series_hdf, particle_species, idx_start, idx_end):
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
     position_offset = particle_species["positionOffset"]
     position = particle_species["position"]
 
-    weights = particle_species["weighting"]
+
+    weights = particle_species["weighting"][SCALAR][idx_start: idx_end]
+    series_hdf.flush()
 
     weighted_position = get_macroweighted(series_hdf, position, weights, idx_start, idx_end)
 
@@ -598,17 +597,26 @@ def get_data(series_hdf, particle_species, weights, idx_start, idx_end):
     idx_start_component = 0
     idx_end_component = 0
     data = []
-    for record_component_name, record_component in particle_species.items():
+    SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
+    weights = particle_species["weighting"][SCALAR][idx_start: idx_end]
+    series_hdf.flush()
 
+    for record_component_name, record_component in particle_species.items():
 
         if record_component_name == "position" or record_component_name == "weighting" \
                 or record_component_name == "positionOffset":
             continue
 
-        weighted_values = get_macroweighted(series_hdf, record_component, weights, idx_start, idx_end)
+        if 'macroWeighted' in record_component.attributes:
+            weighted_values = get_macroweighted(series_hdf, record_component, weights, idx_start, idx_end)
+        else:
+            weighted_values = get_non_transformed_values(series_hdf, record_component, idx_start, idx_end)
 
-        unit_SI = get_unit_SI(record_component)
-        absolute_values = get_absolute_values(weighted_values, unit_SI)
+        if 'unitSI' in record_component.attributes:
+            unit_SI = get_unit_SI(record_component)
+            absolute_values = get_absolute_values(weighted_values, unit_SI)
+        else:
+            absolute_values = weighted_values
 
         if len(absolute_values[0]) == 1:
             data.append(absolute_values[:, 0])
@@ -634,14 +642,12 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
     copy_attributes(particle_species, particle_species_reduction)
     ranges_patches = get_chunk_sizes(particle_species, series_hdf)
 
+
     previos_idx = 0
     current_idx = 0
-
     result_size = 0
 
     new_num_particles = []
-
-
     weights = particle_species["weighting"]
 
     if args.algorithm == 'vranic':
@@ -652,43 +658,38 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
 
         idx_start = int(ranges_patches[i])
         idx_end = int(ranges_patches[i + 1])
+        if idx_start == idx_end:
+            continue
 
         absolute_coordinates, unit_si_position, unit_si_offset = get_coordinates(series_hdf, particle_species, idx_start, idx_end)
-
         data, dict_data_indexes, last_idx = get_data(series_hdf, particle_species, weights, idx_start, idx_end)
 
         dict_data_indexes["position"] = [last_idx, last_idx + len(absolute_coordinates[0])]
-
 
         for i in range(0, len(absolute_coordinates[0])):
             data.append(absolute_coordinates[:, i])
 
         data = numpy.transpose(data)
 
-        weights = weights[SCALAR][idx_start: idx_end]
+        weights_curent = weights[SCALAR][idx_start: idx_end]
         series_hdf.flush()
-
-
-        reduced_data, reduced_weight = algorithm._run(data, weights, dict_data_indexes)
-
+        reduced_data, reduced_weight = algorithm._run(data, weights_curent, dict_data_indexes)
         relative_coordinates, offset = get_relative_coordinates(reduced_data, dict_data_indexes, unit_si_offset,
                                  unit_si_position)
-
-
         relative_data = get_relative_data(reduced_data, particle_species, dict_data_indexes, reduced_weight)
-
 
         new_num_particles.append(len(reduced_weight))
         current_idx += len(reduced_weight)
+
 
         write_draft_position(particle_species_reduction, series_hdf_reduction, relative_coordinates,
                              offset, previos_idx, current_idx)
 
         write_draft_copy(relative_data, reduced_weight, dict_data_indexes, series_hdf_reduction, particle_species_reduction,
                          previos_idx, current_idx)
-
         previos_idx += len(reduced_weight)
         result_size = previos_idx
+
 
     new_num_particles_offset = numpy.cumsum(new_num_particles[0:len(new_num_particles) - 1], dtype=int)
     new_num_particles_offset = numpy.insert(new_num_particles_offset, 0, 0)
