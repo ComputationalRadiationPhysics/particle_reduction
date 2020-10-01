@@ -16,7 +16,7 @@ import Algorithms.Vranic_algorithm as Vranic_algorithm
 
 import openpmd_api
 
-from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component, \
+from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component,\
     Unit_Dimension
 
 
@@ -57,8 +57,9 @@ class Algorithm:
 
 
 def copy_all_root_attributes(series_hdf, series_hdf_reduction):
+    series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
     series_hdf_reduction.set_date(series_hdf.date)
-  #  series_hdf_reduction.set_iteration_encoding(series_hdf.iteration_encoding)
+
     series_hdf_reduction.set_iteration_format(series_hdf.iteration_format)
     series_hdf_reduction.set_meshes_path(series_hdf.meshes_path)
 
@@ -369,8 +370,8 @@ def make_particle_patches_structure(particle_species, particle_species_reduction
 
     patches_structure = particle_species.particle_patches
     patches_structure_reduction = particle_species_reduction.particle_patches
- #   make_vector_structures(patches_structure, patches_structure_reduction, "offset", -1)
-  #  make_vector_structures(patches_structure, patches_structure_reduction, "extent", -1)
+    make_vector_structures(patches_structure["offset"], patches_structure_reduction["offset"], -1)
+    make_vector_structures(patches_structure["extent"], patches_structure_reduction["extent"], -1)
 
 
 def make_copy_vector_structures(particle_species, particle_species_reduction, name_of_dataset, name_of_copy_dataset):
@@ -695,6 +696,7 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
     new_num_particles_offset = numpy.insert(new_num_particles_offset, 0, 0)
 
     create_dataset_structures(particle_species, particle_species_reduction, result_size)
+    make_particle_patches_structure(particle_species, particle_species_reduction)
     write_patches_information(particle_species_reduction, new_num_particles, new_num_particles_offset)
 
     copy_main_version(series_hdf_reduction, particle_species, particle_species_reduction, result_size)
