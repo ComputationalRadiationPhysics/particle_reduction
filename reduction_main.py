@@ -16,7 +16,7 @@ import Algorithms.Vranic_algorithm as Vranic_algorithm
 
 import openpmd_api
 
-from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component, \
+from openpmd_api import Series, Access, Dataset, Mesh_Record_Component, \
     Unit_Dimension
 
 
@@ -187,8 +187,8 @@ def copy_meshes(series_hdf, reduction_series, current_iteration, reduction_itera
 
 def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type_algorithm, parameters):
 
-    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access_Type.read_only)
-    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access_Type.create)
+    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access.read_only)
+    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access.create)
 
     copy_all_root_attributes(series_hdf, series_hdf_reduction)
     algorithm = Algorithm.factory(type_algorithm, parameters, 1.)
