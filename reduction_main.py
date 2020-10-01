@@ -413,7 +413,7 @@ def copy_unit_dimension(obj, reduction_obj):
 def copy_record_attributes(base_record, reduction_record):
 
     for attr in base_record.attributes:
-        if attr != "unitDimension" and attr != "timeOffset":
+        if attr != "unitDimension" and attr != "timeOffset" and attr != "shape":
             reduction_record.set_attribute(attr, base_record.get_attribute(attr))
 
     macro_weighted = base_record.time_offset
@@ -656,7 +656,7 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
         algorithm.parameters.mass = mass_value
 
     for i in range(0, len(ranges_patches) - 1):
-
+        print("I == "+ str(i))
         idx_start = int(ranges_patches[i])
         idx_end = int(ranges_patches[i + 1])
         if idx_start == idx_end:
