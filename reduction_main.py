@@ -186,19 +186,39 @@ def copy_meshes(series_hdf, reduction_series, current_iteration, reduction_itera
             reduction_series.flush()
 
 
-def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type_algorithm, parameters):
-
-    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access_Type.read_only)
-    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access_Type.create)
-
-    copy_all_root_attributes(series_hdf, series_hdf_reduction)
-    algorithm = Algorithm.factory(type_algorithm, parameters, 1.)
+def reduce_all_iterations(series_hdf, series_hdf_reduction, algorithm):
     for iteration in series_hdf.iterations:
         current_iteration = series_hdf.iterations[iteration]
         reduction_iteration = series_hdf_reduction.iterations[iteration]
         copy_iteration_parameters(current_iteration, reduction_iteration)
         copy_meshes(series_hdf, series_hdf_reduction, current_iteration, reduction_iteration)
         process_iteration_group(algorithm, current_iteration, series_hdf, series_hdf_reduction, reduction_iteration)
+
+
+def reduce_one_iteration(series_hdf, series_hdf_reduction, algorithm, iteration):
+    if not (iteration in series_hdf.iterations):
+        assert False, " iteration does not exist "
+
+    current_iteration = series_hdf.iterations[iteration]
+    reduction_iteration = series_hdf_reduction.iterations[iteration]
+    copy_iteration_parameters(current_iteration, reduction_iteration)
+    copy_meshes(series_hdf, series_hdf_reduction, current_iteration, reduction_iteration)
+    process_iteration_group(algorithm, current_iteration, series_hdf, series_hdf_reduction, reduction_iteration)
+
+
+def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type_algorithm, parameters, iteration):
+
+    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access_Type.read_only)
+    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access_Type.create)
+
+    copy_all_root_attributes(series_hdf, series_hdf_reduction)
+    algorithm = Algorithm.factory(type_algorithm, parameters, 1.)
+
+    if iteration is None:
+        reduce_all_iterations(series_hdf, series_hdf_reduction, algorithm)
+    else:
+        reduce_one_iteration(series_hdf, series_hdf_reduction, algorithm, iteration)
+
 
 def check_item_exist(particle_species, name_item):
 
@@ -736,12 +756,12 @@ def voronoi_prob_algorithm(hdf_file_name, hdf_file_reduction_name, reduction_per
     base_reduction_function(hdf_file_name, hdf_file_reduction_name, "voronoi_prob", voronoi_parameters)
 
     
-def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, position_tolerance):
+def voronoi_algorithm(hdf_file_name, hdf_file_reduction_name, momentum_tolerance, position_tolerance, iteration):
 
     tolerance = [momentum_tolerance, position_tolerance]
 
     parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
-    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "voronoi", parameters)
+    base_reduction_function(hdf_file_name, hdf_file_reduction_name, "voronoi", parameters, iteration)
 
 if __name__ == "__main__":
     """ Parse arguments from command line     
@@ -767,6 +787,9 @@ if __name__ == "__main__":
     parser.add_argument("-hdf_re", metavar='hdf_file_reduction', type=str,
                         help="result reduction hdf file")
 
+    parser.add_argument("-iteration", metavar='iteration', type=int,
+                        help="specify iteration to be reduced")
+
     parser.add_argument("-ratio_deleted_particles", metavar='ratio_deleted_particles', type=float,
                         help="part of the particles to reduce( used in Energy_conservative, random, number_conservative,"
                              "kmeans, kmeans_avg algorithms and in voronoi probalistic algorithm )")
@@ -787,37 +810,37 @@ if __name__ == "__main__":
     if args.algorithm == 'voronoi':
         tolerance = [args.momentum_tol, args.position_lol]
         parameters = Voronoi_algorithm.VoronoiMergingAlgorithmParameters(tolerance)
-        voronoi_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.position_lol)
+        voronoi_algorithm(args.hdf, args.hdf_re, args.momentum_tol, args.position_lol, args.iteration)
 
     elif args.algorithm == 'voronoi_prob':
         divide_particles = 20
         parameters = Voronoi_probabilistic_algorithm.Voronoi_probabilistic_algorithm_parameters(1. - args.ratio_deleted_particles, divide_particles)
-        base_reduction_function(args.hdf, args.hdf_re, "voronoi_prob", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "voronoi_prob", parameters, args.iteration)
 
     elif args.algorithm == 'random':
         parameters = Random_thinning_algorithm.Random_thinning_algorithm_parameters(args.ratio_deleted_particles)
-        base_reduction_function(args.hdf, args.hdf_re, "random", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "random", parameters, args.iteration)
 
     elif args.algorithm == 'number_conservative':
         parameters = Number_conservative_thinning_algorithm.Number_conservative_thinning_algorithm_parameters(args.ratio_deleted_particles)
-        base_reduction_function(args.hdf, args.hdf_re, "number_conservative", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "number_conservative", parameters, args.iteration)
 
     elif args.algorithm == 'energy_conservative':
         parameters = Energy_conservative_thinning_algorithm.Energy_conservative_thinning_algorithm_parameters(args.ratio_deleted_particles)
-        base_reduction_function(args.hdf, args.hdf_re, "energy_conservative", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "energy_conservative", parameters, args.iteration)
 
     elif args.algorithm == 'kmeans':
         parameters = k_means_clustering_algorithm.K_means_clustering_algorithm_parameters(args.ratio_deleted_particles)
-        base_reduction_function(args.hdf, args.hdf_re, "kmeans", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "kmeans", parameters, args.iteration)
 
     elif args.algorithm == 'kmeans_avg':
         parameters = k_means_merge_average_algorithm.K_means_merge_average_algorithm_parameters(args.reduction_percent)
-        base_reduction_function(args.hdf, args.hdf_re, "kmeans_avg", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "kmeans_avg", parameters, args.iteration)
 
     elif args.algorithm == 'leveling':
         parameters = Leveling_thinning_algorithm.Leveling_thinning_algorithm_parameters(args.leveling_coefficient)
-        base_reduction_function(args.hdf, args.hdf_re, "leveling", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "leveling", parameters, args.iteration)
 
     elif args.algorithm == 'vranic':
         parameters = Vranic_algorithm.Vranic_merging_algorithm_parameters(args.momentum_tol, args.position_lol)
-        base_reduction_function(args.hdf, args.hdf_re, "vranic", parameters)
+        base_reduction_function(args.hdf, args.hdf_re, "vranic", parameters, args.iteration)
