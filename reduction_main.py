@@ -13,6 +13,7 @@ import Algorithms.Voronoi_algorithm as Voronoi_algorithm
 import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
 import Algorithms.Voronoi_probabilistic_algorithm as Voronoi_probabilistic_algorithm
 import Algorithms.Vranic_algorithm as Vranic_algorithm
+import h5py
 
 import openpmd_api
 
@@ -390,8 +391,11 @@ def make_particle_patches_structure(particle_species, particle_species_reduction
 
     patches_structure = particle_species.particle_patches
     patches_structure_reduction = particle_species_reduction.particle_patches
-    make_vector_structures(patches_structure["offset"], patches_structure_reduction["offset"], -1)
-    make_vector_structures(patches_structure["extent"], patches_structure_reduction["extent"], -1)
+    if "offset" in patches_structure:
+        make_vector_structures(patches_structure["offset"], patches_structure_reduction["offset"], -1)
+
+    if "extent" in patches_structure:
+        make_vector_structures(patches_structure["extent"], patches_structure_reduction["extent"], -1)
 
 
 def make_copy_vector_structures(particle_species, particle_species_reduction, name_of_dataset, name_of_copy_dataset):
@@ -549,8 +553,7 @@ def get_chunk_sizes(particle_species, series_hdf):
     max_chunk_size = 1e6
 
     ranges_patches = []
-
-    if particle_species.particle_patches.num_patches > 0:
+    if particle_species.particle_patches.num_patches > 1:
         ranges_patches = particle_species.particle_patches["numParticlesOffset"][SCALAR].load()
         series_hdf.flush()
         ranges_patches = numpy.append(ranges_patches, dataset_size_max)
@@ -716,8 +719,10 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
     new_num_particles_offset = numpy.insert(new_num_particles_offset, 0, 0)
 
     create_dataset_structures(particle_species, particle_species_reduction, result_size)
-    make_particle_patches_structure(particle_species, particle_species_reduction)
-    write_patches_information(particle_species_reduction, new_num_particles, new_num_particles_offset)
+
+    if particle_species.particle_patches.num_patches > 1:
+        make_particle_patches_structure(particle_species, particle_species_reduction)
+        write_patches_information(particle_species_reduction, new_num_particles, new_num_particles_offset)
 
     copy_main_version(series_hdf_reduction, particle_species, particle_species_reduction, result_size)
 
@@ -806,6 +811,7 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
+
 
     if args.algorithm == 'voronoi':
         tolerance = [args.momentum_tol, args.position_lol]
