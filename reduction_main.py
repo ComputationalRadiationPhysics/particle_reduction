@@ -614,6 +614,10 @@ def get_coordinates(series_hdf, particle_species, idx_start, idx_end):
     absolute_coordinates = numpy.array(absolute_coordinates)
     return absolute_coordinates, unit_SI_position, unit_SI_position_offset
 
+def is_unit_SI_exist(record):
+    for component_name, component in record.items():
+        if 'unitSI' in component.attributes:
+            return True
 
 def get_data(series_hdf, particle_species, weights, idx_start, idx_end):
 
@@ -636,7 +640,7 @@ def get_data(series_hdf, particle_species, weights, idx_start, idx_end):
         else:
             weighted_values = get_non_transformed_values(series_hdf, record_component, idx_start, idx_end)
 
-        if 'unitSI' in record_component.attributes:
+        if is_unit_SI_exist(record_component):
             unit_SI = get_unit_SI(record_component)
             absolute_values = get_absolute_values(weighted_values, unit_SI)
         else:
@@ -695,9 +699,10 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
 
         data = numpy.transpose(data)
 
-        weights_curent = weights[SCALAR][idx_start: idx_end]
+        weights_current = weights[SCALAR][idx_start: idx_end]
         series_hdf.flush()
-        reduced_data, reduced_weight = algorithm._run(data, weights_curent, dict_data_indexes)
+        reduced_data, reduced_weight = algorithm._run(data, weights_current, dict_data_indexes)
+
         relative_coordinates, offset = get_relative_coordinates(reduced_data, dict_data_indexes, unit_si_offset,
                                  unit_si_position)
         relative_data = get_relative_data(reduced_data, particle_species, dict_data_indexes, reduced_weight)
@@ -713,7 +718,6 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
                          previos_idx, current_idx)
         previos_idx += len(reduced_weight)
         result_size = previos_idx
-
 
     new_num_particles_offset = numpy.cumsum(new_num_particles[0:len(new_num_particles) - 1], dtype=int)
     new_num_particles_offset = numpy.insert(new_num_particles_offset, 0, 0)
