@@ -1,8 +1,6 @@
-from shutil import copyfile
 import numpy
 import argparse
 import math
-from argparse import RawTextHelpFormatter
 import textwrap
 import Algorithms.Random_thinning_algorithm as Random_thinning_algorithm
 import Algorithms.Number_conservative_thinning_algorithm as Number_conservative_thinning_algorithm
@@ -13,18 +11,12 @@ import Algorithms.Voronoi_algorithm as Voronoi_algorithm
 import Algorithms.Leveling_thinning_algorithm as Leveling_thinning_algorithm
 import Algorithms.Voronoi_probabilistic_algorithm as Voronoi_probabilistic_algorithm
 import Algorithms.Vranic_algorithm as Vranic_algorithm
-import h5py
 
 import openpmd_api
 
 from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component,\
     Unit_Dimension
 
-
-class Dimensions:
-    def __init__(self, dimension_position, dimension_momentum):
-        self.dimension_position = dimension_position
-        self.dimension_momentum = dimension_momentum
 
 class Algorithm:
     # Create based on class name:
@@ -74,7 +66,6 @@ def copy_all_root_attributes(series_hdf, series_hdf_reduction):
 def copy_attributes(start_obj, end_obj):
 
     for attr in start_obj.attributes:
-
         end_obj.set_attribute(attr, start_obj.get_attribute(attr))
 
 
@@ -85,24 +76,24 @@ def transform_into_weighted_values(series, record_component, weights, idx_start,
     for name, values in record_component.items():
         current_values = values[idx_start: idx_end]
         series.flush()
-        components = multiply_macroweighted(current_values, weights, weightingPower)
-        weighted_values.append(components)
+        component_values = current_values / weights
+        weighted_values.append(component_values)
 
     weighted_values = numpy.transpose(weighted_values)
 
     return weighted_values
+
 
 def transform_from_unweighted_values(values, record_component, weights):
 
     weightingPower = record_component.get_attribute("weightingPower")
     weighted_values = []
     for i in range(0, len(values)):
-        weighted_value = values[i] /( weights[i] ** weightingPower)
+        weighted_value = values[i] * weights[i]
         weighted_values.append(weighted_value)
 
-   # weighted_values = numpy.transpose(weighted_values)
-
     return weighted_values
+
 
 def get_non_transformed_values(series, record_component, idx_start, idx_end):
 
@@ -114,15 +105,6 @@ def get_non_transformed_values(series, record_component, idx_start, idx_end):
 
     weighted_values = numpy.transpose(weighted_values)
     return weighted_values
-
-def multiply_macroweighted(values, weights, weightingPower):
-
-    multiply_values = []
-
-    for i in range(0, len(values)):
-        multiply_values.append(values[i] * weights[i]**weightingPower)
-
-    return multiply_values
 
 
 def get_macroweighted(series, record_component, weights, idx_start, idx_end):
@@ -242,14 +224,6 @@ def process_iteration_group(algorithm, iteration, series_hdf, series_hdf_reducti
                                     series_hdf_reduction, reduction_iteration.particles[name_group], algorithm)
 
 
-def get_dimensions(position_values, momentum_values):
-
-    dimension_position = position_values.get_dimension()
-    dimension_momentum = momentum_values.get_dimension()
-    dimensions = Dimensions(dimension_position, dimension_momentum)
-
-    return dimensions
-
 def get_absolute_coordinates(position, position_offset, unit_si_offset, unit_si_position):
 
     absolute_coordinates = []
@@ -266,7 +240,6 @@ def get_absolute_coordinates(position, position_offset, unit_si_offset, unit_si_
     return absolute_coordinates
 
 
-
 def get_absolute_values(record_values, unit_si):
 
     absolute_values = []
@@ -279,6 +252,7 @@ def get_absolute_values(record_values, unit_si):
 
     return numpy.array(absolute_values)
 
+
 def get_relative_values(values, unit_si):
 
     relative_values = []
@@ -290,6 +264,7 @@ def get_relative_values(values, unit_si):
         relative_values.append(absolute_point)
 
     return numpy.array(relative_values)
+
 
 def get_relative_coordinates(data, dict_data_indexes, unit_si_offset,
                              unit_si_position):
@@ -313,6 +288,7 @@ def get_relative_coordinates(data, dict_data_indexes, unit_si_offset,
 
     return relative_coordinates, offset
 
+
 def get_relative_data(data, partcles_spices, dict_data_indexes, weights):
 
     relative_data = []
@@ -334,25 +310,6 @@ def get_relative_data(data, partcles_spices, dict_data_indexes, weights):
 
     return relative_data
 
-def get_units_si(position, position_offset, momentum):
-
-    position_si = []
-    position_offset_si = []
-    for value in position.items():
-        name_value = value[0]
-        position_axis = position[name_value]
-        position_offset_axis = position_offset[str(name_value)]
-        position_si.append(position_axis.unit_SI)
-        position_offset_si.append(position_offset_axis.unit_SI)
-
-    momentum_si = []
-    for value in momentum.items():
-        name_value = value[0]
-        momentum_axis = momentum[name_value]
-        momentum_si.append(momentum_axis.unit_SI)
-
-    return position_si, position_offset_si, momentum_si
-
 
 def is_vector_exist(vector_name, particle_species):
 
@@ -361,6 +318,7 @@ def is_vector_exist(vector_name, particle_species):
             return True
 
     return False
+
 
 def make_vector_structures(record, reducted_record, record_size):
 
@@ -404,7 +362,6 @@ def make_copy_vector_structures(particle_species, particle_species_reduction, na
     record_redutcion = particle_species_reduction[name_of_copy_dataset]
 
     for vector in base_record:
-
         struction_size = base_record[vector].shape[0]
         dtype = base_record[vector].dtype
         d = Dataset(dtype, [struction_size])
@@ -418,6 +375,7 @@ def create_copy_dataset_structures(particle_species, particle_species_reduction)
         copy_record_name = record_component_name + "_copy"
         make_copy_vector_structures(particle_species, particle_species_reduction, record_component_name, copy_record_name)
 
+
 def copy_unit_dimension(obj, reduction_obj):
 
     unit_dimension = obj.unit_dimension
@@ -425,13 +383,13 @@ def copy_unit_dimension(obj, reduction_obj):
     dict_units = [Unit_Dimension.L, Unit_Dimension.M, Unit_Dimension.T, Unit_Dimension.I,
                   Unit_Dimension.theta, Unit_Dimension.N, Unit_Dimension.J]
 
-    result_unit_dimesion = {}
+    result_unit_dimension = {}
     i = 0
     for dict_value in dict_units:
-        result_unit_dimesion[dict_value] = unit_dimension[i]
+        result_unit_dimension[dict_value] = unit_dimension[i]
         i = i + 1
 
-    reduction_obj.set_unit_dimension(result_unit_dimesion)
+    reduction_obj.set_unit_dimension(result_unit_dimension)
 
 
 def copy_record_attributes(base_record, reduction_record):
@@ -445,12 +403,14 @@ def copy_record_attributes(base_record, reduction_record):
 
     copy_unit_dimension(base_record, reduction_record)
 
+
 def create_dataset_structures(particle_species, particle_species_reduction, reduction_size):
 
     for record_name, record in particle_species.items():
         reducted_record = particle_species_reduction[record_name]
         make_vector_structures(record, reducted_record, reduction_size)
         copy_record_attributes(record, reducted_record)
+
 
 def write_record_copy(particle_record, values_to_write, series_hdf_reduction, previos_idx, current_idx):
 
@@ -462,6 +422,7 @@ def write_record_copy(particle_record, values_to_write, series_hdf_reduction, pr
         particle_record[vector][previos_idx:current_idx] = current_reduced_data
         series_hdf_reduction.flush()
         pos_vector_in_reduction_data = pos_vector_in_reduction_data + 1
+
 
 def write_draft_position(particle_species, series_hdf_reduction, position_values,
                      offset, previos_idx, current_idx):
@@ -487,13 +448,13 @@ def write_draft_copy(data, reduced_weight, dict_data_indexes, series_hdf_reducti
         current_record = base_record[draft_record_name]
         write_record_copy(current_record, values, series_hdf_reduction, previos_idx, current_idx)
 
-
     weighting_record = base_record["weighting_copy"][Mesh_Record_Component.SCALAR]
     current_type = weighting_record.dtype
     reduced_weight = reduced_weight.astype(current_type)
 
     weighting_record[previos_idx:current_idx] = reduced_weight
     series_hdf_reduction.flush()
+
 
 def write_patches_information(particle_species, num_particles, num_particles_offset):
 
@@ -570,20 +531,6 @@ def get_chunk_sizes(particle_species, series_hdf):
 
     return ranges_patches
 
-def get_dimentions(position, momentum):
-
-    dimension_momentum = 0
-    for obj in momentum.items():
-        dimension_momentum = dimension_momentum + 1
-
-    dimension_position = 0
-    for obj in position.items():
-        dimension_position = dimension_position + 1
-
-    dimensions = Dimensions(dimension_position, dimension_momentum)
-
-    return dimensions
-
 
 def get_unit_SI(record):
 
@@ -594,11 +541,11 @@ def get_unit_SI(record):
 
     return unit_SI
 
+
 def get_coordinates(series_hdf, particle_species, idx_start, idx_end):
     SCALAR = openpmd_api.Mesh_Record_Component.SCALAR
     position_offset = particle_species["positionOffset"]
     position = particle_species["position"]
-
 
     weights = particle_species["weighting"][SCALAR][idx_start: idx_end]
     series_hdf.flush()
@@ -614,10 +561,12 @@ def get_coordinates(series_hdf, particle_species, idx_start, idx_end):
     absolute_coordinates = numpy.array(absolute_coordinates)
     return absolute_coordinates, unit_SI_position, unit_SI_position_offset
 
+
 def is_unit_SI_exist(record):
     for component_name, component in record.items():
         if 'unitSI' in component.attributes:
             return True
+
 
 def get_data(series_hdf, particle_species, weights, idx_start, idx_end):
 
@@ -634,7 +583,6 @@ def get_data(series_hdf, particle_species, weights, idx_start, idx_end):
         if record_component_name == "position" or record_component_name == "weighting" \
                 or record_component_name == "positionOffset":
             continue
-
         if 'macroWeighted' in record_component.attributes:
             weighted_values = get_macroweighted(series_hdf, record_component, weights, idx_start, idx_end)
         else:
@@ -701,15 +649,14 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
 
         weights_current = weights[SCALAR][idx_start: idx_end]
         series_hdf.flush()
-        reduced_data, reduced_weight = algorithm._run(data, weights_current, dict_data_indexes)
 
+        reduced_data, reduced_weight = algorithm._run(data, weights_current, dict_data_indexes)
         relative_coordinates, offset = get_relative_coordinates(reduced_data, dict_data_indexes, unit_si_offset,
                                  unit_si_position)
         relative_data = get_relative_data(reduced_data, particle_species, dict_data_indexes, reduced_weight)
 
         new_num_particles.append(len(reduced_weight))
         current_idx += len(reduced_weight)
-
 
         write_draft_position(particle_species_reduction, series_hdf_reduction, relative_coordinates,
                              offset, previos_idx, current_idx)
@@ -718,6 +665,7 @@ def process_patches_in_group_v2(particle_species, series_hdf, series_hdf_reducti
                          previos_idx, current_idx)
         previos_idx += len(reduced_weight)
         result_size = previos_idx
+
 
     new_num_particles_offset = numpy.cumsum(new_num_particles[0:len(new_num_particles) - 1], dtype=int)
     new_num_particles_offset = numpy.insert(new_num_particles_offset, 0, 0)
@@ -815,7 +763,6 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
-
 
     if args.algorithm == 'voronoi':
         tolerance = [args.momentum_tol, args.position_lol]
