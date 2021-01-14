@@ -14,7 +14,7 @@ import Algorithms.Vranic_algorithm as Vranic_algorithm
 
 import openpmd_api
 
-from openpmd_api import Series, Access_Type, Dataset, Mesh_Record_Component,\
+from openpmd_api import Series, Dataset, Mesh_Record_Component,\
     Unit_Dimension
 
 
@@ -59,8 +59,7 @@ def copy_all_root_attributes(series_hdf, series_hdf_reduction):
     series_hdf_reduction.set_openPMD(series_hdf.openPMD)
     series_hdf_reduction.set_openPMD_extension(series_hdf.openPMD_extension)
     series_hdf_reduction.set_particles_path(series_hdf.particles_path)
-    series_hdf_reduction.set_software(series_hdf.software)
-    series_hdf_reduction.set_software_version(series_hdf.software_version)
+    series_hdf_reduction.set_software(series_hdf.software, series_hdf.software_version)
 
 
 def copy_attributes(start_obj, end_obj):
@@ -136,9 +135,9 @@ def get_unmacroweighted(values, record_component, weights):
 
 def copy_iteration_parameters(current_iteration, reduction_iteration):
 
-    time_unit_SI = current_iteration.time_unit_SI()
-    time = current_iteration.time()
-    dt = current_iteration.dt()
+    time_unit_SI = current_iteration.time_unit_SI
+    time = current_iteration.time
+    dt = current_iteration.dt
 
     copy_attributes(current_iteration, reduction_iteration)
     reduction_iteration.set_time(time) \
@@ -191,8 +190,8 @@ def reduce_one_iteration(series_hdf, series_hdf_reduction, algorithm, iteration)
 
 def base_reduction_function(hdf_file_name, hdf_file_reduction_name, type_algorithm, parameters, iteration):
 
-    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access_Type.read_only)
-    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access_Type.create)
+    series_hdf = openpmd_api.Series(hdf_file_name, openpmd_api.Access.read_only)
+    series_hdf_reduction = openpmd_api.Series(hdf_file_reduction_name, openpmd_api.Access.create)
 
     copy_all_root_attributes(series_hdf, series_hdf_reduction)
     algorithm = Algorithm.factory(type_algorithm, parameters, 1.)
